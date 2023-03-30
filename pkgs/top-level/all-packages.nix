@@ -18191,6 +18191,8 @@ with pkgs;
   apacheKafka_3_4 = callPackage ../servers/apache-kafka { majorVersion = "3.4"; };
   apacheKafka_3_5 = callPackage ../servers/apache-kafka { majorVersion = "3.5"; };
 
+  apng2gif = callPackage ../tools/graphics/apng2gif { };
+
   kt = callPackage ../tools/misc/kt { };
 
   argbash = callPackage ../development/tools/misc/argbash { };
