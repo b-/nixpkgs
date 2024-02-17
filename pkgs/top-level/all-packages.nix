@@ -33837,8 +33837,6 @@ with pkgs;
 
   opsdroid = callPackage ../applications/networking/opsdroid { };
 
-  osm2pgsql = callPackage ../tools/misc/osm2pgsql { };
-
   ostinato = libsForQt5.callPackage ../applications/networking/ostinato {
     protobuf = protobuf_21;
   };
