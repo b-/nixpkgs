@@ -13747,8 +13747,6 @@ with pkgs;
 
   teler = callPackage ../tools/security/teler { };
 
-  telescope = callPackage ../applications/networking/browsers/telescope { };
-
   termcolor = callPackage ../development/libraries/termcolor { };
 
   termscp = callPackage ../tools/networking/termscp {
