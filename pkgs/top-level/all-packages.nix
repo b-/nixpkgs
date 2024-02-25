@@ -3227,8 +3227,6 @@ with pkgs;
 
   apfs-fuse = callPackage ../tools/filesystems/apfs-fuse { };
 
-  api-linter = callPackage ../development/tools/api-linter { };
-
   apk-tools = callPackage ../tools/package-management/apk-tools {
     lua = lua5_3;
   };
@@ -6614,15 +6612,7 @@ with pkgs;
 
   beanstalkd = callPackage ../servers/beanstalkd { };
 
-  bee = callPackage ../applications/networking/bee/bee.nix {
-    version = "release";
-  };
-
-  bee-unstable = bee.override {
-    version = "unstable";
-  };
-
-  bee-clef = callPackage ../applications/networking/bee/bee-clef.nix { };
+  bee = callPackage ../applications/networking/bee/bee.nix { };
 
   beetsPackages = lib.recurseIntoAttrs (callPackage ../tools/audio/beets { });
   inherit (beetsPackages) beets beets-unstable;
@@ -7253,8 +7243,6 @@ with pkgs;
   create-cycle-app = nodePackages.create-cycle-app;
 
   createrepo_c = callPackage ../tools/package-management/createrepo_c { };
-
-  cringify = callPackage ../tools/text/cringify { };
 
   cromfs = callPackage ../tools/archivers/cromfs { };
 
@@ -8639,7 +8627,6 @@ with pkgs;
     jdk = graalvm-ce;
   };
 
-  gnucap = callPackage ../applications/science/electronics/gnucap { };
   gnucap-full = gnucap.withPlugins(p: [ p.verilog ]);
 
   gnu-cim = callPackage ../development/compilers/gnu-cim { };
@@ -8836,11 +8823,11 @@ with pkgs;
   );
 
   graphviz = callPackage ../tools/graphics/graphviz {
-    inherit (darwin.apple_sdk.frameworks) ApplicationServices;
+    inherit (darwin.apple_sdk.frameworks) ApplicationServices Foundation;
   };
 
   graphviz-nox = callPackage ../tools/graphics/graphviz {
-    inherit (darwin.apple_sdk.frameworks) ApplicationServices;
+    inherit (darwin.apple_sdk.frameworks) ApplicationServices Foundation;
     withXorg = false;
   };
 
@@ -9411,8 +9398,6 @@ with pkgs;
   internetarchive = with python3Packages; toPythonApplication internetarchive;
 
   invidious = callPackage ../servers/invidious {
-    # needs a specific version of lsquic
-    lsquic = callPackage ../servers/invidious/lsquic.nix { };
     # normally video.js is downloaded at build time
     videojs = callPackage ../servers/invidious/videojs.nix { };
   };
@@ -12000,8 +11985,6 @@ with pkgs;
 
   pg_top = callPackage ../tools/misc/pg_top { };
 
-  pgagroal = callPackage ../development/tools/database/pgagroal { };
-
   pgcenter = callPackage ../tools/misc/pgcenter { };
 
   pgmetrics = callPackage ../tools/misc/pgmetrics { };
@@ -14489,7 +14472,7 @@ with pkgs;
 
   watchlog = callPackage ../tools/misc/watchlog { };
 
-  watchman = callPackage ../development/tools/watchman {
+  watchman = darwin.apple_sdk_11_0.callPackage ../development/tools/watchman {
     inherit (darwin.apple_sdk_11_0.frameworks) CoreServices;
   };
 
@@ -14715,11 +14698,6 @@ with pkgs;
   unicorn = callPackage ../development/libraries/unicorn {
     inherit (darwin.apple_sdk.frameworks) IOKit;
     inherit (darwin) cctools;
-  };
-
-  units = callPackage ../tools/misc/units {
-    enableCurrenciesUpdater = true;
-    pythonPackages = python3Packages;
   };
 
   unittest-cpp = callPackage ../development/libraries/unittest-cpp { };
@@ -20978,7 +20956,7 @@ with pkgs;
 
   editline = callPackage ../development/libraries/editline { };
 
-  edencommon = callPackage ../development/libraries/edencommon { };
+  edencommon = darwin.apple_sdk_11_0.callPackage ../development/libraries/edencommon { };
 
   eigen = callPackage ../development/libraries/eigen { };
 
@@ -21057,11 +21035,9 @@ with pkgs;
     autoreconfHook = buildPackages.autoreconfHook269;
   };
 
-  fastcdr = callPackage ../development/libraries/fastcdr { };
+  fbthrift = darwin.apple_sdk_11_0.callPackage ../development/libraries/fbthrift { };
 
-  fbthrift = callPackage ../development/libraries/fbthrift { };
-
-  fb303 = callPackage ../development/libraries/fb303 { };
+  fb303 = darwin.apple_sdk_11_0.callPackage ../development/libraries/fb303 { };
 
   fcgi = callPackage ../development/libraries/fcgi { };
 
@@ -21143,7 +21119,7 @@ with pkgs;
 
   filtron = callPackage ../servers/filtron { };
 
-  fizz = callPackage ../development/libraries/fizz { };
+  fizz = darwin.apple_sdk_11_0.callPackage ../development/libraries/fizz { };
 
   flann = callPackage ../development/libraries/flann { };
 
@@ -21217,7 +21193,7 @@ with pkgs;
     inherit (darwin.apple_sdk.frameworks) CoreFoundation;
   };
 
-  folly = callPackage ../development/libraries/folly { };
+  folly = darwin.apple_sdk_11_0.callPackage ../development/libraries/folly { };
 
   folks = callPackage ../development/libraries/folks { };
 
@@ -23945,6 +23921,8 @@ with pkgs;
 
   mvapich = callPackage ../development/libraries/mvapich { };
 
+  mvfst = darwin.apple_sdk_11_0.callPackage ../development/libraries/mvfst { };
+
   mygpoclient = with python3.pkgs; toPythonApplication mygpoclient;
 
   mygui = callPackage ../development/libraries/mygui {
@@ -24199,8 +24177,6 @@ with pkgs;
   ois = callPackage ../development/libraries/ois {
     inherit (darwin.apple_sdk.frameworks) Cocoa IOKit Kernel;
   };
-
-  openh264 = callPackage ../development/libraries/openh264 { };
 
   openjpeg = callPackage ../development/libraries/openjpeg { };
 
@@ -25394,7 +25370,7 @@ with pkgs;
   wally-cli = callPackage ../development/tools/wally-cli { };
   zsa-udev-rules = callPackage ../os-specific/linux/zsa-udev-rules { };
 
-  wangle = callPackage ../development/libraries/wangle { };
+  wangle = darwin.apple_sdk_11_0.callPackage ../development/libraries/wangle { };
 
   wapp = callPackage ../development/libraries/wapp { };
 
@@ -27254,6 +27230,7 @@ with pkgs;
 
   inherit (callPackages ../servers/web-apps/matomo {})
     matomo
+    matomo_5
     matomo-beta;
 
   axis2 = callPackage ../servers/http/tomcat/axis2 { };
@@ -27364,16 +27341,14 @@ with pkgs;
     server-mysql = (callPackages ../servers/monitoring/zabbix/server.nix { mysqlSupport = true; }).${version};
     server-pgsql = (callPackages ../servers/monitoring/zabbix/server.nix { postgresqlSupport = true; }).${version};
     web = (callPackages ../servers/monitoring/zabbix/web.nix {}).${version};
+    agent2 = (callPackages ../servers/monitoring/zabbix/agent2.nix {}).${version};
 
     # backwards compatibility
     server = server-pgsql;
-  } // lib.optionalAttrs ( version != "v40" ) {  # agent2 is not supported in v4
-    agent2 = (callPackages ../servers/monitoring/zabbix/agent2.nix {}).${version};
   };
 
   zabbix60 = recurseIntoAttrs (zabbixFor "v60");
   zabbix50 = recurseIntoAttrs (zabbixFor "v50");
-  zabbix40 = dontRecurseIntoAttrs (zabbixFor "v40");
 
   zabbix = zabbix60;
 
@@ -29384,8 +29359,6 @@ with pkgs;
 
   lmodern = callPackage ../data/fonts/lmodern { };
 
-  logiops = callPackage ../misc/drivers/logiops { };
-
   # ltunifi and solaar both provide udev rules but solaar's rules are more
   # up-to-date so we simply use that instead of having to maintain our own rules
   logitech-udev-rules = solaar.udev;
@@ -30074,8 +30047,6 @@ with pkgs;
     stdenv = if stdenv.isDarwin then overrideSDK stdenv "11.0" else stdenv;
   };
 
-  openorienteering-mapper = libsForQt5.callPackage ../applications/gis/openorienteering-mapper { };
-
   qgis-ltr = callPackage ../applications/gis/qgis/ltr.nix { };
 
   qgis = callPackage ../applications/gis/qgis { };
@@ -30629,8 +30600,6 @@ with pkgs;
   catt = callPackage ../applications/video/catt { };
 
   cava = callPackage ../applications/audio/cava { };
-
-  cavalier = callPackage ../applications/audio/cavalier { };
 
   cb2bib = libsForQt5.callPackage ../applications/office/cb2bib { };
 
@@ -33383,8 +33352,6 @@ with pkgs;
 
   mediathekview = callPackage ../applications/video/mediathekview { jre = temurin-bin-20; };
 
-  megapixels = callPackage ../applications/graphics/megapixels { };
-
   meteo = callPackage ../applications/networking/weather/meteo { };
 
   meld = callPackage ../applications/version-management/meld { };
@@ -34173,7 +34140,7 @@ with pkgs;
   wrapOBS = callPackage ../applications/video/obs-studio/wrapper.nix { };
 
   obsidian = callPackage ../applications/misc/obsidian {
-    electron = electron_25;
+    electron = electron_28;
   };
 
   octoprint = callPackage ../applications/misc/octoprint { };
@@ -35403,7 +35370,8 @@ with pkgs;
   };
 
   synergy = libsForQt5.callPackage ../applications/misc/synergy {
-    inherit (darwin.apple_sdk.frameworks) ApplicationServices Carbon Cocoa CoreServices ScreenSaver;
+    stdenv = if stdenv.isDarwin then darwin.apple_sdk_11_0.stdenv else stdenv;
+    inherit (darwin.apple_sdk_11_0.frameworks) ApplicationServices Carbon Cocoa CoreServices ScreenSaver UserNotifications;
   };
 
   synergyWithoutGUI = synergy.override { withGUI = false; };

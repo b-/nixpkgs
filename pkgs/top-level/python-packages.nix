@@ -4790,6 +4790,8 @@ self: super: with self; {
 
   google-cloud-monitoring = callPackage ../development/python-modules/google-cloud-monitoring { };
 
+  google-cloud-netapp = callPackage ../development/python-modules/google-cloud-netapp { };
+
   google-cloud-org-policy = callPackage ../development/python-modules/google-cloud-org-policy { };
 
   google-cloud-os-config = callPackage ../development/python-modules/google-cloud-os-config { };
@@ -4805,6 +4807,8 @@ self: super: with self; {
   google-cloud-secret-manager = callPackage ../development/python-modules/google-cloud-secret-manager { };
 
   google-cloud-securitycenter = callPackage ../development/python-modules/google-cloud-securitycenter { };
+
+  google-cloud-shell = callPackage ../development/python-modules/google-cloud-shell { };
 
   google-cloud-spanner = callPackage ../development/python-modules/google-cloud-spanner { };
 
@@ -4826,7 +4830,15 @@ self: super: with self; {
 
   google-cloud-vision = callPackage ../development/python-modules/google-cloud-vision { };
 
+  google-cloud-vpc-access = callPackage ../development/python-modules/google-cloud-vpc-access { };
+
+  google-cloud-webrisk = callPackage ../development/python-modules/google-cloud-webrisk { };
+
   google-cloud-websecurityscanner = callPackage ../development/python-modules/google-cloud-websecurityscanner { };
+
+  google-cloud-workflows = callPackage ../development/python-modules/google-cloud-workflows { };
+
+  google-cloud-workstations = callPackage ../development/python-modules/google-cloud-workstations { };
 
   google-compute-engine = callPackage ../tools/virtualization/google-compute-engine { };
 
@@ -8962,6 +8974,8 @@ self: super: with self; {
 
   osc-lib = callPackage ../development/python-modules/osc-lib { };
 
+  osc-sdk-python = callPackage ../development/python-modules/osc-sdk-python { };
+
   oscpy = callPackage ../development/python-modules/oscpy { };
 
   oscrypto = callPackage ../development/python-modules/oscrypto { };
@@ -11599,6 +11613,16 @@ self: super: with self; {
   pytest-astropy-header = callPackage ../development/python-modules/pytest-astropy-header { };
 
   pytest-asyncio = callPackage ../development/python-modules/pytest-asyncio { };
+
+  pytest-asyncio_0_21 = pytest-asyncio.overridePythonAttrs (old: rec {
+    version = "0.21.1";
+    src = pkgs.fetchFromGitHub {
+      owner = "pytest-dev";
+      repo = "pytest-asyncio";
+      rev = "refs/tags/v${version}";
+      hash = "sha256-Wpo8MpCPGiXrckT2x5/yBYtGlzso/L2urG7yGc7SPkA=";
+    };
+  });
 
   pytest-bdd = callPackage ../development/python-modules/pytest-bdd { };
 
@@ -14306,6 +14330,8 @@ self: super: with self; {
   tempora = callPackage ../development/python-modules/tempora { };
 
   tenacity = callPackage ../development/python-modules/tenacity { };
+
+  tencentcloud-sdk-python = callPackage ../development/python-modules/tencentcloud-sdk-python { };
 
   tensorboard-data-server = callPackage ../development/python-modules/tensorboard-data-server { };
 

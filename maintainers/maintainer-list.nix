@@ -1866,12 +1866,6 @@
     github = "Atry";
     githubId = 601530;
   };
-  attila-lendvai = {
-    name = "Attila Lendvai";
-    email = "attila@lendvai.name";
-    github = "attila-lendvai";
-    githubId = 840345;
-  };
   auchter = {
     name = "Michael Auchter";
     email = "a@phire.org";
@@ -2989,7 +2983,7 @@
   };
   cafkafk = {
     email = "christina@cafkafk.com";
-    matrix = "@cafkafk:nixos.dev";
+    matrix = "@cafkafk:gitter.im";
     name = "Christina Sørensen";
     github = "cafkafk";
     githubId = 89321978;
@@ -4432,6 +4426,12 @@
     github = "dawidsowa";
     githubId = 49904992;
     name = "Dawid Sowa";
+  };
+  dawoox = {
+    email = "contact@antoinebellanger.fr";
+    github = "dawoox";
+    githubId = 48325941;
+    name = "Dawoox";
   };
   daylinmorgan = {
     email = "daylinmorgan@gmail.com";
@@ -16855,6 +16855,12 @@
     name = "Sam Alws";
     github = "samalws";
     githubId = 20981725;
+  };
+  samasaur = {
+    name = "Samasaur";
+    email = "sam@samasaur.com";
+    github = "Samasaur1";
+    githubId = 30577766;
   };
   samb96 = {
     email = "samb96@gmail.com";
