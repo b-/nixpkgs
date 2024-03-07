@@ -246,6 +246,9 @@ in {
         description = lib.mdDoc ''
           List of packages that provide PipeWire configuration, in the form of
           `share/pipewire/*/*.conf` files.
+
+          LV2 dependencies will be picked up from config packages automatically
+          via `passthru.requiredLv2Packages`.
         '';
       };
 
@@ -258,7 +261,8 @@ in {
           be made available to PipeWire for [filter chains][wiki-filter-chain].
 
           Config packages have their required LV2 plugins added automatically,
-          so they don't need to be specified here.
+          so they don't need to be specified here. Config packages need to set
+          `passthru.requiredLv2Packages` for this to work.
 
           [wiki-filter-chain]: https://docs.pipewire.org/page_module_filter_chain.html
         '';
@@ -292,6 +296,18 @@ in {
         # JACK intentionally not checked, as PW-on-JACK setups are a thing that some people may want
         assertion = (cfg.alsa.enable || cfg.pulse.enable) -> cfg.audio.enable;
         message = "Using PipeWire's ALSA/PulseAudio compatibility layers requires running PipeWire as the sound server. Set `services.pipewire.audio.enable` to true.";
+      }
+      {
+        assertion = builtins.length
+          (builtins.attrNames
+            (
+              lib.filterAttrs
+                (name: value:
+                  lib.hasPrefix "pipewire/" name || name == "pipewire"
+                )
+                config.environment.etc
+            )) == 1;
+        message = "Using `environment.etc.\"pipewire<...>\"` directly is no longer supported in 24.05. Use `services.pipewire.extraConfig` or `services.pipewire.configPackages` instead.";
       }
     ];
 

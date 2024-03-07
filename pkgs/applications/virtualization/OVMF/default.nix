@@ -1,7 +1,6 @@
 { stdenv, nixosTests, lib, edk2, util-linux, nasm, acpica-tools, llvmPackages
 , fetchurl, python3, pexpect, xorriso, qemu, dosfstools, mtools
-, csmSupport ? false, seabios
-, fdSize2MB ? csmSupport
+, fdSize2MB ? false
 , fdSize4MB ? secureBoot
 , secureBoot ? false
 , systemManagementModeRequired ? secureBoot && stdenv.hostPlatform.isx86
@@ -75,7 +74,6 @@ let
 in
 
 assert platformSpecific ? ${cpuName};
-assert systemManagementModeRequired -> stdenv.hostPlatform.isx86;
 assert msVarsTemplate -> fdSize4MB;
 assert msVarsTemplate -> platformSpecific.${cpuName} ? msVarsArgs;
 
@@ -99,7 +97,6 @@ edk2.mkDerivation projectDscPath (finalAttrs: {
     ++ lib.optionals sourceDebug [ "-D SOURCE_DEBUG_ENABLE=TRUE" ]
     ++ lib.optionals secureBoot [ "-D SECURE_BOOT_ENABLE=TRUE" ]
     ++ lib.optionals systemManagementModeRequired [ "-D SMM_REQUIRE=TRUE" ]
-    ++ lib.optionals csmSupport [ "-D CSM_ENABLE" ]
     ++ lib.optionals fdSize2MB ["-D FD_SIZE_2MB"]
     ++ lib.optionals fdSize4MB ["-D FD_SIZE_4MB"]
     ++ lib.optionals httpSupport [ "-D NETWORK_HTTP_ENABLE=TRUE" "-D NETWORK_HTTP_BOOT_ENABLE=TRUE" ]
@@ -113,10 +110,6 @@ edk2.mkDerivation projectDscPath (finalAttrs: {
 
   postUnpack = lib.optionalDrvAttr msVarsTemplate ''
     unpackFile ${debian-edk-src}
-  '';
-
-  postPatch = lib.optionalString csmSupport ''
-    cp ${seabios}/share/seabios/Csm16.bin OvmfPkg/Csm/Csm16/Csm16.bin
   '';
 
   postConfigure = lib.optionalDrvAttr msVarsTemplate ''
