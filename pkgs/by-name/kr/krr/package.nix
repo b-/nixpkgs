@@ -7,18 +7,22 @@
 
 python3.pkgs.buildPythonPackage rec {
   pname = "krr";
-  version = "1.7.0";
+  version = "1.7.1";
   pyproject = true;
 
   src = fetchFromGitHub {
     owner = "robusta-dev";
     repo = "krr";
     rev = "refs/tags/v${version}";
-    hash = "sha256-8K97v/8lsLqr88MSOT3peOy0GZp1so9GaipG/t2uR88=";
+    hash = "sha256-Bc1Ql3z/UmOXE2RJYC5/sE4a3MFdE06I3HwKY+SdSlk=";
   };
 
   postPatch = ''
+    substituteInPlace robusta_krr/__init__.py \
+      --replace-warn '1.7.0-dev' '${version}'
+
     substituteInPlace pyproject.toml \
+      --replace-warn '1.7.0-dev' '${version}' \
       --replace-fail 'aiostream = "^0.4.5"' 'aiostream = "*"' \
       --replace-fail 'kubernetes = "^26.1.0"' 'kubernetes = "*"' \
       --replace-fail 'pydantic = "1.10.7"' 'pydantic = "*"' \

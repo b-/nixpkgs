@@ -3340,6 +3340,23 @@ let
         };
       };
 
+      samuelcolvin.jinjahtml = buildVscodeMarketplaceExtension {
+        mktplcRef = {
+          name = "jinjahtml";
+          publisher = "samuelcolvin";
+          version = "0.20.0";
+          sha256 = "c000cbdc090b7d3d8df62a3c87a5d881c78aca5b490b3e591d9841d788a9aa93";
+        };
+        meta = with lib; {
+          description = "Syntax highlighting for jinja(2) including HTML, Markdown, YAML, Ruby and LaTeX templates";
+          downloadPage = "https://marketplace.visualstudio.com/items?itemName=samuelcolvin.jinjahtml";
+          homepage = "https://github.com/samuelcolvin/jinjahtml-vscode";
+          changelog = "https://marketplace.visualstudio.com/items/samuelcolvin.jinjahtml/changelog";
+          license = licenses.mit;
+          maintainers = [ maintainers.DataHearth ];
+        };
+      };
+
       sanaajani.taskrunnercode = buildVscodeMarketplaceExtension {
         mktplcRef = {
           name = "taskrunnercode";
@@ -4306,11 +4323,15 @@ let
         mktplcRef = {
           name = "markdown-all-in-one";
           publisher = "yzhang";
-          version = "3.5.1";
-          sha256 = "sha256-ZyvkRp0QTjoMEXRGHzp3udGngYcU9EkTCvx8o2CEaBE=";
+          version = "3.6.2";
+          sha256 = "1n9d3qh7vypcsfygfr5rif9krhykbmbcgf41mcjwgjrf899f11h4";
         };
         meta = {
+          description = "All you need to write Markdown (keyboard shortcuts, table of contents, auto preview and more)";
+          downloadPage = "https://marketplace.visualstudio.com/items?itemName=yzhang.markdown-all-in-one";
+          homepage = "https://github.com/yzhang-gh/vscode-markdown";
           license = lib.licenses.mit;
+          maintainers = [ lib.maintainers.raroh73 ];
         };
       };
 
