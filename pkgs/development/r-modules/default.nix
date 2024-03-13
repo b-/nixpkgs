@@ -531,7 +531,9 @@ let
   packagesWithBuildInputs = {
     # sort -t '=' -k 2
     asciicast = with pkgs; [ xz.dev bzip2.dev zlib.dev icu.dev ];
+    island = [ pkgs.gsl.dev ];
     svKomodo = [ pkgs.which ];
+    ulid = [ pkgs.zlib.dev ];
     nat = [ pkgs.which ];
     nat_templatebrains = [ pkgs.which ];
     pbdZMQ = [ pkgs.zeromq ] ++ lib.optionals stdenv.isDarwin [ pkgs.darwin.binutils ];
@@ -539,6 +541,7 @@ let
     bayesWatch = [ pkgs.boost.dev ];
     clustermq = [  pkgs.pkg-config ];
     coga = [ pkgs.gsl.dev ];
+    gpg = [ pkgs.gpgme ];
     webp = [ pkgs.libwebp ];
     RMark = [ pkgs.which ];
     RPushbullet = [ pkgs.which ];
@@ -889,6 +892,7 @@ let
     "scholar"
     "stepR"
     "styler"
+    "teal_code"
     "TreeTools"
     "TreeSearch"
     "ACNE"

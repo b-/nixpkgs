@@ -3,6 +3,7 @@
 , fetchFromGitHub
 , qtbase
 , qtsvg
+, qtwayland
 , qtwebengine
 , qtdeclarative
 , extra-cmake-modules
@@ -51,6 +52,7 @@ stdenv.mkDerivation (finalAttrs: {
     boost
     qtforkawesome
   ] ++ lib.optionals stdenv.isDarwin [ iconv ]
+    ++ lib.optionals stdenv.isLinux [ qtwayland ]
     ++ lib.optionals webviewSupport [ qtwebengine ]
     ++ lib.optionals jsSupport [ qtdeclarative ]
     ++ lib.optionals kioPluginSupport [ kio ]
