@@ -226,11 +226,8 @@ in lib.makeExtensible (self: ({
   };
 
   nix_2_16 = common {
-    version = "2.16.2";
-    hash = "sha256-VXIYCDkvAWeMoU0W2ZI0TeOszCZA1o8trz6YCPFD5ac=";
-    patches = [
-      patch-rapidcheck-shared
-    ];
+    version = "2.16.3";
+    hash = "sha256-/tnjRCk+VaWPThzdn3C0zU1AMON+7AFsHgTTzErFxV4=";
   };
 
   nix_2_17 = common {
@@ -242,12 +239,8 @@ in lib.makeExtensible (self: ({
   };
 
   nix_2_18 = common {
-    version = "2.18.1";
-    hash = "sha256-WNmifcTsN9aG1ONkv+l2BC4sHZZxtNKy0keqBHXXQ7w=";
-    patches = [
-      patch-rapidcheck-shared
-      ./patches/2_18/CVE-2024-27297.patch
-    ];
+    version = "2.18.2";
+    hash = "sha256-8gNJlBlv2bnffRg0CejiBXc6U/S6YeCLAdHrYvTPyoY=";
   };
 
   nix_2_19 = common {

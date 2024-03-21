@@ -1085,6 +1085,8 @@ with pkgs;
 
   ruler = callPackage ../tools/security/ruler { };
 
+  magika = with python3Packages; toPythonApplication magika;
+
   mblock-mlink = callPackage ../development/tools/mblock-mlink { };
 
   mod = callPackage ../development/tools/mod { };
@@ -1999,6 +2001,11 @@ with pkgs;
 
   openbugs = pkgsi686Linux.callPackage ../applications/science/machine-learning/openbugs { };
 
+  openusd = python3Packages.openusd.override {
+    withTools = true;
+    withUsdView = true;
+  };
+
   osquery = callPackage ../tools/system/osquery { };
 
   paperview = callPackage ../tools/X11/paperview { };
@@ -2685,10 +2692,6 @@ with pkgs;
 
   fsrx = callPackage ../tools/misc/fsrx { };
 
-  fsuae = callPackage ../applications/emulators/fs-uae { };
-
-  fsuae-launcher = libsForQt5.callPackage ../applications/emulators/fs-uae/launcher.nix { };
-
   fuc = callPackage ../tools/misc/fuc { };
 
   fuse-emulator = callPackage ../applications/emulators/fuse-emulator { };
@@ -2931,8 +2934,6 @@ with pkgs;
   };
 
   felix-fm = callPackage ../applications/file-managers/felix-fm { };
-
-  joshuto = callPackage ../applications/file-managers/joshuto { };
 
   krusader = libsForQt5.callPackage ../applications/file-managers/krusader { };
 
@@ -3553,8 +3554,6 @@ with pkgs;
 
   blackmagic-desktop-video = callPackage ../tools/video/blackmagic-desktop-video { };
 
-  blockbench-electron = callPackage ../applications/graphics/blockbench-electron { };
-
   blocksat-cli = with python3Packages; toPythonApplication blocksat-cli;
 
   bmap-tools = callPackage ../tools/misc/bmap-tools { };
@@ -4027,15 +4026,25 @@ with pkgs;
 
   go-audit = callPackage ../tools/system/go-audit { };
 
-  gopass = callPackage ../tools/security/gopass { };
+  gopass = callPackage ../tools/security/gopass {
+    buildGoModule = buildGo122Module;
+  };
 
-  gopass-hibp = callPackage ../tools/security/gopass/hibp.nix { };
+  gopass-hibp = callPackage ../tools/security/gopass/hibp.nix {
+    buildGoModule = buildGo122Module;
+  };
 
-  gopass-jsonapi = callPackage ../tools/security/gopass/jsonapi.nix { };
+  gopass-jsonapi = callPackage ../tools/security/gopass/jsonapi.nix {
+    buildGoModule = buildGo122Module;
+  };
 
-  git-credential-gopass = callPackage ../tools/security/gopass/git-credential.nix { };
+  git-credential-gopass = callPackage ../tools/security/gopass/git-credential.nix {
+    buildGoModule = buildGo122Module;
+  };
 
-  gopass-summon-provider = callPackage ../tools/security/gopass/summon.nix { };
+  gopass-summon-provider = callPackage ../tools/security/gopass/summon.nix {
+    buildGoModule = buildGo122Module;
+  };
 
   gosh = callPackage ../tools/security/gosh { };
 
@@ -4775,8 +4784,6 @@ with pkgs;
   swaysome = callPackage ../tools/wayland/swaysome { };
 
   swaytools = python3Packages.callPackage ../tools/wayland/swaytools { };
-
-  swww = callPackage ../tools/wayland/swww { };
 
   wayland-utils = callPackage ../tools/wayland/wayland-utils { };
 
@@ -5631,8 +5638,6 @@ with pkgs;
   hypr = callPackage ../applications/window-managers/hyprwm/hypr {
     cairo = cairo.override { xcbSupport = true; };  };
 
-  hyprdim = callPackage ../applications/misc/hyprdim { };
-
   hyprland = callPackage ../applications/window-managers/hyprwm/hyprland {
     wlroots = callPackage ../applications/window-managers/hyprwm/hyprland/wlroots.nix { };
     udis86 = callPackage ../applications/window-managers/hyprwm/hyprland/udis86.nix { };
@@ -5643,8 +5648,6 @@ with pkgs;
   hyprland-per-window-layout = callPackage ../tools/wayland/hyprland-per-window-layout { };
 
   hyprland-protocols = callPackage ../applications/window-managers/hyprwm/hyprland-protocols { };
-
-  hyprnome = callPackage ../applications/misc/hyprnome { };
 
   hyprpaper = callPackage ../applications/window-managers/hyprwm/hyprpaper { };
 
@@ -6776,7 +6779,9 @@ with pkgs;
 
   cicero-tui = callPackage ../tools/misc/cicero-tui { };
 
-  cilium-cli = callPackage ../applications/networking/cluster/cilium { };
+  cilium-cli = callPackage ../applications/networking/cluster/cilium {
+    buildGoModule = buildGo122Module;
+  };
 
   cjdns = callPackage ../tools/networking/cjdns { };
   cjdns-tools = callPackage ../tools/admin/cjdns-tools { };
@@ -9755,9 +9760,7 @@ with pkgs;
 
   kool = callPackage ../development/tools/misc/kool { };
 
-  kore = callPackage ../development/web/kore {
-    openssl = openssl_1_1;
-  };
+  kore = callPackage ../development/web/kore { };
 
   krakenx = callPackage ../tools/system/krakenx { };
 
@@ -13246,6 +13249,8 @@ with pkgs;
 
   sockdump = callPackage ../tools/networking/sockdump { };
 
+  specup = haskellPackages.specup.bin;
+
   spglib = callPackage ../development/libraries/spglib {
     inherit (llvmPackages) openmp;
   };
@@ -16103,13 +16108,13 @@ with pkgs;
   haskell = callPackage ./haskell-packages.nix { };
 
   haskellPackages = dontRecurseIntoAttrs
-    # JS backend is only available for GHC >= 9.6
-    (if stdenv.hostPlatform.isGhcjs
-     then haskell.packages.native-bignum.ghc96
-     # Prefer native-bignum to avoid linking issues with gmp
-     else if stdenv.hostPlatform.isStatic
-     then haskell.packages.native-bignum.ghc94
-     else haskell.packages.ghc94)
+    # Prefer native-bignum to avoid linking issues with gmp
+    # GHC 9.6 rts can't be built statically with hadrian, so we need to use 9.4
+    # until 9.8 is ready
+    (if stdenv.hostPlatform.isStatic then haskell.packages.native-bignum.ghc94
+    # JS backend can't use gmp
+    else if stdenv.hostPlatform.isGhcjs then haskell.packages.native-bignum.ghc96
+    else haskell.packages.ghc96)
   // { __recurseIntoDerivationForReleaseJobs = true; };
 
   # haskellPackages.ghc is build->host (it exposes the compiler used to build the
@@ -16122,9 +16127,11 @@ with pkgs;
   # plain, cross-compiled compiler (which is only theoretical at the moment).
   ghc = targetPackages.haskellPackages.ghc or
     # Prefer native-bignum to avoid linking issues with gmp
-    (if stdenv.targetPlatform.isStatic
-       then haskell.compiler.native-bignum.ghc94
-       else haskell.compiler.ghc94);
+    # Use 9.4 for static over broken 9.6
+    (if stdenv.targetPlatform.isStatic then haskell.compiler.native-bignum.ghc94
+    # JS backend can't use GMP
+    else if stdenv.targetPlatform.isGhcjs then haskell.compiler.native-bignum.ghc96
+    else haskell.compiler.ghc96);
 
   alex = haskell.lib.compose.justStaticExecutables haskellPackages.alex;
 
@@ -16835,7 +16842,6 @@ with pkgs;
   };
   cargo-leptos = callPackage ../development/tools/rust/cargo-leptos { };
   cargo-kcov = callPackage ../development/tools/rust/cargo-kcov { };
-  cargo-graph = callPackage ../development/tools/rust/cargo-graph { };
   cargo-guppy = callPackage ../development/tools/rust/cargo-guppy { };
   cargo-hack = callPackage ../development/tools/rust/cargo-hack { };
   cargo-license = callPackage ../development/tools/rust/cargo-license { };
@@ -18268,7 +18274,8 @@ with pkgs;
     electron_25-bin
     electron_26-bin
     electron_27-bin
-    electron_28-bin;
+    electron_28-bin
+    electron_29-bin;
 
   electron_10 = electron_10-bin;
   electron_11 = electron_11-bin;
@@ -18289,7 +18296,7 @@ with pkgs;
   electron_26 = electron_26-bin;
   electron_27 = if lib.meta.availableOn stdenv.hostPlatform electron-source.electron_27 then electron-source.electron_27 else electron_27-bin;
   electron_28 = if lib.meta.availableOn stdenv.hostPlatform electron-source.electron_28 then electron-source.electron_28 else electron_28-bin;
-  electron_29 = electron-source.electron_29;
+  electron_29 = if lib.meta.availableOn stdenv.hostPlatform electron-source.electron_29 then electron-source.electron_29 else electron_29-bin;
   electron = electron_29;
 
   autobuild = callPackage ../development/tools/misc/autobuild { };
@@ -20806,8 +20813,6 @@ with pkgs;
   dillong = callPackage ../applications/networking/browsers/dillong { };
 
   directfb = callPackage ../development/libraries/directfb { };
-
-  discordchatexporter-cli = callPackage ../tools/backup/discordchatexporter-cli { };
 
   discord-gamesdk = callPackage ../development/libraries/discord-gamesdk { };
 
@@ -24463,7 +24468,7 @@ with pkgs;
 
   rlottie = callPackage ../development/libraries/rlottie { };
 
-  rocksdb = pin-to-gcc12-if-gcc13 (callPackage ../development/libraries/rocksdb { });
+  rocksdb = callPackage ../development/libraries/rocksdb { };
 
   rocksdb_7_10 = rocksdb.overrideAttrs rec {
     pname = "rocksdb";
@@ -25003,8 +25008,6 @@ with pkgs;
   theft = callPackage ../development/libraries/theft { };
 
   thrift = callPackage ../development/libraries/thrift { };
-
-  thrift-0_10 = callPackage ../development/libraries/thrift/0.10.nix { };
 
   tidyp = callPackage ../development/libraries/tidyp { };
 
@@ -26004,7 +26007,7 @@ with pkgs;
 
   dspam = callPackage ../servers/mail/dspam { };
 
-  engelsystem = callPackage ../servers/web-apps/engelsystem { php = php81; };
+  engelsystem = callPackage ../servers/web-apps/engelsystem { };
 
   envoy = callPackage ../servers/http/envoy {
     go = go_1_20;
@@ -26101,7 +26104,9 @@ with pkgs;
   grafana = callPackage ../servers/monitoring/grafana { };
   grafanaPlugins = callPackages ../servers/monitoring/grafana/plugins { };
 
-  grafana-agent = callPackage ../servers/monitoring/grafana-agent { };
+  grafana-agent = callPackage ../servers/monitoring/grafana-agent {
+    buildGoModule = buildGo122Module;
+  };
 
   grafana-loki = callPackage ../servers/monitoring/loki { };
   promtail = callPackage ../servers/monitoring/loki/promtail.nix { };
@@ -26506,8 +26511,6 @@ with pkgs;
 
   sympa = callPackage ../servers/mail/sympa { };
 
-  syncstorage-rs = callPackage ../servers/syncstorage-rs { };
-
   system-sendmail = lowPrio (callPackage ../servers/mail/system-sendmail { });
 
   # PulseAudio daemons
@@ -26746,8 +26749,8 @@ with pkgs;
     postgresql_15_jit
     postgresql_16_jit
   ;
-  postgresql = postgresql_15.override { this = postgresql; };
-  postgresql_jit = postgresql_15_jit.override { this = postgresql_jit; };
+  postgresql = postgresql_15;
+  postgresql_jit = postgresql_15_jit;
   postgresqlPackages = recurseIntoAttrs postgresql.pkgs;
   postgresqlJitPackages = recurseIntoAttrs postgresql_jit.pkgs;
   postgresql12Packages = recurseIntoAttrs postgresql_12.pkgs;
@@ -27021,10 +27024,6 @@ with pkgs;
   stone = callPackage ../servers/stone { };
 
   storm = callPackage ../servers/computing/storm { };
-
-  surrealdb = callPackage ../servers/nosql/surrealdb {
-    inherit (darwin.apple_sdk.frameworks) SystemConfiguration;
-  };
 
   switcheroo-control = callPackage ../os-specific/linux/switcheroo-control { };
 
@@ -27351,8 +27350,6 @@ with pkgs;
   cm-rgb = python3Packages.callPackage ../tools/system/cm-rgb { };
 
   cpustat = callPackage ../os-specific/linux/cpustat { };
-
-  cockroachdb = callPackage ../servers/sql/cockroachdb { };
 
   cockroachdb-bin = callPackage ../servers/sql/cockroachdb/cockroachdb-bin.nix { };
 
@@ -29523,8 +29520,6 @@ with pkgs;
 
   sarabun-font = callPackage ../data/fonts/sarabun { };
 
-  sarasa-gothic = callPackage ../data/fonts/sarasa-gothic { };
-
   savepagenow = callPackage ../tools/misc/savepagenow { };
 
   scheme-manpages = callPackage ../data/documentation/scheme-manpages { };
@@ -30665,9 +30660,8 @@ with pkgs;
 
   daktilo = callPackage ../tools/misc/daktilo { };
 
-  darcs = haskell.lib.compose.overrideCabal (drv: {
-    configureFlags = (lib.remove "-flibrary" drv.configureFlags or []) ++ ["-f-library"];
-  }) (haskell.lib.compose.justStaticExecutables haskellPackages.darcs);
+  darcs = haskell.lib.compose.disableCabalFlag "library"
+    (haskell.lib.compose.justStaticExecutables haskell.packages.ghc94.darcs);
 
   darkman = callPackage ../applications/misc/darkman { };
 
@@ -32063,10 +32057,6 @@ with pkgs;
 
   hypnotix = callPackage ../applications/video/hypnotix { };
 
-  indiepass-desktop = callPackage ../by-name/in/indiepass-desktop/package.nix {
-    electron = electron_19;
-  };
-
   jackline = callPackage ../applications/networking/instant-messengers/jackline {
     ocamlPackages = ocaml-ng.ocamlPackages_4_14;
   };
@@ -32551,10 +32541,8 @@ with pkgs;
   jwm-settings-manager = callPackage ../applications/window-managers/jwm/jwm-settings-manager.nix { };
 
   inherit (callPackage ../applications/networking/cluster/k3s {
-    buildGoModule = buildGo120Module;
-  }) k3s_1_26 k3s_1_27 k3s_1_28;
-  inherit (callPackage ../applications/networking/cluster/k3s { }) k3s_1_29;
-
+    buildGoModule = buildGo121Module;
+  }) k3s_1_26 k3s_1_27 k3s_1_28 k3s_1_29;
   k3s = k3s_1_29;
 
   k3sup = callPackage ../applications/networking/cluster/k3sup { };
@@ -34387,8 +34375,6 @@ with pkgs;
 
   eiskaltdcpp = libsForQt5.callPackage ../applications/networking/p2p/eiskaltdcpp { };
 
-  qdirstat = libsForQt5.callPackage ../applications/misc/qdirstat { };
-
   qemu = callPackage ../applications/virtualization/qemu {
     inherit (darwin.apple_sdk.frameworks) CoreServices Cocoa Hypervisor vmnet;
     inherit (darwin.stubs) rez setfile;
@@ -35247,8 +35233,6 @@ with pkgs;
 
   telepathy-idle = callPackage ../applications/networking/instant-messengers/telepathy/idle { };
 
-  teleprompter = callPackage ../applications/misc/teleprompter { };
-
   tempo = callPackage ../servers/tracing/tempo { };
 
   temporal = callPackage ../applications/networking/cluster/temporal { };
@@ -35339,10 +35323,6 @@ with pkgs;
   tickrs = callPackage ../applications/misc/tickrs { };
 
   tijolo = callPackage ../applications/editors/tijolo { };
-
-  tilemaker = callPackage ../applications/misc/tilemaker {
-    protobuf = protobuf_21;
-  };
 
   timbreid = callPackage ../applications/audio/pd-plugins/timbreid {
     fftw = fftwSinglePrec;
@@ -37075,7 +37055,7 @@ with pkgs;
 
   chiaki = libsForQt5.callPackage ../games/chiaki { };
 
-  chiaki4deck = libsForQt5.callPackage ../games/chiaki4deck { };
+  chiaki4deck = qt6Packages.callPackage ../games/chiaki4deck { };
 
   chromium-bsu = callPackage ../games/chromium-bsu { };
 
@@ -37839,8 +37819,6 @@ with pkgs;
 
   srb2 = callPackage ../games/srb2 { };
 
-  srb2kart = callPackage ../games/srb2kart { };
-
   ssl-cert-check = callPackage ../tools/admin/ssl-cert-check { };
 
   stardust = callPackage ../games/stardust { };
@@ -37986,8 +37964,6 @@ with pkgs;
   ultrastardx = callPackage ../games/ultrastardx { };
 
   umoria = callPackage ../games/umoria { };
-
-  unciv = callPackage ../games/unciv { };
 
   unnethack = callPackage ../games/unnethack { };
 
@@ -38668,7 +38644,9 @@ with pkgs;
 
   getdp = callPackage ../applications/science/math/getdp { };
 
-  gurobi = callPackage ../applications/science/math/gurobi { };
+  gurobi = callPackage ../applications/science/math/gurobi {
+    python3 = python310;
+  };
 
   jags = callPackage ../applications/science/math/jags { };
 
@@ -40610,10 +40588,6 @@ with pkgs;
   };
 
   sct = callPackage ../tools/X11/sct { };
-
-  scylladb = callPackage ../servers/scylladb {
-    thrift = thrift-0_10;
-  };
 
   seafile-server = callPackage ../servers/seafile-server { };
 

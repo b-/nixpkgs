@@ -2,13 +2,13 @@
 
 stdenv.mkDerivation rec {
   pname = "signalbackup-tools";
-  version = "20240306";
+  version = "20240318";
 
   src = fetchFromGitHub {
     owner = "bepaald";
     repo = pname;
     rev = version;
-    hash = "sha256-KN4FkqgWj92LqPtwU/Wyk1qe8AyUsWlobypq5WgRVyI=";
+    hash = "sha256-KK+KQowI0KKwgZE91xivfmhnHyDMRozfpLsrOLuE+FE=";
   };
 
   postPatch = ''
