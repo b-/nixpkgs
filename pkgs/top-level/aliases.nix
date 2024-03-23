@@ -147,6 +147,7 @@ mapAliases ({
   callPackage_i686 = pkgsi686Linux.callPackage;
   cadence = throw "cadence has been removed from nixpkgs, as it was archived upstream"; # Added 2023-10-28
   cask = emacs.pkgs.cask; # Added 2022-11-12
+  canonicalize-jars-hook = stripJavaArchivesHook; # Added 2024-03-17
   cargo-embed = throw "cargo-embed is now part of the probe-rs package"; # Added 2023-07-03
   cargo-espflash = espflash;
   cargo-flash = throw "cargo-flash is now part of the probe-rs package"; # Added 2023-07-03
@@ -196,7 +197,7 @@ mapAliases ({
   clang8Stdenv = throw "clang8Stdenv has been removed from nixpkgs"; # Added 2024-01-24
   clang9Stdenv = lowPrio llvmPackages_9.stdenv;
   clang10Stdenv = throw "clang10Stdenv has been removed from nixpkgs"; # Added 2024-01-26
-  clang11Stdenv = lowPrio llvmPackages_11.stdenv;
+  clang11Stdenv = throw "clang11Stdenv has been removed from nixpkgs"; # Added 2023-01-24
   clang12Stdenv = lowPrio llvmPackages_12.stdenv;
   clang13Stdenv = lowPrio llvmPackages_13.stdenv;
   clang14Stdenv = lowPrio llvmPackages_14.stdenv;
@@ -207,10 +208,13 @@ mapAliases ({
   clang-tools_6 = throw "clang-tools_6 has been removed from nixpkgs"; # Added 2024-01-08
   clang-tools_7 = throw "clang-tools_7 has been removed from nixpkgs"; # Added 2023-11-19
   clang-tools_8  = throw "clang-tools_8 has been removed from nixpkgs"; # Added 2024-01-24
+  clang-tools_10 = throw "clang-tools_10 has been removed from nixpkgs"; # Added 2023-01-26
+  clang-tools_11 = throw "clang-tools_11 has been removed from nixpkgs"; # Added 2023-01-24
   clang_6 = throw "clang_6 has been removed from nixpkgs"; # Added 2024-01-08
   clang_7 = throw "clang_7 has been removed from nixpkgs"; # Added 2023-11-19
   clang_8  = throw "clang_8 has been removed from nixpkgs"; # Added 2024-01-24
   clang_10 = throw "clang_10 has been removed from nixpkgs"; # Added 2024-01-26
+  clang_11 = throw "clang_11 has been removed from nixpkgs"; # Added 2023-01-24
 
   ### D ###
 
@@ -569,6 +573,7 @@ mapAliases ({
   libbson = mongoc; # Added 2024-03-11
   libcap_pam = throw "'libcap_pam' has been replaced with 'libcap'"; # Converted to throw 2023-09-10
   libclc = llvmPackages_latest.libclc; # Added 2023-10-28
+  libcxxabi = throw "'libcxxabi' was merged into 'libcxx'"; # Converted to throw 2024-03-08
   libgme = game-music-emu; # Added 2022-07-20
   libgpgerror = libgpg-error; # Added 2021-09-04
   libheimdal = heimdal; # Added 2022-11-18
@@ -685,18 +690,22 @@ mapAliases ({
   lld_7 = throw "lld_7 has been removed from nixpkgs"; # Added 2023-11-19
   lld_8 = throw "lld_8 has been removed from nixpkgs"; # Added 2024-01-24
   lld_10 = throw "lld_10 has been removed from nixpkgs"; # Added 2024-01-26
+  lld_11 = throw "lld_11 has been removed from nixpkgs"; # Added 2024-01-24
   lldb_6 = throw "lldb_6 has been removed from nixpkgs"; # Added 2024-01-08
   lldb_7 = throw "lldb_7 has been removed from nixpkgs"; # Added 2023-11-19
   lldb_8 = throw "lldb_8 has been removed from nixpkgs"; # Added 2024-01-24
   lldb_10 = throw "lldb_10 has been removed from nixpkgs"; # Added 2024-01-26
+  lldb_11 = throw "lldb_11 has been removed from nixpkgs"; # Added 2024-01-24
   llvmPackages_6 = throw "llvmPackages_6 has been removed from nixpkgs"; # Added 2024-01-09
   llvmPackages_7 = throw "llvmPackages_7 has been removed from nixpkgs"; # Added 2023-11-19
   llvmPackages_8 = throw "llvmPackages_8 has been removed from nixpkgs"; # Added 2024-01-24
   llvmPackages_10 = throw "llvmPackages_10 has been removed from nixpkgs"; # Added 2024-01-26
+  llvmPackages_11 = throw "llvmPackages_11 has been removed from nixpkgs"; # Added 2024-01-24
   llvm_6 = throw "llvm_6 has been removed from nixpkgs"; # Added 2024-01-08
   llvm_7 = throw "llvm_7 has been removed from nixpkgs"; # Added 2023-11-19
   llvm_8 = throw "llvm_8 has been removed from nixpkgs"; # Added 2024-01-24
   llvm_10 = throw "llvm_10 has been removed from nixpkgs"; # Added 2024-01-26
+  llvm_11 = throw "llvm_11 has been removed from nixpkgs"; # Added 2024-01-24
 
   lobster-two = google-fonts; # Added 2021-07-22
   luxcorerender = throw "'luxcorerender' has been removed as it's unmaintained and broken in nixpkgs since a while ago"; # Added 2023-06-07
@@ -827,14 +836,21 @@ mapAliases ({
   noto-fonts-extra = noto-fonts; # Added 2023-04-08
   NSPlist = nsplist; # Added 2024-01-05
   nvidia-thrust = throw "nvidia-thrust has been removed because the project was deprecated; use cudaPackages.cuda_cccl";
+  nvtop = lib.warn "nvtop has been renamed to nvtopPackages.full" nvtopPackages.full; # Added 2024-02-25
+  nvtop-amd = lib.warn "nvtop-amd has been renamed to nvtopPackages.amd" nvtopPackages.amd; # Added 2024-02-25
+  nvtop-nvidia = lib.warn "nvtop-nvidia has been renamed to nvtopPackages.nvidia" nvtopPackages.nvidia; # Added 2024-02-25
+  nvtop-intel = lib.warn "nvtop-intel has been renamed to nvtopPackages.intel" nvtopPackages.intel; # Added 2024-02-25
+  nvtop-msm = lib.warn "nvtop-msm has been renamed to nvtopPackages.msm" nvtopPackages.msm; # Added 2024-02-25
 
   ### O ###
 
   o = orbiton; # Added 2023-04-09
   oathToolkit = oath-toolkit; # Added 2022-04-04
   oauth2_proxy = oauth2-proxy; # Added 2021-04-18
+  obinskit = throw "'obinskit' has been removed from nixpkgs, because the package was unmaintained and depended on an insecure version of electron"; # Added 2024-03-20
   octant = throw "octant has been dropped due to being archived and vulnerable"; # Added 2023-09-29
   octant-desktop = throw "octant-desktop has been dropped due to being archived and vulnerable"; # Added 2023-09-29
+  octorpki = throw "octorpki has been removed, upstream says to use rpki-client instead"; # Added 2024-03-19
   ogre1_9 = throw "ogre1_9 has been removed, use ogre instead"; # Added 2023-03-22
   ogre1_10 = throw "ogre1_10 has been removed, use ogre instead"; # Added 2023-07-20
   opa = throw "opa has been removed from nixpkgs as upstream has abandoned the project"; # Added 2023-03-21
