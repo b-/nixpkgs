@@ -32740,6 +32740,10 @@ with pkgs;
 
   libreoffice = hiPrio libreoffice-still;
 
+  libreoffice-qt = hiPrio libreoffice-qt-still;
+
+  libreoffice-qt-unwrapped = libreoffice-qt.unwrapped;
+
   libreoffice-unwrapped = libreoffice.unwrapped;
 
   libreoffice-args = {
@@ -32761,13 +32765,23 @@ with pkgs;
     boost = boost179;
   };
 
-  libreoffice-qt = lowPrio (callPackage ../applications/office/libreoffice/wrapper.nix {
+  libreoffice-qt-fresh = lowPrio (callPackage ../applications/office/libreoffice/wrapper.nix {
     unwrapped = libsForQt5.callPackage ../applications/office/libreoffice
       (libreoffice-args // {
         kdeIntegration = true;
         variant = "fresh";
       });
   });
+  libreoffice-qt-fresh-unwrapped = libreoffice-qt-fresh.unwrapped;
+
+  libreoffice-qt-still = lowPrio (callPackage ../applications/office/libreoffice/wrapper.nix {
+    unwrapped = libsForQt5.callPackage ../applications/office/libreoffice
+      (libreoffice-args // {
+        kdeIntegration = true;
+        variant = "still";
+      });
+  });
+  libreoffice-qt-still-unwrapped = libreoffice-qt-still.unwrapped;
 
   libreoffice-fresh = lowPrio (callPackage ../applications/office/libreoffice/wrapper.nix {
     unwrapped = callPackage ../applications/office/libreoffice
