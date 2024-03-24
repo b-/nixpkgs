@@ -341,6 +341,8 @@ self: super: with self; {
 
   aiopg = callPackage ../development/python-modules/aiopg { };
 
+  aiopinboard = callPackage ../development/python-modules/aiopinboard { };
+
   aioprocessing = callPackage ../development/python-modules/aioprocessing { };
 
   aioprometheus = callPackage ../development/python-modules/aioprometheus { };
@@ -2836,6 +2838,8 @@ self: super: with self; {
 
   deezer-python = callPackage ../development/python-modules/deezer-python { };
 
+  defang = callPackage ../development/python-modules/defang { };
+
   defcon = callPackage ../development/python-modules/defcon { };
 
   deform = callPackage ../development/python-modules/deform { };
@@ -2865,6 +2869,8 @@ self: super: with self; {
   demetriek = callPackage ../development/python-modules/demetriek { };
 
   demjson3 = callPackage ../development/python-modules/demjson3 { };
+
+  demoji = callPackage ../development/python-modules/demoji { };
 
   dendropy = callPackage ../development/python-modules/dendropy { };
 
@@ -3864,6 +3870,8 @@ self: super: with self; {
   evdev = callPackage ../development/python-modules/evdev { };
 
   eve = callPackage ../development/python-modules/eve { };
+
+  eventkit = callPackage ../development/python-modules/eventkit { };
 
   eventlet = callPackage ../development/python-modules/eventlet { };
 
@@ -6343,6 +6351,8 @@ self: super: with self; {
   labmath = callPackage ../development/python-modules/labmath { };
 
   laces = callPackage ../development/python-modules/laces { };
+
+  lacuscore = callPackage ../development/python-modules/lacuscore { };
 
   lakeside = callPackage ../development/python-modules/lakeside { };
 
@@ -9656,6 +9666,10 @@ self: super: with self; {
 
   playwright = callPackage ../development/python-modules/playwright { };
 
+  playwright-stealth = callPackage ../development/python-modules/playwright-stealth { };
+
+  playwrightcapture = callPackage ../development/python-modules/playwrightcapture { };
+
   pmsensor = callPackage ../development/python-modules/pmsensor { };
 
   ppdeep = callPackage ../development/python-modules/ppdeep { };
@@ -10951,6 +10965,8 @@ self: super: with self; {
   pykwb = callPackage ../development/python-modules/pykwb { };
 
   pylacrosse = callPackage ../development/python-modules/pylacrosse { };
+
+  pylacus = callPackage ../development/python-modules/pylacus { };
 
   pylama = callPackage ../development/python-modules/pylama { };
 
@@ -13917,6 +13933,8 @@ self: super: with self; {
 
   speechbrain = callPackage ../development/python-modules/speechbrain { };
 
+  speechrecognition = callPackage ../development/python-modules/speechrecognition { };
+
   speedtest-cli = callPackage ../development/python-modules/speedtest-cli { };
 
   speg = callPackage ../development/python-modules/speg { };
@@ -14388,6 +14406,8 @@ self: super: with self; {
   };
 
   sympy = callPackage ../development/python-modules/sympy { };
+
+  symspellpy = callPackage ../development/python-modules/symspellpy { };
 
   syncedlyrics = callPackage ../development/python-modules/syncedlyrics { };
 

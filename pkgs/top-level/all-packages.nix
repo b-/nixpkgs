@@ -4927,8 +4927,6 @@ with pkgs;
 
   csvs-to-sqlite = callPackage ../tools/misc/csvs-to-sqlite { };
 
-  cucumber = callPackage ../development/tools/cucumber { };
-
   cutemarked-ng = libsForQt5.callPackage ../applications/office/cutemarked-ng { };
 
   dab_lib = callPackage ../development/libraries/dab_lib { };
@@ -6254,8 +6252,6 @@ with pkgs;
 
   reg = callPackage ../tools/virtualization/reg { };
 
-  retool = callPackage ../applications/misc/retool { };
-
   rex = callPackage ../tools/system/rex { };
 
   river = callPackage ../applications/window-managers/river { };
@@ -7275,11 +7271,9 @@ with pkgs;
 
   curlWithGnuTls = curl.override { gnutlsSupport = true; opensslSupport = false; };
 
-  curl-impersonate =
-    builtins.mapAttrs (_: pin-to-gcc12-if-gcc13)
-      (darwin.apple_sdk_11_0.callPackage ../tools/networking/curl-impersonate { });
-  curl-impersonate-ff = pin-to-gcc12-if-gcc13 curl-impersonate.curl-impersonate-ff;
-  curl-impersonate-chrome = pin-to-gcc12-if-gcc13 curl-impersonate.curl-impersonate-chrome;
+  curl-impersonate = darwin.apple_sdk_11_0.callPackage ../tools/networking/curl-impersonate { };
+  curl-impersonate-ff = curl-impersonate.curl-impersonate-ff;
+  curl-impersonate-chrome = curl-impersonate.curl-impersonate-chrome;
 
   curlie = callPackage ../tools/networking/curlie { };
 
@@ -7703,8 +7697,9 @@ with pkgs;
 
   rar2fs = callPackage ../tools/filesystems/rar2fs { };
 
-  rocmPackages = rocmPackages_5;
+  rocmPackages = rocmPackages_6;
   rocmPackages_5 = recurseIntoAttrs (callPackage ../development/rocm-modules/5 { });
+  rocmPackages_6 = recurseIntoAttrs (callPackage ../development/rocm-modules/6 { });
 
   rune = callPackage ../development/interpreters/rune { };
 
@@ -10600,7 +10595,9 @@ with pkgs;
   lxcfs = callPackage ../os-specific/linux/lxcfs { };
 
   lxd = callPackage ../tools/admin/lxd/wrapper.nix { };
-  lxd-unwrapped = callPackage ../tools/admin/lxd { };
+  lxd-unwrapped = callPackage ../tools/admin/lxd {
+    buildGoModule = buildGo122Module;
+  };
 
   lxd-image-server = callPackage ../tools/virtualization/lxd-image-server { };
 
@@ -10894,7 +10891,7 @@ with pkgs;
   metasploit = callPackage ../tools/security/metasploit { };
 
   mhost = callPackage ../applications/networking/mhost {
-    inherit (darwin.apple_sdk.frameworks) Security;
+    inherit (darwin.apple_sdk.frameworks) Security SystemConfiguration;
   };
 
   ms-sys = callPackage ../tools/misc/ms-sys { };
@@ -11160,7 +11157,12 @@ with pkgs;
 
   numberstation = callPackage ../applications/misc/numberstation { };
 
-  nvchecker = with python3Packages; toPythonApplication nvchecker;
+  nvchecker = with python3Packages; toPythonApplication (
+    nvchecker.overridePythonAttrs (oldAttrs: {
+      propagatedBuildInputs = oldAttrs.propagatedBuildInputs
+        ++ lib.flatten (builtins.attrValues oldAttrs.optional-dependencies);
+    })
+  );
 
   nvfetcher = haskell.lib.compose.justStaticExecutables haskellPackages.nvfetcher;
 
@@ -14106,8 +14108,6 @@ with pkgs;
   typesense = callPackage ../servers/search/typesense { };
 
   typos = callPackage ../development/tools/typos { };
-
-  typstfmt = callPackage ../tools/typesetting/typstfmt { };
 
   typst-live = callPackage ../tools/typesetting/typst-live { };
 
@@ -17088,10 +17088,6 @@ with pkgs;
 
   stalin = callPackage ../development/compilers/stalin { };
 
-  stanc = callPackage ../development/compilers/stanc {
-    ocamlPackages = ocaml-ng.ocamlPackages_4_14_janeStreet_0_15;
-  };
-
   metaBuildEnv = callPackage ../development/compilers/meta-environment/meta-build-env { };
 
   svd2rust = callPackage ../development/tools/rust/svd2rust { };
@@ -18219,44 +18215,12 @@ with pkgs;
 
   inherit (callPackages ../development/tools/electron/binary { })
     electron-bin
-    electron_10-bin
-    electron_11-bin
-    electron_12-bin
-    electron_13-bin
-    electron_14-bin
-    electron_15-bin
-    electron_16-bin
-    electron_17-bin
-    electron_18-bin
-    electron_19-bin
-    electron_20-bin
-    electron_21-bin
-    electron_22-bin
-    electron_23-bin
     electron_24-bin
-    electron_25-bin
-    electron_26-bin
     electron_27-bin
     electron_28-bin
     electron_29-bin;
 
-  electron_10 = electron_10-bin;
-  electron_11 = electron_11-bin;
-  electron_12 = electron_12-bin;
-  electron_13 = electron_13-bin;
-  electron_14 = electron_14-bin;
-  electron_15 = electron_15-bin;
-  electron_16 = electron_16-bin;
-  electron_17 = electron_17-bin;
-  electron_18 = electron_18-bin;
-  electron_19 = electron_19-bin;
-  electron_20 = electron_20-bin;
-  electron_21 = electron_21-bin;
-  electron_22 = electron_22-bin;
-  electron_23 = electron_23-bin;
   electron_24 = electron_24-bin;
-  electron_25 = electron_25-bin;
-  electron_26 = electron_26-bin;
   electron_27 = if lib.meta.availableOn stdenv.hostPlatform electron-source.electron_27 then electron-source.electron_27 else electron_27-bin;
   electron_28 = if lib.meta.availableOn stdenv.hostPlatform electron-source.electron_28 then electron-source.electron_28 else electron_28-bin;
   electron_29 = if lib.meta.availableOn stdenv.hostPlatform electron-source.electron_29 then electron-source.electron_29 else electron_29-bin;
@@ -20185,8 +20149,6 @@ with pkgs;
   ztags = callPackage ../development/tools/misc/ztags { };
 
   ### DEVELOPMENT / LIBRARIES
-
-  a52dec = callPackage ../development/libraries/a52dec { };
 
   aalib = callPackage ../development/libraries/aalib { };
 
@@ -27160,6 +27122,7 @@ with pkgs;
     armTrustedFirmwareQemu
     armTrustedFirmwareRK3328
     armTrustedFirmwareRK3399
+    armTrustedFirmwareRK3588
     armTrustedFirmwareS905
     ;
 
@@ -27687,9 +27650,7 @@ with pkgs;
 
   cryptodev = linuxPackages.cryptodev;
 
-  dpdk = callPackage ../os-specific/linux/dpdk {
-    kernel = null; # dpdk modules are in linuxPackages.dpdk.kmod
-  };
+  dpdk = callPackage ../os-specific/linux/dpdk { };
 
   keyutils = callPackage ../os-specific/linux/keyutils { };
 
@@ -28365,6 +28326,7 @@ with pkgs;
     ubootOlimexA64Olinuxino
     ubootOlimexA64Teres1
     ubootOrangePi3
+    ubootOrangePi5
     ubootOrangePiPc
     ubootOrangePiZeroPlus2H5
     ubootOrangePiZero
@@ -28385,6 +28347,7 @@ with pkgs;
     ubootRaspberryPi4_32bit
     ubootRaspberryPi4_64bit
     ubootRaspberryPiZero
+    ubootRock5ModelB
     ubootRock64
     ubootRock64v2
     ubootRockPi4
@@ -33868,12 +33831,7 @@ with pkgs;
 
   opentimestamps-client = python3Packages.callPackage ../tools/misc/opentimestamps-client { };
 
-  opentoonz = let
-    opentoonz-libtiff = callPackage ../applications/graphics/opentoonz/libtiff.nix { };
-  in qt5.callPackage ../applications/graphics/opentoonz {
-    libtiff = opentoonz-libtiff;
-    opencv = opencv.override { libtiff = opentoonz-libtiff; };
-  };
+  opentoonz = libsForQt5.callPackage ../applications/graphics/opentoonz { };
 
   opentabletdriver = callPackage ../tools/X11/opentabletdriver { };
 
@@ -33983,9 +33941,9 @@ with pkgs;
 
   paprefs = callPackage ../applications/audio/paprefs { };
 
-  pantalaimon = python3Packages.callPackage ../applications/networking/instant-messengers/pantalaimon { };
+  pantalaimon = callPackage ../applications/networking/instant-messengers/pantalaimon { };
 
-  pantalaimon-headless = python3Packages.callPackage ../applications/networking/instant-messengers/pantalaimon {
+  pantalaimon-headless = callPackage ../applications/networking/instant-messengers/pantalaimon {
     enableDbusUi = false;
   };
 
