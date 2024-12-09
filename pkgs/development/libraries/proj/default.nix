@@ -1,7 +1,6 @@
 { lib
 , stdenv
 , fetchFromGitHub
-, fetchpatch
 , cmake
 , pkg-config
 , buildPackages
@@ -17,13 +16,13 @@
 
 stdenv.mkDerivation (finalAttrs: {
   pname = "proj";
-  version = "9.3.1";
+  version = "9.5.1";
 
   src = fetchFromGitHub {
     owner = "OSGeo";
     repo = "PROJ";
     rev = finalAttrs.version;
-    hash = "sha256-M8Zgy5xnmZu7mzxXXGqaIfe7o7iMf/1sOJVOBsTvtdQ=";
+    hash = "sha256-gKfsuznAhq29sOw78gpQ7TNZ6xCgmDBad3TcqFzoWVc=";
   };
 
   patches = [
@@ -52,7 +51,7 @@ stdenv.mkDerivation (finalAttrs: {
 
   preCheck =
     let
-      libPathEnvVar = if stdenv.isDarwin then "DYLD_LIBRARY_PATH" else "LD_LIBRARY_PATH";
+      libPathEnvVar = if stdenv.hostPlatform.isDarwin then "DYLD_LIBRARY_PATH" else "LD_LIBRARY_PATH";
     in
       ''
         export HOME=$TMPDIR

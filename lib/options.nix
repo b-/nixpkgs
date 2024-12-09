@@ -220,10 +220,10 @@ rec {
           (if isList example then "${pkgsText}." + concatStringsSep "." example else example);
       });
 
-  /* Alias of mkPackageOption. Previously used to create options with markdown
-     documentation, which is no longer required.
+  /* Deprecated alias of mkPackageOption, to be removed in 25.05.
+     Previously used to create options with markdown documentation, which is no longer required.
   */
-  mkPackageOptionMD = mkPackageOption;
+  mkPackageOptionMD = lib.warn "mkPackageOptionMD is deprecated and will be removed in 25.05; please use mkPackageOption." mkPackageOption;
 
   /* This option accepts anything, but it does not produce any result.
 
@@ -399,11 +399,6 @@ rec {
 
   literalExample = lib.warn "lib.literalExample is deprecated, use lib.literalExpression instead, or use lib.literalMD for a non-Nix description." literalExpression;
 
-  /* Transition marker for documentation that's already migrated to markdown
-     syntax. This is a no-op and no longer needed.
-  */
-  mdDoc = lib.id;
-
   /* For use in the `defaultText` and `example` option attributes. Causes the
      given MD text to be inserted verbatim in the documentation, for when
      a `literalExpression` would be too hard to read.
@@ -425,20 +420,17 @@ rec {
      Placeholders will not be quoted as they are not actual values:
        (showOption ["foo" "*" "bar"]) == "foo.*.bar"
        (showOption ["foo" "<name>" "bar"]) == "foo.<name>.bar"
+       (showOption ["foo" "<myPlaceholder>" "bar"]) == "foo.<myPlaceholder>.bar"
   */
   showOption = parts: let
+    # If the part is a named placeholder of the form "<...>" don't escape it.
+    # It may cause misleading escaping if somebody uses literally "<...>" in their option names.
+    # This is the trade-off to allow for placeholders in option names.
+    isNamedPlaceholder = builtins.match "\<(.*)\>";
     escapeOptionPart = part:
-      let
-        # We assume that these are "special values" and not real configuration data.
-        # If it is real configuration data, it is rendered incorrectly.
-        specialIdentifiers = [
-          "<name>"          # attrsOf (submodule {})
-          "*"               # listOf (submodule {})
-          "<function body>" # functionTo
-        ];
-      in if builtins.elem part specialIdentifiers
-         then part
-         else lib.strings.escapeNixIdentifier part;
+      if part == "*" || isNamedPlaceholder part != null
+        then part
+        else lib.strings.escapeNixIdentifier part;
     in (concatStringsSep ".") (map escapeOptionPart parts);
   showFiles = files: concatStringsSep " and " (map (f: "`${f}'") files);
 

@@ -6,13 +6,13 @@
 }:
 buildGoModule rec {
   pname = "flottbot";
-  version = "0.13.0";
+  version = "0.14.0";
 
   src = fetchFromGitHub {
     owner = "target";
     repo = "flottbot";
     rev = version;
-    hash = "sha256-ldWE5QcLHyIqap5Qe6OTTIJZ1sshI+CVoJoRUxWHfxM=";
+    hash = "sha256-yQjjdw+3JqMyyDOLR42OYVLRNiIjDz1KnSRkC2bUCj8=";
   };
 
   patches = [
@@ -24,7 +24,7 @@ buildGoModule rec {
     })
   ];
 
-  vendorHash = "sha256-XRcTp3ZnoPupzI1kjoM4oF5+VlNJFV0Bu+WAwfRWl7g=";
+  vendorHash = "sha256-t2iBOrmLca7SMkstNIaNtD5RZ8dxBDFZc1n5/DxLiTQ=";
 
   subPackages = [ "cmd/flottbot" ];
 
@@ -33,7 +33,7 @@ buildGoModule rec {
   };
 
   meta = with lib; {
-    description = "A chatbot framework written in Go";
+    description = "Chatbot framework written in Go";
     homepage = "https://github.com/target/flottbot";
     license = licenses.asl20;
     maintainers = with maintainers; [ bryanhonof ];

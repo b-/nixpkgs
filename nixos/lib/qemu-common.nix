@@ -30,12 +30,14 @@ rec {
       guestSystem = pkgs.stdenv.hostPlatform.system;
 
       linuxHostGuestMatrix = {
-        x86_64-linux = "${qemuPkg}/bin/qemu-kvm -cpu max";
+        x86_64-linux = "${qemuPkg}/bin/qemu-system-x86_64 -machine accel=kvm:tcg -cpu max";
         armv7l-linux = "${qemuPkg}/bin/qemu-system-arm -machine virt,accel=kvm:tcg -cpu max";
         aarch64-linux = "${qemuPkg}/bin/qemu-system-aarch64 -machine virt,gic-version=max,accel=kvm:tcg -cpu max";
         powerpc64le-linux = "${qemuPkg}/bin/qemu-system-ppc64 -machine powernv";
         powerpc64-linux = "${qemuPkg}/bin/qemu-system-ppc64 -machine powernv";
-        x86_64-darwin = "${qemuPkg}/bin/qemu-kvm -cpu max";
+        riscv32-linux = "${qemuPkg}/bin/qemu-system-riscv32 -machine virt";
+        riscv64-linux = "${qemuPkg}/bin/qemu-system-riscv64 -machine virt";
+        x86_64-darwin = "${qemuPkg}/bin/qemu-system-x86_64 -machine accel=kvm:tcg -cpu max";
       };
       otherHostGuestMatrix = {
         aarch64-darwin = {
@@ -55,7 +57,7 @@ rec {
       throwUnsupportedGuestSystem = guestMap:
         throw "Unsupported guest system ${guestSystem} for host ${hostSystem}, supported: ${lib.concatStringsSep ", " (lib.attrNames guestMap)}";
     in
-    if hostStdenv.isLinux then
+    if hostStdenv.hostPlatform.isLinux then
       linuxHostGuestMatrix.${guestSystem} or "${qemuPkg}/bin/qemu-kvm"
     else
       let

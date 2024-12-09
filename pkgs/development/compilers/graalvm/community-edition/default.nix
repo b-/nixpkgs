@@ -1,23 +1,22 @@
 { lib
-, stdenv
-, callPackage
-, fetchurl
+, pkgs
 }:
 
+lib.makeScope pkgs.newScope (self:
 {
-  buildGraalvm = callPackage ./buildGraalvm.nix;
+  buildGraalvm = self.callPackage ./buildGraalvm.nix;
 
-  buildGraalvmProduct = callPackage ./buildGraalvmProduct.nix;
+  buildGraalvmProduct = self.callPackage ./buildGraalvmProduct.nix;
 
-  graalvm-ce = callPackage ./graalvm-ce { };
+  graalvm-ce = self.callPackage ./graalvm-ce { };
 
-  graalvm-ce-musl = callPackage ./graalvm-ce { useMusl = true; };
+  graalvm-ce-musl = self.callPackage ./graalvm-ce { useMusl = true; };
 
-  graaljs = callPackage ./graaljs { };
+  graaljs = self.callPackage ./graaljs { };
 
-  graalnodejs = callPackage ./graalnodejs { };
+  graalnodejs = self.callPackage ./graalnodejs { };
 
-  graalpy = callPackage ./graalpy { };
+  graalpy = self.callPackage ./graalpy { };
 
-  truffleruby = callPackage ./truffleruby { };
-}
+  truffleruby = self.callPackage ./truffleruby { };
+})

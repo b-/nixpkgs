@@ -2,13 +2,13 @@
 
 buildGoModule rec {
   pname = "cni-plugins";
-  version = "1.4.0";
+  version = "1.6.1";
 
   src = fetchFromGitHub {
     owner = "containernetworking";
     repo = "plugins";
     rev = "v${version}";
-    hash = "sha256-goXpNpb5tVOHeskRLw3CivYett3RxYBREAI+S74CMFQ=";
+    hash = "sha256-thtN7po5SToM0ZFYIbycaPJTafLvk9hFV4XFGOpWmpg=";
   };
 
   vendorHash = null;

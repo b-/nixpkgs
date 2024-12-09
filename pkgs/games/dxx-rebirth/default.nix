@@ -1,7 +1,6 @@
 { lib, stdenv
 , fetchFromGitHub
 , fetchurl
-, fetchpatch
 , scons
 , pkg-config
 , SDL2
@@ -23,13 +22,13 @@ let
 in
 stdenv.mkDerivation rec {
   pname = "dxx-rebirth";
-  version = "0-unstable-2024-01-13";
+  version = "0.60.0-beta2-unstable-2024-11-16";
 
   src = fetchFromGitHub {
     owner = "dxx-rebirth";
     repo = "dxx-rebirth";
-    rev = "5c710857a9312e1b2f3249c51c12b55f9390a2b1";
-    hash = "sha256-nEPMJiTeePAmourAksUNqyy5whs+8+qy/qrycfNw2lo=";
+    rev = "ebe4aceb721894ff614481e97c50df0fd7e3e814";
+    hash = "sha256-b6N/qkydI56bkCPhTJ5SwB8OdLqEFJhK9WPA4ELB1BI=";
   };
 
   nativeBuildInputs = [ pkg-config scons ];

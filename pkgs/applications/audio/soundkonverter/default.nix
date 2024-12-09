@@ -19,7 +19,7 @@
   withSox ? true, sox,
   withOpus ? true, opusTools,
   withTwolame ? false, twolame,
-  withApe ? false, mac,
+  withApe ? false, monkeysAudio,
   withWavpack ? false, wavpack
 }:
 
@@ -35,7 +35,7 @@ let runtimeDeps = []
     ++ lib.optional withSox sox
     ++ lib.optional withOpus opusTools
     ++ lib.optional withTwolame twolame
-    ++ lib.optional withApe mac
+    ++ lib.optional withApe monkeysAudio
     ++ lib.optional withWavpack wavpack
     ++ lib.optional withUnfreeAac faac
     ++ lib.optionals withMidi [ fluidsynth timidity ]
@@ -78,6 +78,7 @@ mkDerivation rec {
     license = lib.licenses.gpl2;
     maintainers = [ lib.maintainers.schmittlauch ];
     description = "Audio file converter, CD ripper and Replay Gain tool";
+    mainProgram = "soundkonverter";
     longDescription = ''
       soundKonverter is a frontend to various audio converters.
 

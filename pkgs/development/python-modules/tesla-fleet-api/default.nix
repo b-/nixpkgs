@@ -1,14 +1,19 @@
-{ lib
-, buildPythonPackage
-, fetchFromGitHub
-, setuptools
-, pythonOlder
-, aiohttp
+{
+  lib,
+  aiofiles,
+  aiohttp,
+  aiolimiter,
+  buildPythonPackage,
+  cryptography,
+  fetchFromGitHub,
+  protobuf,
+  pythonOlder,
+  setuptools,
 }:
 
 buildPythonPackage rec {
   pname = "tesla-fleet-api";
-  version = "0.4.4";
+  version = "0.8.5";
   pyproject = true;
 
   disabled = pythonOlder "3.10";
@@ -17,23 +22,23 @@ buildPythonPackage rec {
     owner = "Teslemetry";
     repo = "python-tesla-fleet-api";
     rev = "refs/tags/v${version}";
-    hash = "sha256-80VjSg94gCXzqy6Z/yuDblYgo4TlJdxR+jsOiY/Zhng=";
+    hash = "sha256-vsgWdAvNl1lZgVK7SU6oF93gfEQ1hsAuFMSIpmKNWAg=";
   };
 
-  nativeBuildInputs = [
-    setuptools
-  ];
+  build-system = [ setuptools ];
 
-  propagatedBuildInputs = [
+  dependencies = [
+    aiofiles
     aiohttp
+    aiolimiter
+    cryptography
+    protobuf
   ];
 
   # Module has no tests
-  doCheck  =false;
+  doCheck = false;
 
-  pythonImportsCheck = [
-    "tesla_fleet_api"
-  ];
+  pythonImportsCheck = [ "tesla_fleet_api" ];
 
   meta = with lib; {
     description = "Python library for Tesla Fleet API and Teslemetry";

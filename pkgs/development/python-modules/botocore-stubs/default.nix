@@ -1,37 +1,34 @@
-{ lib
-, buildPythonPackage
-, fetchPypi
-, poetry-core
-, pythonOlder
-, types-awscrt
-, typing-extensions
+{
+  lib,
+  buildPythonPackage,
+  fetchPypi,
+  setuptools,
+  pythonOlder,
+  types-awscrt,
+  typing-extensions,
 }:
 
 buildPythonPackage rec {
   pname = "botocore-stubs";
-  version = "1.34.49";
-  format = "pyproject";
+  version = "1.35.76";
+  pyproject = true;
 
   disabled = pythonOlder "3.7";
 
   src = fetchPypi {
     pname = "botocore_stubs";
     inherit version;
-    hash = "sha256-St5+p0mKRFMiherfKD7Z3SvW540n/9VjKBj4pUgDs2w=";
+    hash = "sha256-yXegSUgdUKFL8tsO8VAgt2c0/2KNS44Od7jRxlMYNp4=";
   };
 
-  nativeBuildInputs = [
-    poetry-core
-  ];
+  nativeBuildInputs = [ setuptools ];
 
   propagatedBuildInputs = [
     types-awscrt
     typing-extensions
   ];
 
-  pythonImportsCheck = [
-    "botocore-stubs"
-  ];
+  pythonImportsCheck = [ "botocore-stubs" ];
 
   meta = with lib; {
     description = "Type annotations and code completion for botocore";

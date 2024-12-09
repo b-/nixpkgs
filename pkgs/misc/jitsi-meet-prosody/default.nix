@@ -2,15 +2,15 @@
 
 stdenv.mkDerivation rec {
   pname = "jitsi-meet-prosody";
-  version = "1.0.7762";
+  version = "1.0.8242";
   src = fetchurl {
     url = "https://download.jitsi.org/stable/${pname}_${version}-1_all.deb";
-    sha256 = "AbIr+nJEccZFWDbuo+VeTEpLkreOBzKkrJFZFvY1ppI=";
+    sha256 = "3DiPyZAAf//IH8jN+HevZaOpo0OhxsP6cBxzn8xxJ3M=";
   };
 
-  dontBuild = true;
+  nativeBuildInputs = [ dpkg ];
 
-  unpackCmd = "${dpkg}/bin/dpkg-deb -x $src debcontents";
+  dontBuild = true;
 
   installPhase = ''
     runHook preInstall

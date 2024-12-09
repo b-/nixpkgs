@@ -122,6 +122,7 @@ in {
       };
       passthru.tests = import ./python-catch-conflicts-hook-tests.nix {
         inherit pythonOnBuildForHost runCommand;
+        inherit lib;
         inherit (pkgs) coreutils gnugrep writeShellScript;
       };
     } ./python-catch-conflicts-hook.sh) {};
@@ -191,21 +192,16 @@ in {
 
   setuptoolsBuildHook = callPackage ({ makePythonHook, setuptools, wheel }:
     makePythonHook {
-      name = "setuptools-setup-hook";
+      name = "setuptools-build-hook";
       propagatedBuildInputs = [ setuptools wheel ];
       substitutions = {
-        inherit pythonInterpreter pythonSitePackages setuppy;
+        inherit pythonInterpreter setuppy;
+        # python2.pkgs.setuptools does not support parallelism
+        setuptools_has_parallel = setuptools != null && lib.versionAtLeast setuptools.version "69";
       };
     } ./setuptools-build-hook.sh) {};
 
-  setuptoolsCheckHook = callPackage ({ makePythonHook, setuptools }:
-    makePythonHook {
-      name = "setuptools-check-hook";
-      propagatedBuildInputs = [ setuptools ];
-      substitutions = {
-        inherit pythonCheckInterpreter setuppy;
-      };
-    } ./setuptools-check-hook.sh) {};
+  setuptoolsCheckHook = throw "The setuptoolsCheckHook has been removed, since the test command has been removed in setuptools 72.0";
 
     setuptoolsRustBuildHook = callPackage ({ makePythonHook, setuptools-rust }:
       makePythonHook {

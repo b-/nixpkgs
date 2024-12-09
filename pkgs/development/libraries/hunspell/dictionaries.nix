@@ -697,12 +697,12 @@ rec {
   uk_UA = uk-ua;
   uk-ua = mkDict rec {
     pname = "hunspell-dict-uk-ua";
-    version = "4.6.3";
-    _version = "4-6.3";
+    version = "6.5.3";
+    _version = "1727974630";
 
     src = fetchurl {
-      url = "https://extensions.libreoffice.org/extensions/ukrainian-spelling-dictionary-and-thesaurus/${_version}/@@download/file/dict-uk_UA-${version}.oxt";
-      sha256 = "14rd07yx4fx2qxjr5xqc8qy151idd8k2hr5yi18d9r8gccnm9w50";
+      url = "https://extensions.libreoffice.org/assets/downloads/521/${_version}/dict-uk_UA-${version}.oxt";
+      hash = "sha256-c957WHJqaf/M2QrE2H3aIDAWGoQDnDl0na7sd+kUXNI=";
     };
 
     dictFileName = "uk_UA";
@@ -807,7 +807,7 @@ rec {
     meta = with lib; {
       description = "Hunspell dictionary for Dutch (Netherlands) from OpenTaal";
       homepage = "https://www.opentaal.org/";
-      license = with licenses; [ bsd3 ]; # and/or cc-by-nc-30
+      license = with licenses; [ bsd3 /* or */ cc-by-30 ];
       maintainers = with maintainers; [ artturin ];
     };
   };
@@ -828,14 +828,14 @@ rec {
   th_TH = th-th;
   th-th = mkDict {
     pname = "hunspell-dict-th-th";
-    version = "experimental-2023-03-01";
+    version = "experimental-2024-04-15";
     dictFileName = "th_TH";
     readmeFile = "README.md";
     src = fetchFromGitHub {
       owner = "SyafiqHadzir";
       repo = "Hunspell-TH";
-      rev = "9c09f1b7c0eb4d04b9f6f427901686c5c3d9fa54";
-      sha256 = "1wszpnbgj31k72x1vvcfkzcpmxsncdpqsi3zagah7swilpi7cqm4";
+      rev = "419eb32115b936da9c949e35b35c29b8187f6c93";
+      sha256 = "sha256-aXjof5dcEoCmep3PtvVkBhcgcd2NtqUpUEu37wsi1Uk=";
     };
     meta = with lib; {
       description = "Hunspell dictionary for Central Thai (Thailand)";
@@ -844,6 +844,18 @@ rec {
       maintainers = with maintainers; [ toastal ]; # looking for a native speaker
       platforms = platforms.all;
     };
+  };
+
+  /* INDONESIA */
+
+  id_ID = id_id;
+  id_id = mkDictFromLibreOffice {
+    shortName = "id-id";
+    dictFileName = "id_ID";
+    sourceRoot = "id";
+    shortDescription = "Bahasa Indonesia (Indonesia)";
+    readmeFile = "README-dict.md";
+    license = with lib.licenses; [ lgpl21Only lgpl3Only ];
   };
 
   /* CROATIAN */
@@ -966,5 +978,70 @@ rec {
       maintainers = with maintainers; [ nix-julia ];
       platforms = platforms.all;
     };
+  };
+
+  /* ROMANIAN */
+  ro_RO = ro-ro;
+  ro-ro = mkDict rec {
+    pname = "hunspell-dict-ro-ro";
+    version = "3.3.10";
+    shortName = "ro-ro";
+    dictFileName = "ro_RO";
+    fileName = "${dictFileName}.${version}.zip";
+    shortDescription = "Romanian (Romania)";
+    readmeFile = "README";
+
+    src = fetchurl {
+      url = "mirror://sourceforge/rospell/${fileName}";
+      hash = "sha256-fxKNZOoGyeZxHDCxGMCv7vsBTY8zyS2szfRVq6LQRRk=";
+    };
+
+    nativeBuildInputs = [ unzip ];
+    unpackCmd = ''
+      unzip $src ${dictFileName}.aff ${dictFileName}.dic ${readmeFile} -d ${dictFileName}
+    '';
+
+    meta = {
+      description = "Hunspell dictionary for ${shortDescription} from rospell";
+      homepage = "https://sourceforge.net/projects/rospell/";
+      license = with lib.licenses; [ gpl2Only ];
+      maintainers = with lib.maintainers; [ Andy3153 ];
+    };
+  };
+
+  /* Turkish */
+  tr_TR = tr-tr;
+  tr-tr = mkDict rec {
+    pname = "hunspell-dict-tr-tr";
+    version = "1.1.1";
+
+    src = fetchFromGitHub {
+      owner = "tdd-ai";
+      repo = "hunspell-tr";
+      rev = "7302eca5f3652fe7ae3d3ec06c44697c97342b4e";
+      hash = "sha256-r/I5T/1e7gcp2XZ4UvnpFmWMTsNqLZSCbkqPcgC13PE=";
+    };
+
+    dictFileName = "tr_TR";
+    readmeFile = "README.md";
+
+    meta = with lib; {
+      description = "Hunspell dictionary for Turkish (Turkey) from tdd-ai";
+      homepage = "https://github.com/tdd-ai/hunspell-tr/";
+      license = licenses.mpl20;
+      maintainers = with maintainers; [ samemrecebi ];
+      platforms = platforms.all;
+    };
+  };
+
+  /* GREEK */
+
+  el_GR = el-gr;
+  el-gr = mkDictFromLibreOffice {
+    shortName = "el-gr";
+    dictFileName = "el_GR";
+    shortDescription = "Greek (Greece)";
+    readmeFile = "README_el_GR.txt";
+    license = with lib.licenses; [ mpl11 gpl2 lgpl21 ];
   };
 }

@@ -7,7 +7,6 @@
 , dbus-glib
 , glib
 , gtk3
-, gtksourceview3
 , gucharmap
 , libmateweather
 , libnl
@@ -20,32 +19,30 @@
 , polkit
 , upower
 , wirelesstools
-, mate
 , hicolor-icon-theme
-, wrapGAppsHook
+, wrapGAppsHook3
 , mateUpdateScript
 }:
 
 stdenv.mkDerivation rec {
   pname = "mate-applets";
-  version = "1.26.1";
+  version = "1.28.1";
 
   src = fetchurl {
     url = "https://pub.mate-desktop.org/releases/${lib.versions.majorMinor version}/${pname}-${version}.tar.xz";
-    sha256 = "Orj2HbN23DM85MGHIsY6B/qz6OEnK34OCXrUWXsXwsI=";
+    sha256 = "pZZxQVJ9xbFy0yKmADwjruwlMWD2ULs2QwoG3a76fi4=";
   };
 
   nativeBuildInputs = [
     gettext
     itstool
     pkg-config
-    wrapGAppsHook
+    wrapGAppsHook3
   ];
 
   buildInputs = [
     dbus-glib
     gtk3
-    gtksourceview3
     gucharmap
     hicolor-icon-theme
     libgtop
@@ -61,7 +58,7 @@ stdenv.mkDerivation rec {
     wirelesstools
   ];
 
-  configureFlags = [ "--enable-suid=no" ];
+  configureFlags = [ "--enable-suid=no" "--enable-in-process" ];
 
   env.NIX_CFLAGS_COMPILE = "-I${glib.dev}/include/gio-unix-2.0";
 
@@ -71,6 +68,7 @@ stdenv.mkDerivation rec {
 
   meta = with lib; {
     description = "Applets for use with the MATE panel";
+    mainProgram = "mate-cpufreq-selector";
     homepage = "https://mate-desktop.org";
     license = with licenses; [ gpl2Plus lgpl2Plus ];
     platforms = platforms.linux;

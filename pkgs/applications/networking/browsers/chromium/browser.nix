@@ -1,5 +1,5 @@
 { lib, mkChromiumDerivation
-, channel, chromiumVersionAtLeast
+, chromiumVersionAtLeast
 , enableWideVine, ungoogled
 }:
 
@@ -73,7 +73,7 @@ mkChromiumDerivation (base: rec {
   requiredSystemFeatures = [ "big-parallel" ];
 
   meta = {
-    description = "An open source web browser from Google"
+    description = "Open source web browser from Google"
       + lib.optionalString ungoogled ", with dependencies on Google web services removed";
     longDescription = ''
       Chromium is an open source web browser from Google that aims to build a
@@ -84,13 +84,15 @@ mkChromiumDerivation (base: rec {
     homepage = if ungoogled
       then "https://github.com/ungoogled-software/ungoogled-chromium"
       else "https://www.chromium.org/";
+    # Maintainer pings for this derivation are highly unreliable.
+    # If you add yourself as maintainer here, please also add yourself as CODEOWNER.
     maintainers = with lib.maintainers; if ungoogled
       then [ networkexception emilylange ]
       else [ networkexception emilylange ];
     license = if enableWideVine then lib.licenses.unfree else lib.licenses.bsd3;
     platforms = lib.platforms.linux;
     mainProgram = "chromium";
-    hydraPlatforms = lib.optionals (channel == "stable" || channel == "ungoogled-chromium") ["aarch64-linux" "x86_64-linux"];
+    hydraPlatforms = ["aarch64-linux" "x86_64-linux"];
     timeout = 172800; # 48 hours (increased from the Hydra default of 10h)
   };
 })

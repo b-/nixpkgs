@@ -1,5 +1,5 @@
 { lib, stdenv, fetchurl, fetchpatch, pkg-config, vala, gobject-introspection, gtk-doc
-, docbook_xsl, docbook_xml_dtd_412, glib, libxml2, libsoup, gnome, buildPackages
+, docbook_xsl, docbook_xml_dtd_412, glib, libxml2, libsoup_2_4, gnome, buildPackages
 , Foundation, AppKit
 }:
 
@@ -35,8 +35,8 @@ stdenv.mkDerivation rec {
   buildInputs = [
     glib
     libxml2
-    libsoup
-  ] ++ lib.optionals stdenv.isDarwin [
+    libsoup_2_4
+  ] ++ lib.optionals stdenv.hostPlatform.isDarwin [
     Foundation
     AppKit
   ];
@@ -58,7 +58,7 @@ stdenv.mkDerivation rec {
 
   meta = with lib; {
     description = "Glib abstaction to handle feeds in RSS, Atom and other formats";
-    homepage = "https://wiki.gnome.org/Projects/Libgrss";
+    homepage = "https://gitlab.gnome.org/GNOME/libgrss";
     license = licenses.lgpl3Plus;
     maintainers = teams.gnome.members;
     platforms = platforms.unix;

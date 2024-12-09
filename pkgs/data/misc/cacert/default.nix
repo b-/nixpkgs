@@ -20,11 +20,11 @@ let
   blocklist = writeText "cacert-blocklist.txt" (lib.concatStringsSep "\n" blacklist);
   extraCertificatesBundle = writeText "cacert-extra-certificates-bundle.crt" (lib.concatStringsSep "\n\n" extraCertificateStrings);
 
-  srcVersion = "3.98";
+  srcVersion = "3.107";
   version = if nssOverride != null then nssOverride.version else srcVersion;
   meta = with lib; {
     homepage = "https://curl.haxx.se/docs/caextract.html";
-    description = "A bundle of X.509 certificates of public Certificate Authorities (CA)";
+    description = "Bundle of X.509 certificates of public Certificate Authorities (CA)";
     platforms = platforms.all;
     maintainers = with maintainers; [ fpletz lukegb ];
     license = licenses.mpl20;
@@ -37,7 +37,7 @@ let
       owner = "nss-dev";
       repo = "nss";
       rev = "NSS_${lib.replaceStrings ["."] ["_"] version}_RTM";
-      hash = "sha256-0p1HzspxyzhzX46O7ax8tmYiaFEBeqEqEvman4NIiQc=";
+      hash = "sha256-c6ks/pBvZHipNkmBy784s96zMYP+D9q3VlVrPVSohLw=";
     };
 
     dontBuild = true;

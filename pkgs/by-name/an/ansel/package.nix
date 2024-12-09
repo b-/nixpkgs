@@ -44,7 +44,7 @@
 , isocodes
 , libpsl
 , libepoxy
-, libsoup
+, libsoup_2_4
 , exiv2
 , libXtst
 , libthai
@@ -54,7 +54,7 @@
 , libgpg-error
 , libxkbcommon
 , osm-gps-map
-, wrapGAppsHook
+, wrapGAppsHook3
 , rav1e
 , dav1d
 , libgcrypt
@@ -77,15 +77,20 @@ let
 in
 stdenv.mkDerivation {
   pname = "ansel";
-  version = "unstable-2024-01-05";
+  version = "0-unstable-2024-10-28";
 
   src = fetchFromGitHub {
     owner = "aurelienpierreeng";
     repo = "ansel";
-    rev = "e2c4a0a60cd80f741dd3d3c6ab72be9ac11234fb";
-    hash = "sha256-Kg020MHy9fn1drCk+66f25twqczvD/5evutDODqOjYM=";
+    rev = "7f23d9d38630629e559e76073ec4dbe71733c225";
+    hash = "sha256-2AEQlt75nnVD8ZFpVUEvgxRV94NtWDK0R+zVd/ytXuU=";
     fetchSubmodules = true;
   };
+
+  patches = [
+    # don't use absolute paths to binary or icon - see https://github.com/NixOS/nixpkgs/issues/308324
+    ./fix-desktop-file.patch
+  ];
 
   strictDeps = true;
 
@@ -98,7 +103,7 @@ stdenv.mkDerivation {
     pkg-config
     perlPackages.perl
     python3Packages.jsonschema
-    wrapGAppsHook
+    wrapGAppsHook3
   ];
 
   buildInputs = [
@@ -133,7 +138,7 @@ stdenv.mkDerivation {
     libsecret
     libselinux
     libsepol
-    libsoup
+    libsoup_2_4
     libsysprof-capture
     libthai
     libwebp
@@ -160,13 +165,21 @@ stdenv.mkDerivation {
     )
   '';
 
-  passthru.updateScript = unstableGitUpdater { };
+  passthru.updateScript = unstableGitUpdater {
+    # Tags inherited from Darktable, + a "nightly" 0.0.0 tag that new artefacts get attached to
+    hardcodeZeroVersion = true;
+  };
+
+  # cmake can't find the binary itself
+  cmakeFlags = [
+    (lib.cmakeFeature "Xsltproc_BIN" (lib.getExe' libxslt "xsltproc"))
+  ];
 
   meta = {
-    description = "A darktable fork minus the bloat plus some design vision";
+    description = "Darktable fork minus the bloat plus some design vision";
     homepage = "https://ansel.photos/";
     license = lib.licenses.gpl3Plus;
-    maintainers = with lib.maintainers; [ eclairevoyant ];
+    maintainers = with lib.maintainers; [ ];
     mainProgram = "ansel";
     platforms = lib.platforms.linux;
   };

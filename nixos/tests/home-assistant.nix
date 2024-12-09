@@ -1,4 +1,7 @@
-import ./make-test-python.nix ({ pkgs, lib, ... }:
+{
+  lib,
+  ...
+}:
 
 let
   configDir = "/var/lib/foobar";
@@ -44,6 +47,8 @@ in {
       # test loading custom components
       customComponents = with pkgs.home-assistant-custom-components; [
         prometheus_sensor
+        # tests loading multiple components from a single package
+        spook
       ];
 
       # test loading lovelace modules
@@ -120,7 +125,7 @@ in {
     # Cause a configuration change that requires a service restart as we added a new runtime dependency
     specialisation.newFeature = {
       inheritParentConfig = true;
-      configuration.services.home-assistant.config.backup = {};
+      configuration.services.home-assistant.config.prometheus = {};
     };
 
     specialisation.removeCustomThings = {
@@ -179,7 +184,8 @@ in {
 
     with subtest("Check that custom components get installed"):
         hass.succeed("test -f ${configDir}/custom_components/prometheus_sensor/manifest.json")
-        hass.wait_until_succeeds("journalctl -u home-assistant.service | grep -q 'We found a custom integration prometheus_sensor which has not been tested by Home Assistant'")
+        for integration in ("prometheus_sensor", "spook", "spook_inverse"):
+            hass.wait_until_succeeds(f"journalctl -u home-assistant.service | grep -q 'We found a custom integration {integration} which has not been tested by Home Assistant'")
 
     with subtest("Check that lovelace modules are referenced and fetchable"):
         hass.succeed("grep -q 'mini-graph-card-bundle.js' '${configDir}/configuration.yaml'")
@@ -203,32 +209,33 @@ in {
     with subtest("Check extra components are considered in systemd unit hardening"):
         hass.succeed("systemctl show -p DeviceAllow home-assistant.service | grep -q char-ttyUSB")
 
-    with subtest("Check service reloads when configuration changes"):
+    with subtest("Check service restart from SIGHUP"):
         pid = hass.succeed("systemctl show --property=MainPID home-assistant.service")
         cursor = get_journal_cursor()
         hass.succeed("${system}/specialisation/differentName/bin/switch-to-configuration test")
-        new_pid = hass.succeed("systemctl show --property=MainPID home-assistant.service")
-        assert pid == new_pid, "The PID of the process should not change between process reloads"
         wait_for_homeassistant(cursor)
+        new_pid = hass.succeed("systemctl show --property=MainPID home-assistant.service")
+        assert pid != new_pid, "The PID of the process must change after sending SIGHUP"
 
     with subtest("Check service restarts when dependencies change"):
         pid = new_pid
         cursor = get_journal_cursor()
         hass.succeed("${system}/specialisation/newFeature/bin/switch-to-configuration test")
-        new_pid = hass.succeed("systemctl show --property=MainPID home-assistant.service")
-        assert pid != new_pid, "The PID of the process should change when its PYTHONPATH changess"
         wait_for_homeassistant(cursor)
+        new_pid = hass.succeed("systemctl show --property=MainPID home-assistant.service")
+        assert pid != new_pid, "The PID of the process must change when its PYTHONPATH changess"
 
     with subtest("Check that new components get setup after restart"):
         journal = get_journal_since(cursor)
-        for domain in ["backup"]:
+        for domain in ["prometheus"]:
             assert f"Setup of domain {domain} took" in journal, f"{domain} setup missing"
 
     with subtest("Check custom components and custom lovelace modules get removed"):
         cursor = get_journal_cursor()
         hass.succeed("${system}/specialisation/removeCustomThings/bin/switch-to-configuration test")
         hass.fail("grep -q 'mini-graph-card-bundle.js' '${configDir}/ui-lovelace.yaml'")
-        hass.fail("test -f ${configDir}/custom_components/prometheus_sensor/manifest.json")
+        for integration in ("prometheus_sensor", "spook", "spook_inverse"):
+            hass.fail(f"test -f ${configDir}/custom_components/{integration}/manifest.json")
         wait_for_homeassistant(cursor)
 
     with subtest("Check that no errors were logged"):
@@ -238,4 +245,4 @@ in {
         hass.log(hass.succeed("systemctl cat home-assistant.service"))
         hass.log(hass.succeed("systemd-analyze security home-assistant.service"))
   '';
-})
+}

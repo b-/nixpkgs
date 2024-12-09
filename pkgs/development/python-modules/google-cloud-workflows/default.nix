@@ -1,33 +1,33 @@
-{ lib
-, buildPythonPackage
-, fetchPypi
-, google-api-core
-, mock
-, proto-plus
-, protobuf
-, pytest-asyncio
-, pytestCheckHook
-, pythonOlder
-, setuptools
+{
+  lib,
+  buildPythonPackage,
+  fetchPypi,
+  google-api-core,
+  mock,
+  proto-plus,
+  protobuf,
+  pytest-asyncio,
+  pytestCheckHook,
+  pythonOlder,
+  setuptools,
 }:
 
 buildPythonPackage rec {
   pname = "google-cloud-workflows";
-  version = "1.14.2";
+  version = "1.15.1";
   pyproject = true;
 
   disabled = pythonOlder "3.7";
 
   src = fetchPypi {
-    inherit pname version;
-    hash = "sha256-L1gL3r+HzywvsbfWk28Rthwm8lqz0S9ekTcWUh8FcLM=";
+    pname = "google_cloud_workflows";
+    inherit version;
+    hash = "sha256-FrYsxhvLIFb8+b1LdlB9xs0mMoKKbTDBW5paeEim9Wk=";
   };
 
-  nativeBuildInputs = [
-    setuptools
-  ];
+  build-system = [ setuptools ];
 
-  propagatedBuildInputs = [
+  dependencies = [
     google-api-core
     proto-plus
     protobuf

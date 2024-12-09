@@ -16,18 +16,19 @@
 , openssl
 , p11-kit
 , pcsclite
+, wrapGAppsHook3
 }:
 
 stdenv.mkDerivation rec {
   pname = "eid-mw";
   # NOTE: Don't just blindly update to the latest version/tag. Releases are always for a specific OS.
-  version = "5.1.16";
+  version = "5.1.21";
 
   src = fetchFromGitHub {
     owner = "Fedict";
     repo = "eid-mw";
     rev = "v${version}";
-    hash = "sha256-UOZVCTXiqYnatS/ZhJZZprqtwtkVt8EJRHZ9XuX5W5o=";
+    hash = "sha256-WFXVQ2CNrEEy4R6xGiwWkAZmbvXK44FtO5w6s1ZUZpA=";
   };
 
   postPatch = ''
@@ -36,7 +37,7 @@ stdenv.mkDerivation rec {
   '';
 
 
-  nativeBuildInputs = [ autoreconfHook autoconf-archive pkg-config makeWrapper ];
+  nativeBuildInputs = [ wrapGAppsHook3 autoreconfHook autoconf-archive pkg-config makeWrapper ];
   buildInputs = [ curl gtk3 libassuan libbsd libproxy libxml2 openssl p11-kit pcsclite ];
 
   preConfigure = ''

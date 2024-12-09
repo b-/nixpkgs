@@ -158,7 +158,11 @@ let
         --add-flags "--socket=${socketFile}"
       makeWrapper ${cfg.package}/bin/keymgr "$out/bin/keymgr" \
         --add-flags "--config=${configFile}"
-      for executable in kdig khost kjournalprint knsec3hash knsupdate kzonecheck
+      makeWrapper ${cfg.package}/bin/kzonesign "$out/bin/kzonesign" \
+        --add-flags "--config=${configFile}"
+      makeWrapper ${cfg.package}/bin/kcatalogprint "$out/bin/kcatalogprint" \
+        --add-flags "--config=${configFile}"
+      for executable in kdig khost kjournalprint knsec3hash knsupdate kzonecheck kxdpgun
       do
         ln -s "${cfg.package}/bin/$executable" "$out/bin/$executable"
       done
@@ -226,7 +230,7 @@ in {
       };
 
       settings = mkOption {
-        type = types.attrs;
+        type = (pkgs.formats.yaml {}).type;
         default = {};
         description = ''
           Extra configuration as nix values.
@@ -337,6 +341,7 @@ in {
         SystemCallFilter = [
           "@system-service"
           "~@privileged"
+          "@chown"
         ] ++ optionals (cfg.enableXDP) [
           "bpf"
         ];

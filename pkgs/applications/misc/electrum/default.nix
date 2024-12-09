@@ -1,7 +1,7 @@
 { lib
 , stdenv
 , fetchurl
-, fetchFromGitHub
+, protobuf
 , wrapQtAppsHook
 , python3
 , zbar
@@ -12,51 +12,31 @@
 }:
 
 let
-  version = "4.5.3";
-
   libsecp256k1_name =
-    if stdenv.isLinux then "libsecp256k1.so.{v}"
-    else if stdenv.isDarwin then "libsecp256k1.{v}.dylib"
+    if stdenv.hostPlatform.isLinux then "libsecp256k1.so.{v}"
+    else if stdenv.hostPlatform.isDarwin then "libsecp256k1.{v}.dylib"
     else "libsecp256k1${stdenv.hostPlatform.extensions.sharedLibrary}";
 
   libzbar_name =
-    if stdenv.isLinux then "libzbar.so.0"
-    else if stdenv.isDarwin then "libzbar.0.dylib"
+    if stdenv.hostPlatform.isLinux then "libzbar.so.0"
+    else if stdenv.hostPlatform.isDarwin then "libzbar.0.dylib"
     else "libzbar${stdenv.hostPlatform.extensions.sharedLibrary}";
-
-  # Not provided in official source releases, which are what upstream signs.
-  tests = fetchFromGitHub {
-    owner = "spesmilo";
-    repo = "electrum";
-    rev = version;
-    sha256 = "sha256-Lr6ynHAbyaiaxYAWU5j5Wh5acxO5HkP1/jpnFrL4j68=";
-
-    postFetch = ''
-      mv $out ./all
-      mv ./all/tests $out
-    '';
-  };
 
 in
 
-python3.pkgs.buildPythonApplication {
+python3.pkgs.buildPythonApplication rec {
   pname = "electrum";
-  inherit version;
+  version = "4.5.8";
 
   src = fetchurl {
     url = "https://download.electrum.org/${version}/Electrum-${version}.tar.gz";
-    sha256 = "sha256-kej0msc7SB+51ad5xZrT8MMEY5rfYOGqum6RO1gBH5s=";
+    hash = "sha256-3YWVoTgTLe6Hzuds52Ch1iL8L9ZdO2rH335Tt/tup+g=";
   };
 
-  postUnpack = ''
-    # can't symlink, tests get confused
-    cp -ar ${tests} $sourceRoot/tests
-  '';
+  build-system = [ protobuf ] ++ lib.optionals enableQt [ wrapQtAppsHook ];
+  buildInputs = lib.optional (stdenv.hostPlatform.isLinux && enableQt) qtwayland;
 
-  nativeBuildInputs = lib.optionals enableQt [ wrapQtAppsHook ];
-  buildInputs = lib.optional (stdenv.isLinux && enableQt) qtwayland;
-
-  propagatedBuildInputs = with python3.pkgs; [
+  dependencies = with python3.pkgs; [
     aiohttp
     aiohttp-socks
     aiorpcx
@@ -71,7 +51,6 @@ python3.pkgs.buildPythonApplication {
     pysocks
     qrcode
     requests
-    tlslite-ng
     certifi
     jsonpatch
     # plugins
@@ -80,6 +59,9 @@ python3.pkgs.buildPythonApplication {
     ckcc-protocol
     keepkey
     trezor
+    bitbox02
+    cbor2
+    pyserial
   ] ++ lib.optionals enableQt [
     pyqt5
     qdarkstyle
@@ -105,7 +87,7 @@ python3.pkgs.buildPythonApplication {
     sed -i '/qdarkstyle/d' contrib/requirements/requirements.txt
   '');
 
-  postInstall = lib.optionalString stdenv.isLinux ''
+  postInstall = lib.optionalString stdenv.hostPlatform.isLinux ''
     substituteInPlace $out/share/applications/electrum.desktop \
       --replace 'Exec=sh -c "PATH=\"\\$HOME/.local/bin:\\$PATH\"; electrum %u"' \
                 "Exec=$out/bin/electrum %u" \
@@ -140,7 +122,7 @@ python3.pkgs.buildPythonApplication {
     changelog = "https://github.com/spesmilo/electrum/blob/master/RELEASE-NOTES";
     license = licenses.mit;
     platforms = platforms.all;
-    maintainers = with maintainers; [ joachifm np prusnak ];
+    maintainers = with maintainers; [ joachifm np prusnak chewblacka ];
     mainProgram = "electrum";
   };
 }

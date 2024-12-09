@@ -1,13 +1,14 @@
-{ lib
-, fetchPypi
-, buildPythonPackage
-, pytestCheckHook
-, dotnetCorePackages
-, setuptools
-, setuptools-scm
-, wheel
-, buildDotnetModule
-, cffi
+{
+  lib,
+  fetchPypi,
+  buildPythonPackage,
+  pytestCheckHook,
+  dotnetCorePackages,
+  setuptools,
+  setuptools-scm,
+  wheel,
+  buildDotnetModule,
+  cffi,
 }:
 
 let
@@ -23,14 +24,20 @@ let
   # build is done in `buildPythonPackage` below.
   dotnet-build = buildDotnetModule {
     inherit pname version src;
-    projectFile = [ "netfx_loader/ClrLoader.csproj" "example/example.csproj" ];
+    projectFile = [
+      "netfx_loader/ClrLoader.csproj"
+      "example/example.csproj"
+    ];
     nugetDeps = ./deps.nix;
+    dotnet-sdk = dotnetCorePackages.sdk_6_0;
   };
 in
 buildPythonPackage {
   inherit pname version src;
 
   format = "pyproject";
+
+  buildInputs = dotnetCorePackages.sdk_6_0.packages ++ dotnet-build.nugetDeps;
 
   nativeBuildInputs = [
     setuptools
@@ -39,13 +46,9 @@ buildPythonPackage {
     dotnetCorePackages.sdk_6_0
   ];
 
-  propagatedBuildInputs = [
-    cffi
-  ];
+  propagatedBuildInputs = [ cffi ];
 
-  nativeCheckInputs = [
-    pytestCheckHook
-  ];
+  nativeCheckInputs = [ pytestCheckHook ];
 
   disabledTests = [
     # TODO: mono does not work due to https://github.com/NixOS/nixpkgs/issues/7307
@@ -59,13 +62,11 @@ buildPythonPackage {
   preConfigure = ''
     dotnet restore "netfx_loader/ClrLoader.csproj" \
       -p:ContinuousIntegrationBuild=true \
-      -p:Deterministic=true \
-      --source "${dotnet-build.nuget-source}"
+      -p:Deterministic=true
 
     dotnet restore "example/example.csproj" \
       -p:ContinuousIntegrationBuild=true \
-      -p:Deterministic=true \
-      --source "${dotnet-build.nuget-source}"
+      -p:Deterministic=true
   '';
 
   passthru.fetch-deps = dotnet-build.fetch-deps;

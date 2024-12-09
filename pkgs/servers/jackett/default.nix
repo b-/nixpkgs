@@ -5,29 +5,31 @@
 , dotnetCorePackages
 , openssl
 , mono
+, nixosTests
 }:
 
 buildDotnetModule rec {
   pname = "jackett";
-  version = "0.21.1672";
+  version = "0.22.998";
 
   src = fetchFromGitHub {
     owner = pname;
     repo = pname;
     rev = "v${version}";
-    hash = "sha512-afXP02lZwCjL0XqLzapVM/N2qlE7rxdbfPrTaulN8N227jOPRgq3g96rnXr42crMv1IhThUbEFxN0E1vcMDm5w==";
+    hash = "sha512-EBFu+ga5shxACG7jt5js8yLf7wR9fK84nan9ZBx8B4rp73A0JL5A4gg8s3NxC/NIUHf3kUBPiApyAdz8ECuhZQ==";
   };
 
   projectFile = "src/Jackett.Server/Jackett.Server.csproj";
   nugetDeps = ./deps.nix;
 
-  dotnet-runtime = dotnetCorePackages.aspnetcore_6_0;
+  dotnet-runtime = dotnetCorePackages.aspnetcore_8_0;
+  dotnet-sdk = dotnetCorePackages.sdk_8_0;
 
-  dotnetInstallFlags = [ "-p:TargetFramework=net6.0" ];
+  dotnetInstallFlags = [ "-p:TargetFramework=net8.0" ];
 
   runtimeDeps = [ openssl ];
 
-  doCheck = !(stdenv.isDarwin && stdenv.isAarch64); # mono is not available on aarch64-darwin
+  doCheck = !(stdenv.hostPlatform.isDarwin && stdenv.hostPlatform.isAarch64); # mono is not available on aarch64-darwin
   nativeCheckInputs = [ mono ];
   testProjectFile = "src/Jackett.Test/Jackett.Test.csproj";
 
@@ -38,8 +40,11 @@ buildDotnetModule rec {
   '';
   passthru.updateScript = ./updater.sh;
 
+  passthru.tests = { inherit (nixosTests) jackett; };
+
   meta = with lib; {
     description = "API Support for your favorite torrent trackers";
+    mainProgram = "jackett";
     homepage = "https://github.com/Jackett/Jackett/";
     changelog = "https://github.com/Jackett/Jackett/releases/tag/v${version}";
     license = licenses.gpl2Only;

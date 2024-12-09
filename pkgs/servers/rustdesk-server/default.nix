@@ -13,13 +13,13 @@
 
 rustPlatform.buildRustPackage rec {
   pname = "rustdesk-server";
-  version = "1.1.10-3";
+  version = "1.1.12";
 
   src = fetchFromGitHub {
     owner = "rustdesk";
     repo = "rustdesk-server";
     rev = version;
-    hash = "sha256-iXe5V99hvtdRi6t/2wUMQ/aSCWfscA1s48vrdO6H2Rw=";
+    hash = "sha256-5QyrI3KLZZcQpudYqghrotLrLjSOhdDFR5eqnJC/0fU=";
   };
 
   cargoLock = {
@@ -38,7 +38,7 @@ rustPlatform.buildRustPackage rec {
   buildInputs = [
     libsodium
     sqlite
-  ] ++ lib.optionals stdenv.isDarwin [
+  ] ++ lib.optionals stdenv.hostPlatform.isDarwin [
     Security
   ];
 

@@ -1,4 +1,4 @@
-{ lib, stdenv, callPackage, fetchurl, nixosTests, commandLineArgs ? "", useVSCodeRipgrep ? stdenv.isDarwin }:
+{ lib, stdenv, callPackage, fetchurl, nixosTests, commandLineArgs ? "", useVSCodeRipgrep ? stdenv.hostPlatform.isDarwin }:
 
 let
   inherit (stdenv.hostPlatform) system;
@@ -12,24 +12,24 @@ let
     armv7l-linux = "linux-armhf";
   }.${system} or throwSystem;
 
-  archive_fmt = if stdenv.isDarwin then "zip" else "tar.gz";
+  archive_fmt = if stdenv.hostPlatform.isDarwin then "zip" else "tar.gz";
 
   sha256 = {
-    x86_64-linux = "0mnblhg4mfj2231v344h7m9gm3pd7v79jarifcpskxh23gry3scy";
-    x86_64-darwin = "0iv5hgf60nmfli0w4h3as41bhmsmp8kiynnsjrxp915v6im3jxxj";
-    aarch64-linux = "01w3x7syi0m1hk2xm80h3vz4grz462c0fqmgvbflcgdib88wlmj7";
-    aarch64-darwin = "0gzha0rp4mdkk23065a17pqjbz3i4p98i4cmfwz476sqssax8sha";
-    armv7l-linux = "05i6x23h6mmaxx2gchb9p928l6mcs69pwxg5mqvi8aq719gr7kd4";
+    x86_64-linux = "0948jbnhjra09bvf9acrl6b2dp1xar5ajahmzy0cwf6dbidfms5y";
+    x86_64-darwin = "1a8ga66526lfy2xrgshhizmidp8aaiwvpr38rvhsx0hqb4vmm0hy";
+    aarch64-linux = "08la7kbb6myf9iz23p60vd00mrmhnizw8dgh54gb0msh8wbasidq";
+    aarch64-darwin = "01z1dx77briqzhfx45c2f2np78r11b5xm92smi9idivbsia800i3";
+    armv7l-linux = "0h3f9sy7d4ylk0ay63adhnz9s7jlpwlf3x831v8pygzm2r7k9zgc";
   }.${system} or throwSystem;
 
-  sourceRoot = lib.optionalString (!stdenv.isDarwin) ".";
+  sourceRoot = lib.optionalString (!stdenv.hostPlatform.isDarwin) ".";
 in
   callPackage ./generic.nix rec {
     inherit sourceRoot commandLineArgs useVSCodeRipgrep;
 
     # Please backport all compatible updates to the stable release.
     # This is important for the extension ecosystem.
-    version = "1.86.2.24054";
+    version = "1.95.3.24321";
     pname = "vscodium";
 
     executableName = "codium";

@@ -11,15 +11,15 @@
 
 with python3Packages; buildPythonApplication rec {
   pname = "platformio";
-  version = "6.1.11";
+  version = "6.1.16";
   pyproject = true;
 
   # pypi tarballs don't contain tests - https://github.com/platformio/platformio-core/issues/1964
   src = fetchFromGitHub {
     owner = "platformio";
     repo = "platformio-core";
-    rev = "v${version}";
-    hash = "sha256-NR4UyAt8q5sUGtz1Sy6E8Of7y9WrH9xpcAWzLBeDQmo=";
+    tag = "v${version}";
+    hash = "sha256-hZgbLUk2Krynut5uD6GMxWA+95y8ONNUmv4kaAltumk=";
   };
 
   outputs = [ "out" "udev" ];
@@ -43,9 +43,16 @@ with python3Packages; buildPythonApplication rec {
     })
   ];
 
+  postPatch = ''
+    # Disable update checks at runtime
+    substituteInPlace platformio/maintenance.py --replace-fail '    check_platformio_upgrade()' ""
+
+    # Remove filterwarnings which fails on new deprecations in Python 3.12 for 3.14
+    rm tox.ini
+  '';
+
   nativeBuildInputs = [
     installShellFiles
-    pythonRelaxDepsHook
     setuptools
   ];
 
@@ -72,7 +79,7 @@ with python3Packages; buildPythonApplication rec {
     uvicorn
     wsproto
     zeroconf
-  ] ++ lib.optionals (stdenv.isDarwin && stdenv.isAarch64) [
+  ] ++ lib.optionals (stdenv.hostPlatform.isDarwin && stdenv.hostPlatform.isAarch64) [
     chardet
   ];
 
@@ -125,6 +132,7 @@ with python3Packages; buildPythonApplication rec {
     # requires internet connection
     "test_api_cache"
     "test_ping_internet_ips"
+    "test_metadata_dump"
   ];
 
   pytestFlagsArray = [
@@ -194,7 +202,7 @@ with python3Packages; buildPythonApplication rec {
 
   meta = with lib; {
     changelog = "https://github.com/platformio/platformio-core/releases/tag/v${version}";
-    description = "An open source ecosystem for IoT development";
+    description = "Open source ecosystem for IoT development";
     downloadPage = "https://github.com/platformio/platformio-core";
     homepage = "https://platformio.org";
     license = licenses.asl20;

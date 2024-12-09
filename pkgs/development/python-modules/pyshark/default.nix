@@ -1,15 +1,17 @@
-{ lib
-, stdenv
-, appdirs
-, buildPythonPackage
-, fetchFromGitHub
-, lxml
-, packaging
-, py
-, pytestCheckHook
-, pythonOlder
-, termcolor
-, wireshark-cli
+{
+  lib,
+  stdenv,
+  appdirs,
+  buildPythonPackage,
+  fetchFromGitHub,
+  fetchpatch,
+  lxml,
+  packaging,
+  py,
+  pytestCheckHook,
+  pythonOlder,
+  termcolor,
+  wireshark-cli,
 }:
 
 buildPythonPackage rec {
@@ -28,6 +30,14 @@ buildPythonPackage rec {
 
   # `stripLen` does not seem to work here
   patchFlags = [ "-p2" ];
+
+  patches = [
+    # fixes capture test
+    (fetchpatch {
+      url = "https://github.com/KimiNewt/pyshark/commit/7142c5bf88abcd4c65c81052a00226d6155dda42.patch";
+      hash = "sha256-Ti7cwRyYSbF4a4pEEV9FntNevkV/JVXNqACQWzoma7g=";
+    })
+  ];
 
   sourceRoot = "${src.name}/src";
 
@@ -51,29 +61,27 @@ buildPythonPackage rec {
     export HOME=$(mktemp -d)
   '';
 
-  disabledTests = [
-    # flaky
-    # KeyError: 'Packet of index 0 does not exist in capture'
-    "test_getting_packet_summary"
-  ] ++ lib.optionals stdenv.isDarwin [
-    # fails on darwin
-    # _pickle.PicklingError: logger cannot be pickled
-    "test_iterate_empty_psml_capture"
-  ];
+  disabledTests =
+    [
+      # flaky
+      # KeyError: 'Packet of index 0 does not exist in capture'
+      "test_getting_packet_summary"
+    ]
+    ++ lib.optionals stdenv.hostPlatform.isDarwin [
+      # fails on darwin
+      # _pickle.PicklingError: logger cannot be pickled
+      "test_iterate_empty_psml_capture"
+    ];
 
-  pythonImportsCheck = [
-    "pyshark"
-  ];
+  pythonImportsCheck = [ "pyshark" ];
 
-  pytestFlagsArray = [
-    "../tests/"
-  ];
+  pytestFlagsArray = [ "../tests/" ];
 
   meta = with lib; {
     description = "Python wrapper for tshark, allowing Python packet parsing using Wireshark dissectors";
     homepage = "https://github.com/KimiNewt/pyshark/";
     changelog = "https://github.com/KimiNewt/pyshark/releases/tag/${version}";
     license = licenses.mit;
-    maintainers = with maintainers; [ ];
+    maintainers = [ ];
   };
 }

@@ -3,7 +3,9 @@
 , fetchFromGitHub
 , fetchYarnDeps
 , makeWrapper
+, nix-update-script
 , prefetch-yarn-deps
+, fixup-yarn-lock
 , nodejs
 , yarn
 , nixosTests
@@ -11,21 +13,21 @@
 
 stdenv.mkDerivation rec {
   pname = "outline";
-  version = "0.75.0";
+  version = "0.81.1";
 
   src = fetchFromGitHub {
     owner = "outline";
     repo = "outline";
     rev = "v${version}";
-    hash = "sha256-u4WDD0HRaNHdknHaoPYprebUaHt8EmESjBG0N6NZpIk=";
+    hash = "sha256-P0JDkuEm5eeVwi0+C7uSytA2NPQXUgJEDxqPiJfRNvs=";
   };
 
-  nativeBuildInputs = [ makeWrapper prefetch-yarn-deps ];
+  nativeBuildInputs = [ makeWrapper prefetch-yarn-deps fixup-yarn-lock ];
   buildInputs = [ yarn nodejs ];
 
   yarnOfflineCache = fetchYarnDeps {
     yarnLock = "${src}/yarn.lock";
-    hash = "sha256-V+1lqZh68T3C9VAFETHehv9iCt1j24ZeY9ErbnRGIrk=";
+    hash = "sha256-j0mA+2GQZNxQoEi8qwmipUXGjPL4/bY5GHAT0o92Ob0=";
   };
 
   configurePhase = ''
@@ -69,16 +71,21 @@ stdenv.mkDerivation rec {
     runHook postInstall
   '';
 
-  passthru.tests = {
-    basic-functionality = nixosTests.outline;
+  passthru = {
+    tests = {
+      basic-functionality = nixosTests.outline;
+    };
+    updateScript = nix-update-script { };
+    # alias for nix-update to be able to find and update this attribute
+    offlineCache = yarnOfflineCache;
   };
 
   meta = with lib; {
-    description = "The fastest wiki and knowledge base for growing teams. Beautiful, feature rich, and markdown compatible";
+    description = "Fastest wiki and knowledge base for growing teams. Beautiful, feature rich, and markdown compatible";
     homepage = "https://www.getoutline.com/";
     changelog = "https://github.com/outline/outline/releases";
     license = licenses.bsl11;
-    maintainers = with maintainers; [ cab404 yrd xanderio ];
+    maintainers = with maintainers; [ cab404 yrd ] ++ teams.cyberus.members;
     platforms = platforms.linux;
   };
 }

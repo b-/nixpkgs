@@ -5,8 +5,9 @@
 , intltool
 , glib
 , gtk3
+, json_c
 , libxml2
-, libsoup
+, libsoup_2_4
 , upower
 , libxfce4ui
 , libxfce4util
@@ -22,11 +23,11 @@ in
 
 stdenv.mkDerivation rec {
   pname = "xfce4-weather-plugin";
-  version = "0.11.1";
+  version = "0.11.3";
 
   src = fetchurl {
     url = "mirror://xfce/src/${category}/${pname}/${lib.versions.majorMinor version}/${pname}-${version}.tar.bz2";
-    sha256 = "sha256-pFFG+aDc3JXRkcCcZK0nmuKJz4+BHEQz4I4xplaEUjk=";
+    sha256 = "sha256-AC0f5jkG0vOgEvPLWMzv8d+8xGZ1njbHbTsD3QHA3Fc=";
   };
 
   nativeBuildInputs = [
@@ -37,8 +38,9 @@ stdenv.mkDerivation rec {
   buildInputs = [
     glib
     gtk3
+    json_c
     libxml2
-    libsoup
+    libsoup_2_4
     upower
     libxfce4ui
     libxfce4util
