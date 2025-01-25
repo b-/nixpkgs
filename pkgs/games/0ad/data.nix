@@ -1,4 +1,9 @@
-{ lib, stdenv, fetchurl, zeroad-unwrapped }:
+{
+  lib,
+  stdenv,
+  fetchurl,
+  zeroad-unwrapped,
+}:
 
 stdenv.mkDerivation rec {
   pname = "0ad-data";
@@ -16,11 +21,11 @@ stdenv.mkDerivation rec {
   '';
 
   meta = with lib; {
-    description = "A free, open-source game of ancient warfare -- data files";
+    description = "Free, open-source game of ancient warfare -- data files";
     homepage = "https://play0ad.com/";
     license = licenses.cc-by-sa-30;
     maintainers = with maintainers; [ chvp ];
     platforms = platforms.linux;
-    hydraPlatforms = [];
+    hydraPlatforms = [ ];
   };
 }

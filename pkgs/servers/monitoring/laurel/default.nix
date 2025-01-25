@@ -1,21 +1,29 @@
-{ acl
-, fetchFromGitHub
-, lib
-, rustPlatform
+{
+  acl,
+  fetchFromGitHub,
+  lib,
+  rustPlatform,
 }:
 
 rustPlatform.buildRustPackage rec {
   pname = "laurel";
-  version = "0.5.6";
+  version = "0.6.4";
 
   src = fetchFromGitHub {
     owner = "threathunters-io";
-    repo = pname;
-    rev = "refs/tags/v${version}";
-    hash = "sha256-IGmpNSHGlQGJn4cvcXXWbIOWqsXizzp1azfT41B4rm4=";
+    repo = "laurel";
+    tag = "v${version}";
+    hash = "sha256-mp1XTFD6mvH3RzvzvnJ58iJ6/EjENKYSzOavC2rVixs=";
   };
 
-  cargoHash = "sha256-jm1AWybDnpc1E4SWieQcsVwn8mxkJ5damMsXqg54LI8=";
+  cargoHash = "sha256-F5yMNm1JaE9q0NQJ3PDmPlW4WdjfyJj/J9er18acsKw=";
+
+  postPatch = ''
+    # Upstream started to redirect aarch64-unknown-linux-gnu to aarch64-linux-gnu-gcc
+    # for their CI which breaks compiling on aarch64 in nixpkgs:
+    #  error: linker `aarch64-linux-gnu-gcc` not found
+    rm .cargo/config.toml
+  '';
 
   nativeBuildInputs = [ rustPlatform.bindgenHook ];
   buildInputs = [ acl ];

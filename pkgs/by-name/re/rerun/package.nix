@@ -1,40 +1,55 @@
 {
   lib,
+  stdenv,
   rustPlatform,
   fetchFromGitHub,
-  pkg-config,
-  stdenv,
+
+  # nativeBuildInputs
   binaryen,
-  rustfmt,
   lld,
-  darwin,
+  pkg-config,
+  protobuf,
+  rustfmt,
+
+  # buildInputs
   freetype,
   glib,
   gtk3,
   libxkbcommon,
   openssl,
-  protobuf,
   vulkan-loader,
   wayland,
+
+  versionCheckHook,
+
+  # passthru
+  nix-update-script,
   python3Packages,
 }:
 
 rustPlatform.buildRustPackage rec {
   pname = "rerun";
-  version = "0.13.0";
+  version = "0.21.0";
 
   src = fetchFromGitHub {
     owner = "rerun-io";
     repo = "rerun";
-    rev = version;
-    hash = "sha256-HgzzuvCpzKgWC8it0PSq62hBjjqpdgYtQQ50SNbr3do=";
+    tag = version;
+    hash = "sha256-U+Q8u1XKBD9c49eXAgc5vASKytgyAEYyYv8XNfftlZU=";
   };
-  patches = [
-    # Disables a doctest that depends on a nightly feature
-    ./0001-re_space_view_time_series-utils-patch-out-doctests-w.patch
-  ];
 
-  cargoHash = "sha256-qvnkOlcjADV4b+JfFAy9yNaZGaf0ZO7hh9HBg5XmPi0=";
+  # The path in `build.rs` is wrong for some reason, so we patch it to make the passthru tests work
+  postPatch = ''
+    substituteInPlace rerun_py/build.rs \
+      --replace-fail '"rerun_sdk/rerun_cli/rerun"' '"rerun_sdk/rerun"'
+  '';
+
+  cargoHash = "sha256-d68dNAAGY+a0DpL82S/qntu2XOsoVqHpfU2L9NcoJQc=";
+
+  cargoBuildFlags = [ "--package rerun-cli" ];
+  cargoTestFlags = [ "--package rerun-cli" ];
+  buildNoDefaultFeatures = true;
+  buildFeatures = [ "native_viewer" ];
 
   nativeBuildInputs = [
     (lib.getBin binaryen) # wasm-opt
@@ -47,29 +62,14 @@ rustPlatform.buildRustPackage rec {
     rustfmt
   ];
 
-  buildInputs =
-    [
-      freetype
-      glib
-      gtk3
-      (lib.getDev openssl)
-      libxkbcommon
-      vulkan-loader
-    ]
-    ++ lib.optionals stdenv.isDarwin [
-      darwin.apple_sdk.frameworks.AppKit
-      darwin.apple_sdk.frameworks.CoreFoundation
-      darwin.apple_sdk.frameworks.CoreGraphics
-      darwin.apple_sdk.frameworks.CoreServices
-      darwin.apple_sdk.frameworks.Foundation
-      darwin.apple_sdk.frameworks.IOKit
-      darwin.apple_sdk.frameworks.Metal
-      darwin.apple_sdk.frameworks.QuartzCore
-      darwin.apple_sdk.frameworks.Security
-    ]
-    ++ lib.optionals stdenv.isLinux [ (lib.getLib wayland) ];
-
-  env.CARGO_TARGET_WASM32_UNKNOWN_UNKNOWN_LINKER = "lld";
+  buildInputs = [
+    freetype
+    glib
+    gtk3
+    (lib.getDev openssl)
+    libxkbcommon
+    vulkan-loader
+  ] ++ lib.optionals stdenv.hostPlatform.isLinux [ (lib.getLib wayland) ];
 
   addDlopenRunpaths = map (p: "${lib.getLib p}/lib") (
     lib.optionals stdenv.hostPlatform.isLinux [
@@ -96,28 +96,33 @@ rustPlatform.buildRustPackage rec {
     )
   '';
 
-  postPhases = lib.optionals stdenv.hostPlatform.isLinux  [ "addDlopenRunpathsPhase" ];
+  postPhases = lib.optionals stdenv.hostPlatform.isLinux [ "addDlopenRunpathsPhase" ];
 
-  cargoTestFlags = [
-    "-p"
-    "rerun"
-    "--workspace"
-    "--exclude=crates/rerun/src/lib.rs"
+  nativeInstallCheckInputs = [
+    versionCheckHook
   ];
+  versionCheckProgramArg = [ "--version" ];
+  doInstallCheck = true;
 
-  passthru.tests = {
-    inherit (python3Packages) rerun-sdk;
+  passthru = {
+    updateScript = nix-update-script { };
+    tests = {
+      inherit (python3Packages) rerun-sdk;
+    };
   };
 
-  meta = with lib; {
+  meta = {
     description = "Visualize streams of multimodal data. Fast, easy to use, and simple to integrate.  Built in Rust using egui";
     homepage = "https://github.com/rerun-io/rerun";
-    changelog = "https://github.com/rerun-io/rerun/blob/${src.rev}/CHANGELOG.md";
-    license = with licenses; [
+    changelog = "https://github.com/rerun-io/rerun/blob/${src.tag}/CHANGELOG.md";
+    license = with lib.licenses; [
       asl20
       mit
     ];
-    maintainers = with maintainers; [ SomeoneSerge ];
+    maintainers = with lib.maintainers; [
+      SomeoneSerge
+      robwalt
+    ];
     mainProgram = "rerun";
   };
 }

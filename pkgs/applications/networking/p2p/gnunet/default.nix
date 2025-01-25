@@ -7,11 +7,11 @@
 
 stdenv.mkDerivation rec {
   pname = "gnunet";
-  version = "0.20.0";
+  version = "0.23.1";
 
   src = fetchurl {
-    url = "mirror://gnu/gnunet/${pname}-${version}.tar.gz";
-    sha256 = "sha256-VgKeeKmcBNUrE1gJSuUHTkzY6puYz2hV9XrZryeslRg=";
+    url = "mirror://gnu/gnunet/gnunet-${version}.tar.gz";
+    hash = "sha256-b9BbaQdrOxqOfiCyVOBE/dTG2lMTGWMX894Ij30CXPI=";
   };
 
   enableParallelBuilding = true;
@@ -28,16 +28,12 @@ stdenv.mkDerivation rec {
     # /etc/{resolv.conf,hosts}, replace all references to `localhost'
     # by their IPv4 equivalent.
     find . \( -name \*.c -or -name \*.conf \) | \
-      xargs sed -ie 's|\<localhost\>|127.0.0.1|g'
+      xargs sed -i -e 's|\<localhost\>|127.0.0.1|g'
 
     # Make sure the tests don't rely on `/tmp', for the sake of chroot
     # builds.
     find . \( -iname \*test\*.c -or -name \*.conf \) | \
-      xargs sed -ie "s|/tmp|$TMPDIR|g"
-
-    sed -ie 's|@LDFLAGS@|@LDFLAGS@ $(Z_LIBS)|g' \
-      src/regex/Makefile.in \
-      src/fs/Makefile.in
+      xargs sed -i -e "s|/tmp|$TMPDIR|g"
   '';
 
   # unfortunately, there's still a few failures with impure tests
@@ -68,7 +64,7 @@ stdenv.mkDerivation rec {
 
     homepage = "https://gnunet.org/";
     license = licenses.agpl3Plus;
-    maintainers = with maintainers; [ pstn vrthra ];
+    maintainers = with maintainers; [ pstn ];
     platforms = platforms.unix;
     changelog = "https://git.gnunet.org/gnunet.git/tree/ChangeLog?h=v${version}";
   };

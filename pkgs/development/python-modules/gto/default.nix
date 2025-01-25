@@ -1,54 +1,48 @@
-{ lib
-, buildPythonPackage
-, entrypoints
-, fastentrypoints
-, fetchFromGitHub
-, freezegun
-, funcy
-, git
-, pydantic
-, pytest-mock
-, pytest-test-utils
-, pytestCheckHook
-, pythonOlder
-, rich
-, ruamel-yaml
-, scmrepo
-, semver
-, setuptools
-, setuptools-scm
-, tabulate
-, typer
+{
+  lib,
+  buildPythonPackage,
+  entrypoints,
+  fastentrypoints,
+  fetchFromGitHub,
+  freezegun,
+  funcy,
+  git,
+  pydantic,
+  pytest-cov-stub,
+  pytest-mock,
+  pytest-test-utils,
+  pytestCheckHook,
+  pythonOlder,
+  rich,
+  ruamel-yaml,
+  scmrepo,
+  semver,
+  setuptools-scm,
+  setuptools,
+  tabulate,
+  typer,
 }:
 
 buildPythonPackage rec {
   pname = "gto";
-  version = "1.6.2";
+  version = "1.7.2";
   pyproject = true;
 
-  disabled = pythonOlder "3.8";
+  disabled = pythonOlder "3.9";
 
   src = fetchFromGitHub {
     owner = "iterative";
     repo = "gto";
-    rev = "refs/tags/${version}";
-    hash = "sha256-1+Owhp2otGC/FIdsSz+4vn0sZR696+zOMGNDvjM6KH8=";
+    tag = version;
+    hash = "sha256-8ht22RqiGWqDoBrZnX5p3KKOLVPRm1a54962qKlTK4Q=";
   };
 
-  postPatch = ''
-    substituteInPlace pyproject.toml \
-      --replace ', "setuptools_scm_git_archive==1.4.1"' ""
-    substituteInPlace setup.cfg \
-      --replace " --cov=gto --cov-report=term-missing --cov-report=xml" ""
-  '';
-
-  nativeBuildInputs = [
-    fastentrypoints
+  build-system = [
     setuptools
     setuptools-scm
   ];
 
-  propagatedBuildInputs = [
+  dependencies = [
     entrypoints
     funcy
     pydantic
@@ -63,6 +57,7 @@ buildPythonPackage rec {
   nativeCheckInputs = [
     freezegun
     git
+    pytest-cov-stub
     pytest-mock
     pytest-test-utils
     pytestCheckHook
@@ -82,9 +77,7 @@ buildPythonPackage rec {
     "test_action_doesnt_push_even_if_repo_has_remotes_set"
   ];
 
-  pythonImportsCheck = [
-    "gto"
-  ];
+  pythonImportsCheck = [ "gto" ];
 
   meta = with lib; {
     description = "Module for Git Tag Operations";
@@ -92,5 +85,6 @@ buildPythonPackage rec {
     changelog = "https://github.com/iterative/gto/releases/tag/${version}";
     license = licenses.asl20;
     maintainers = with maintainers; [ fab ];
+    mainProgram = "gto";
   };
 }

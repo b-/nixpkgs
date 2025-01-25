@@ -1,25 +1,30 @@
-{ lib
-, buildPythonPackage
-, fetchFromGitHub
-, hatchling
-, anyio
-, distro
-, dirty-equals
-, httpx
-, google-auth
-, sniffio
-, pydantic
-, pytest-asyncio
-, respx
-, tokenizers
-, typing-extensions
-, pytestCheckHook
-, pythonOlder
+{
+  lib,
+  anyio,
+  buildPythonPackage,
+  dirty-equals,
+  distro,
+  fetchFromGitHub,
+  google-auth,
+  hatch-fancy-pypi-readme,
+  hatchling,
+  httpx,
+  jiter,
+  nest-asyncio,
+  pydantic,
+  pytest-asyncio,
+  pytestCheckHook,
+  pythonAtLeast,
+  pythonOlder,
+  respx,
+  sniffio,
+  tokenizers,
+  typing-extensions,
 }:
 
 buildPythonPackage rec {
   pname = "anthropic";
-  version = "0.15.0";
+  version = "0.42.0";
   pyproject = true;
 
   disabled = pythonOlder "3.8";
@@ -27,42 +32,59 @@ buildPythonPackage rec {
   src = fetchFromGitHub {
     owner = "anthropics";
     repo = "anthropic-sdk-python";
-    rev = "refs/tags/v${version}";
-    hash = "sha256-cI+CbQir2QpHAb+72clLGG7ZBsrYT3fY14HzxjtKOsk=";
+    tag = "v${version}";
+    hash = "sha256-7cRXKXiyq3ty21klkitjjnm9rzBRmAXGYvvVxTNWeZ4=";
   };
 
-  nativeBuildInputs = [
+  build-system = [
     hatchling
+    hatch-fancy-pypi-readme
   ];
 
-  propagatedBuildInputs = [
+  dependencies = [
     anyio
     distro
     httpx
+    jiter
     sniffio
     pydantic
     tokenizers
     typing-extensions
   ];
 
-  passthru.optional-dependencies = {
+  optional-dependencies = {
     vertex = [ google-auth ];
   };
 
   nativeCheckInputs = [
     dirty-equals
     pytest-asyncio
+    nest-asyncio
     pytestCheckHook
     respx
   ];
 
+  pythonImportsCheck = [ "anthropic" ];
+
+  disabledTests =
+    [
+      # Test require network access
+      "test_copy_build_request"
+    ]
+    ++ lib.optionals (pythonAtLeast "3.13") [
+      # Fails on RuntimeWarning: coroutine method 'aclose' of 'AsyncStream._iter_events' was never awaited
+      "test_multi_byte_character_multiple_chunks[async]"
+    ];
+
   disabledTestPaths = [
-    # require network access
+    # Test require network access
     "tests/api_resources"
+    "tests/lib/test_bedrock.py"
   ];
 
-  pythonImportsCheck = [
-    "anthropic"
+  pytestFlagsArray = [
+    "-W"
+    "ignore::DeprecationWarning"
   ];
 
   meta = with lib; {

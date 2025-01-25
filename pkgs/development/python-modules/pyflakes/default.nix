@@ -1,9 +1,11 @@
-{ lib
-, buildPythonPackage
-, pythonOlder
-, fetchFromGitHub
-, setuptools
-, pytestCheckHook
+{
+  lib,
+  buildPythonPackage,
+  pythonAtLeast,
+  pythonOlder,
+  fetchFromGitHub,
+  setuptools,
+  pytestCheckHook,
 }:
 
 buildPythonPackage rec {
@@ -21,12 +23,13 @@ buildPythonPackage rec {
     hash = "sha256-ouCkkm9OrYob00uLTilqgWsTWfHhzaiZp7sa2C5liqk=";
   };
 
-  nativeBuildInputs = [
-    setuptools
-  ];
+  nativeBuildInputs = [ setuptools ];
 
-  nativeCheckInputs = [
-    pytestCheckHook
+  nativeCheckInputs = [ pytestCheckHook ];
+
+  disabledTests = lib.optionals (pythonAtLeast "3.13") [
+    # https://github.com/PyCQA/pyflakes/issues/812
+    "test_errors_syntax"
   ];
 
   pythonImportsCheck = [ "pyflakes" ];
@@ -34,7 +37,8 @@ buildPythonPackage rec {
   meta = with lib; {
     homepage = "https://github.com/PyCQA/pyflakes";
     changelog = "https://github.com/PyCQA/pyflakes/blob/${src.rev}/NEWS.rst";
-    description = "A simple program which checks Python source files for errors";
+    description = "Simple program which checks Python source files for errors";
+    mainProgram = "pyflakes";
     license = licenses.mit;
     maintainers = with maintainers; [ dotlambda ];
   };

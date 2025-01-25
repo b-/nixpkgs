@@ -1,4 +1,14 @@
-{ lib, stdenv, fetchFromGitHub, SDL2, IOKit, Foundation, cmake, makeWrapper }:
+{
+  lib,
+  stdenv,
+  fetchFromGitHub,
+  SDL2,
+  IOKit,
+  Foundation,
+  OpenGL,
+  cmake,
+  makeWrapper,
+}:
 
 stdenv.mkDerivation rec {
   pname = "bugdom";
@@ -21,12 +31,15 @@ stdenv.mkDerivation rec {
     sed -i '/plutil/d' CMakeLists.txt
   '';
 
-  buildInputs = [
-    SDL2
-  ] ++ lib.optionals stdenv.hostPlatform.isDarwin [
-    IOKit
-    Foundation
-  ];
+  buildInputs =
+    [
+      SDL2
+    ]
+    ++ lib.optionals stdenv.hostPlatform.isDarwin [
+      IOKit
+      Foundation
+      OpenGL
+    ];
 
   nativeBuildInputs = [
     cmake
@@ -39,27 +52,35 @@ stdenv.mkDerivation rec {
     "-DSDL2_INCLUDE_DIRS=${SDL2.dev}/include/SDL2"
   ];
 
-  installPhase = ''
-    runHook preInstall
+  installPhase =
+    ''
+      runHook preInstall
 
-  '' + (if stdenv.hostPlatform.isDarwin then ''
-    mkdir -p $out/{bin,Applications}
-    mv {,$out/Applications/}Bugdom.app
-    makeWrapper $out/{Applications/Bugdom.app/Contents/MacOS,bin}/Bugdom
-  '' else ''
-    mkdir -p $out/share/bugdom
-    mv Data $out/share/bugdom
-    install -Dm755 {.,$out/bin}/Bugdom
-    wrapProgram $out/bin/Bugdom --run "cd $out/share/bugdom"
-    install -Dm644 $src/packaging/io.jor.bugdom.desktop $out/share/applications/io.jor.bugdom.desktop
-    install -Dm644 $src/packaging/io.jor.bugdom.png $out/share/pixmaps/io.jor.bugdom.png
-  '') + ''
+    ''
+    + (
+      if stdenv.hostPlatform.isDarwin then
+        ''
+          mkdir -p $out/{bin,Applications}
+          mv {,$out/Applications/}Bugdom.app
+          makeWrapper $out/{Applications/Bugdom.app/Contents/MacOS,bin}/Bugdom
+        ''
+      else
+        ''
+          mkdir -p $out/share/bugdom
+          mv Data $out/share/bugdom
+          install -Dm755 {.,$out/bin}/Bugdom
+          wrapProgram $out/bin/Bugdom --run "cd $out/share/bugdom"
+          install -Dm644 $src/packaging/io.jor.bugdom.desktop $out/share/applications/io.jor.bugdom.desktop
+          install -Dm644 $src/packaging/io.jor.bugdom.png $out/share/pixmaps/io.jor.bugdom.png
+        ''
+    )
+    + ''
 
-    runHook postInstall
-  '';
+      runHook postInstall
+    '';
 
   meta = with lib; {
-    description = "A port of Bugdom, a 1999 Macintosh game by Pangea Software, for modern operating systems";
+    description = "Port of Bugdom, a 1999 Macintosh game by Pangea Software, for modern operating systems";
     homepage = "https://github.com/jorio/Bugdom";
     license = with licenses; [ cc-by-sa-40 ];
     maintainers = with maintainers; [ lux ];

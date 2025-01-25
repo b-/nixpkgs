@@ -1,4 +1,10 @@
-{ lib, fetchCrate, rustPlatform, testers, toml-cli }:
+{
+  lib,
+  fetchCrate,
+  rustPlatform,
+  testers,
+  toml-cli,
+}:
 
 rustPlatform.buildRustPackage rec {
   pname = "toml-cli";
@@ -24,7 +30,7 @@ rustPlatform.buildRustPackage rec {
   };
 
   meta = {
-    description = "A simple CLI for editing and querying TOML files";
+    description = "Simple CLI for editing and querying TOML files";
     homepage = "https://github.com/gnprice/toml-cli";
     license = lib.licenses.mit;
     maintainers = with lib.maintainers; [ phlip9 ];

@@ -1,7 +1,8 @@
-{ lib
-, fetchFromGitHub
-, fetchpatch
-, python3
+{
+  lib,
+  fetchFromGitHub,
+  fetchpatch,
+  python3,
 }:
 
 python3.pkgs.buildPythonApplication rec {
@@ -25,12 +26,8 @@ python3.pkgs.buildPythonApplication rec {
     })
   ];
 
-  postPatch = ''
-    substituteInPlace pyproject.toml \
-      --replace " --cov=ansiblelater --cov-report=xml:coverage.xml --cov-report=term --no-cov-on-fail" ""
-  '';
-
   pythonRelaxDeps = [
+    "anyconfig"
     "flake8"
     "jsonschema"
     "pathspec"
@@ -44,7 +41,6 @@ python3.pkgs.buildPythonApplication rec {
   nativeBuildInputs = with python3.pkgs; [
     poetry-core
     poetry-dynamic-versioning
-    pythonRelaxDepsHook
   ];
 
   propagatedBuildInputs = with python3.pkgs; [
@@ -62,9 +58,11 @@ python3.pkgs.buildPythonApplication rec {
     toolz
     unidiff
     yamllint
+    distutils
   ];
 
   nativeCheckInputs = with python3.pkgs; [
+    pytest-cov-stub
     pytest-mock
     pytestCheckHook
   ];
@@ -79,6 +77,7 @@ python3.pkgs.buildPythonApplication rec {
 
   meta = with lib; {
     description = "Best practice scanner for Ansible roles and playbooks";
+    mainProgram = "ansible-later";
     homepage = "https://github.com/thegeeklab/ansible-later";
     changelog = "https://github.com/thegeeklab/ansible-later/releases/tag/v${version}";
     license = licenses.mit;

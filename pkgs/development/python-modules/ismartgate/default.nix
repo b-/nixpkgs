@@ -1,17 +1,18 @@
-{ lib
-, buildPythonPackage
-, click
-, defusedxml
-, dicttoxml
-, fetchFromGitHub
-, httpx
-, pycryptodome
-, pytest-asyncio
-, pytest-raises
-, pytestCheckHook
-, pythonOlder
-, respx
-, typing-extensions
+{
+  lib,
+  buildPythonPackage,
+  click,
+  defusedxml,
+  dicttoxml,
+  fetchFromGitHub,
+  httpx,
+  pycryptodome,
+  pytest-asyncio,
+  pytest-raises,
+  pytestCheckHook,
+  pythonOlder,
+  respx,
+  typing-extensions,
 }:
 
 buildPythonPackage rec {
@@ -24,7 +25,7 @@ buildPythonPackage rec {
   src = fetchFromGitHub {
     owner = "bdraco";
     repo = pname;
-    rev = "refs/tags/v${version}";
+    tag = "v${version}";
     hash = "sha256-mfiHoli0ldw/E1SrtOBpDO8ZTC0wTeaoSZ2nPnx5EaQ=";
   };
 
@@ -49,9 +50,7 @@ buildPythonPackage rec {
     respx
   ];
 
-  pythonImportsCheck = [
-    "ismartgate"
-  ];
+  pythonImportsCheck = [ "ismartgate" ];
 
   meta = with lib; {
     description = "Python module to work with the ismartgate and gogogate2 API";

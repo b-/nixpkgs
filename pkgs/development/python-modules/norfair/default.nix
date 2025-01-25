@@ -1,16 +1,16 @@
-{ lib
-, buildPythonPackage
-, fetchFromGitHub
-, poetry-core
-, filterpy
-, importlib-metadata
-, numpy
-, rich
-, scipy
-, motmetrics
-, opencv4
-, pytestCheckHook
-, pythonRelaxDepsHook
+{
+  lib,
+  buildPythonPackage,
+  fetchFromGitHub,
+  poetry-core,
+  filterpy,
+  importlib-metadata,
+  numpy,
+  rich,
+  scipy,
+  motmetrics,
+  opencv4,
+  pytestCheckHook,
 }:
 
 buildPythonPackage rec {
@@ -25,16 +25,14 @@ buildPythonPackage rec {
     hash = "sha256-aKB5TYSLW7FOXIy9u2hK7px6eEmIQdKPrhChKaU1uYs=";
   };
 
-  nativeBuildInputs = [
-    poetry-core
-    pythonRelaxDepsHook
-  ];
+  build-system = [ poetry-core ];
 
   pythonRelaxDeps = [
+    "numpy"
     "rich"
   ];
 
-  propagatedBuildInputs = [
+  dependencies = [
     filterpy
     importlib-metadata
     numpy
@@ -42,22 +40,14 @@ buildPythonPackage rec {
     scipy
   ];
 
-  passthru.optional-dependencies = {
-    metrics = [
-      motmetrics
-    ];
-    video = [
-      opencv4
-    ];
+  optional-dependencies = {
+    metrics = [ motmetrics ];
+    video = [ opencv4 ];
   };
 
-  nativeCheckInputs = [
-    pytestCheckHook
-  ];
+  nativeCheckInputs = [ pytestCheckHook ];
 
-  pythonImportsCheck = [
-    "norfair"
-  ];
+  pythonImportsCheck = [ "norfair" ];
 
   meta = with lib; {
     description = "Lightweight Python library for adding real-time multi-object tracking to any detector";

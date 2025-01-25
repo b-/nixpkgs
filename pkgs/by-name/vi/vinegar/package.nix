@@ -1,72 +1,81 @@
-{ lib
-, buildGoModule
-, fetchFromGitHub
-, makeBinaryWrapper
-, pkg-config
-, libGL
-, libxkbcommon
-, xorg
-, wayland
-, vulkan-headers
-, wineWowPackages
-, fetchpatch
+{
+  lib,
+  buildGoModule,
+  fetchFromGitHub,
+  fetchurl,
+  pkg-config,
+  xorg,
+  wayland,
+  vulkan-headers,
+  wine64Packages,
+  libGL,
+  libxkbcommon,
+  makeBinaryWrapper,
+  nix-update-script,
 }:
 let
-  # wine-staging doesn't support overrideAttrs for now
-  wine = wineWowPackages.stagingFull.overrideDerivation (oldAttrs: {
-    patches =
-      (oldAttrs.patches or [ ])
-      ++ [
-        # upstream issue: https://bugs.winehq.org/show_bug.cgi?id=55604
-        # Here are the currently applied patches for Roblox to run under WINE:
-        (fetchpatch {
-          name = "vinegar-wine-segrevert.patch";
-          url = "https://raw.githubusercontent.com/flathub/org.vinegarhq.Vinegar/8fc153c492542a522d6cc2dff7d1af0e030a529a/patches/wine/temp.patch";
-          hash = "sha256-AnEBBhB8leKP0xCSr6UsQK7CN0NDbwqhe326tJ9dDjc=";
-        })
-      ];
+  wine = (wine64Packages.staging.override { embedInstallers = true; }).overrideAttrs (oldAttrs: {
+    patches = oldAttrs.patches or [ ] ++ [
+      (fetchurl {
+        name = "loader-prefer-winedllpath.patch";
+        url = "https://raw.githubusercontent.com/flathub/org.vinegarhq.Vinegar/3e07606350d803fa386eb4c358836a230819380d/patches/wine/loader-prefer-winedllpath.patch";
+        hash = "sha256-89wnr2rIbyw490hHwckB9g1GKCXm6BERnplfwEUlNOg=";
+      })
+    ];
   });
 in
 buildGoModule rec {
   pname = "vinegar";
-  version = "1.6.1";
+  version = "1.7.8";
 
   src = fetchFromGitHub {
     owner = "vinegarhq";
     repo = "vinegar";
     rev = "v${version}";
-    hash = "sha256-uRdWE5NwRVSuUZyU5B5u5DfJOxu/gUqwM682eORTDOs=";
+    hash = "sha256-qyBYPBXQgjnGA2LnghPFOd0AO6+sQcZPzPI0rlJvGHE=";
   };
 
-  vendorHash = "sha256-Ex6PRd3rD2jbLXlY36koNvZF3P+gAZTE9hExIfOw9CE=";
+  vendorHash = "sha256-SDJIoZf/Doa/NrEBRL1WXvz+fyTDGRyG0bvQ0S8A+KA=";
 
-  nativeBuildInputs = [ pkg-config makeBinaryWrapper ];
-  buildInputs = [ libGL libxkbcommon xorg.libX11 xorg.libXcursor xorg.libXfixes wayland vulkan-headers wine ];
+  nativeBuildInputs = [
+    pkg-config
+    makeBinaryWrapper
+  ];
 
-  buildPhase = ''
-    runHook preBuild
-    make PREFIX=$out
-    runHook postBuild
-  '';
+  buildInputs = [
+    xorg.libX11
+    xorg.libXcursor
+    xorg.libXfixes
+    wayland
+    vulkan-headers
+    wine
+    libGL
+    libxkbcommon
+  ];
 
-  installPhase = ''
-    runHook preInstall
-    make PREFIX=$out install
-    runHook postInstall
-  '';
+  ldflags = [
+    "-s"
+    "-w"
+  ];
+
+  makeFlags = [
+    "PREFIX=${placeholder "out"}"
+  ];
 
   postInstall = ''
     wrapProgram $out/bin/vinegar \
-      --prefix PATH : ${lib.makeBinPath [wine]}
+      --prefix PATH : ${lib.makeBinPath [ wine ]}
   '';
 
-  meta = with lib; {
-    description = "An open-source, minimal, configurable, fast bootstrapper for running Roblox on Linux";
+  passthru.updateScript = nix-update-script { };
+
+  meta = {
+    description = "Open-source, minimal, configurable, fast bootstrapper for running Roblox on Linux";
     homepage = "https://github.com/vinegarhq/vinegar";
     changelog = "https://github.com/vinegarhq/vinegar/releases/tag/v${version}";
+    license = lib.licenses.gpl3Only;
+    maintainers = with lib.maintainers; [ HeitorAugustoLN ];
     mainProgram = "vinegar";
-    license = licenses.gpl3Only;
     platforms = [ "x86_64-linux" ];
-    maintainers = with maintainers; [ nyanbinary ];
   };
 }

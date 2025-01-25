@@ -1,24 +1,25 @@
-{ lib
-, buildPythonPackage
-, fetchFromGitHub
-, freezegun
-, graphql-core
-, hatchling
-, httpx
-, pytest-asyncio
-, pytest-mock
-, pytestCheckHook
-, pythonOlder
-, python-multipart
-, starlette
-, syrupy
-, typing-extensions
-, werkzeug
+{
+  lib,
+  buildPythonPackage,
+  fetchFromGitHub,
+  freezegun,
+  graphql-core,
+  hatchling,
+  httpx,
+  pytest-asyncio,
+  pytest-mock,
+  pytestCheckHook,
+  pythonOlder,
+  python-multipart,
+  starlette,
+  syrupy,
+  typing-extensions,
+  werkzeug,
 }:
 
 buildPythonPackage rec {
   pname = "ariadne";
-  version = "0.22.0";
+  version = "0.24";
   pyproject = true;
 
   disabled = pythonOlder "3.8";
@@ -26,17 +27,13 @@ buildPythonPackage rec {
   src = fetchFromGitHub {
     owner = "mirumee";
     repo = "ariadne";
-    rev = "refs/tags/${version}";
-    hash = "sha256-GMBtW2gZbF1m0BrKhYEkSaZYt5tIGmP/ipy6WC1H1pg=";
+    tag = version;
+    hash = "sha256-QLMPmep/mtw/ZDto3kK1y/9N+7aZwAke8ZHC6dzwUuM=";
   };
 
-  patches = [
-    ./remove-opentracing.patch
-  ];
+  patches = [ ./remove-opentracing.patch ];
 
-  nativeBuildInputs = [
-    hatchling
-  ];
+  nativeBuildInputs = [ hatchling ];
 
   propagatedBuildInputs = [
     graphql-core
@@ -55,13 +52,9 @@ buildPythonPackage rec {
     werkzeug
   ];
 
-  pythonImportsCheck = [
-    "ariadne"
-  ];
+  pythonImportsCheck = [ "ariadne" ];
 
-  pytestFlagsArray = [
-    "--snapshot-update"
-  ];
+  pytestFlagsArray = [ "--snapshot-update" ];
 
   disabledTests = [
     # TypeError: TestClient.request() got an unexpected keyword argument 'content'

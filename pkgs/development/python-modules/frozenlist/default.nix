@@ -1,13 +1,14 @@
-{ lib
-, buildPythonPackage
-, cython_3
-, expandvars
-, fetchFromGitHub
-, pep517
-, pytestCheckHook
-, pythonOlder
-, setuptools
-, wheel
+{
+  lib,
+  buildPythonPackage,
+  cython,
+  expandvars,
+  fetchFromGitHub,
+  pep517,
+  pytestCheckHook,
+  pythonOlder,
+  setuptools,
+  wheel,
 }:
 
 buildPythonPackage rec {
@@ -20,7 +21,7 @@ buildPythonPackage rec {
   src = fetchFromGitHub {
     owner = "aio-libs";
     repo = "frozenlist";
-    rev = "refs/tags/v${version}";
+    tag = "v${version}";
     hash = "sha256-ICPJKN6P9ezTiDVoEVBQvJlXqF7aHE6aXFx0jzntdEA=";
   };
 
@@ -30,23 +31,19 @@ buildPythonPackage rec {
 
   nativeBuildInputs = [
     expandvars
-    cython_3
+    cython
     pep517
     setuptools
     wheel
   ];
 
-  nativeCheckInputs = [
-    pytestCheckHook
-  ];
+  nativeCheckInputs = [ pytestCheckHook ];
 
   preBuild = ''
     cython frozenlist/_frozenlist.pyx
   '';
 
-  pythonImportsCheck = [
-    "frozenlist"
-  ];
+  pythonImportsCheck = [ "frozenlist" ];
 
   meta = with lib; {
     description = "Python module for list-like structure";

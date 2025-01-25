@@ -1,15 +1,17 @@
-{ lib
-, buildPythonPackage
-, fetchPypi
-, boltons
-, pytestCheckHook
-, pythonOlder
+{
+  lib,
+  buildPythonPackage,
+  fetchPypi,
+  boltons,
+  pytestCheckHook,
+  pythonOlder,
+  setuptools,
 }:
 
 buildPythonPackage rec {
   pname = "face";
   version = "22.0.0";
-  format = "setuptools";
+  pyproject = true;
 
   disabled = pythonOlder "3.7";
 
@@ -18,17 +20,13 @@ buildPythonPackage rec {
     hash = "sha256-1daS+QvI9Zh7Y25H42OEubvaSZqvCneqCwu+g0x2kj0=";
   };
 
-  propagatedBuildInputs = [
-    boltons
-  ];
+  build-system = [ setuptools ];
 
-  nativeCheckInputs = [
-    pytestCheckHook
-  ];
+  dependencies = [ boltons ];
 
-  pythonImportsCheck = [
-    "face"
-  ];
+  nativeCheckInputs = [ pytestCheckHook ];
+
+  pythonImportsCheck = [ "face" ];
 
   disabledTests = [
     # Assertion error as we take the Python release into account
@@ -36,7 +34,7 @@ buildPythonPackage rec {
   ];
 
   meta = with lib; {
-    description = "A command-line interface parser and framework";
+    description = "Command-line interface parser and framework";
     longDescription = ''
       A command-line interface parser and framework, friendly for
       users, full-featured for developers.

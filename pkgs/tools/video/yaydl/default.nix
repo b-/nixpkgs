@@ -11,16 +11,16 @@
 
 rustPlatform.buildRustPackage rec {
   pname = "yaydl";
-  version = "0.13.0";
+  version = "0.17.1";
 
   src = fetchFromGitHub {
     owner = "dertuxmalwieder";
     repo = pname;
     rev = "release-${version}";
-    sha256 = "sha256-JwyWWqbUNZyH6gymeScb9tMZoPvn/Igz9iW2pp0XvEI=";
+    sha256 = "sha256-mMV7fnl3tEM22LCTLXoXG9RQhPSQ7DXanSURdoa0+EI=";
   };
 
-  cargoSha256 = "sha256-jmqO0UvU6s+E5r6VFFjOvSe8oiLiTG5rPNHzoHVftWo=";
+  cargoHash = "sha256-HsRg8SO9c9Fomeb5B+kOW3VDNIG4W+dagEwAoWqONyA=";
 
   nativeBuildInputs = [
     pkg-config
@@ -28,7 +28,7 @@ rustPlatform.buildRustPackage rec {
   ];
 
   buildInputs = [ openssl ]
-    ++ lib.optional stdenv.isDarwin Security;
+    ++ lib.optional stdenv.hostPlatform.isDarwin Security;
 
   postInstall = ''
     wrapProgram $out/bin/yaydl \
@@ -39,7 +39,7 @@ rustPlatform.buildRustPackage rec {
     homepage = "https://code.rosaelefanten.org/yaydl";
     description = "Yet another youtube down loader";
     license = licenses.cddl;
-    maintainers = with maintainers; [];
+    maintainers = [ ];
     mainProgram = "yaydl";
   };
 }

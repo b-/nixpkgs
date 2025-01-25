@@ -1,20 +1,25 @@
-{ fetchFromGitHub, lib, stdenv, kernel ? false }:
+{
+  lib,
+  stdenv,
+  fetchFromGitHub,
+  kernel ? false,
+}:
 
-stdenv.mkDerivation rec {
-  pname = "cryptodev-linux-1.13";
-  name = "${pname}-${kernel.version}";
+stdenv.mkDerivation (finalAttrs: {
+  pname = "cryptodev-linux";
+  version = "1.14";
 
   src = fetchFromGitHub {
     owner = "cryptodev-linux";
     repo = "cryptodev-linux";
-    rev = pname;
-    hash = "sha256-EzTPoKYa+XWOAa/Dk7ru02JmlymHeXVX7RMmEoJ1OT0=";
+    rev = "cryptodev-linux-${finalAttrs.version}";
+    hash = "sha256-N7fGOMEWrb/gm1MDiJgq2QyTOni6n9w2H52baXmRA1g=";
   };
 
   nativeBuildInputs = kernel.moduleBuildDependencies;
   hardeningDisable = [ "pic" ];
 
-  makeFlags = kernel.makeFlags ++ [
+  makeFlags = kernel.moduleMakeFlags ++ [
     "KERNEL_DIR=${kernel.dev}/lib/modules/${kernel.modDirVersion}/build"
     "INSTALL_MOD_PATH=$(out)"
     "prefix=$(out)"
@@ -27,4 +32,4 @@ stdenv.mkDerivation rec {
     license = lib.licenses.gpl2Plus;
     platforms = lib.platforms.linux;
   };
-}
+})

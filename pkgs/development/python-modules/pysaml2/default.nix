@@ -1,27 +1,26 @@
-{ lib
-, buildPythonPackage
-, cryptography
-, defusedxml
-, fetchFromGitHub
-, fetchPypi
-, paste
-, poetry-core
-, pyasn1
-, pymongo
-, pyopenssl
-, pytestCheckHook
-, python-dateutil
-, pythonOlder
-, pythonRelaxDepsHook
-, pytz
-, repoze-who
-, requests
-, responses
-, setuptools
-, substituteAll
-, xmlschema
-, xmlsec
-, zope-interface
+{
+  lib,
+  buildPythonPackage,
+  cryptography,
+  defusedxml,
+  fetchFromGitHub,
+  paste,
+  poetry-core,
+  pyasn1,
+  pymongo,
+  pyopenssl,
+  pytestCheckHook,
+  python-dateutil,
+  pythonOlder,
+  pytz,
+  repoze-who,
+  requests,
+  responses,
+  setuptools,
+  substituteAll,
+  xmlschema,
+  xmlsec,
+  zope-interface,
 }:
 
 buildPythonPackage rec {
@@ -34,7 +33,7 @@ buildPythonPackage rec {
   src = fetchFromGitHub {
     owner = "IdentityPython";
     repo = "pysaml2";
-    rev = "refs/tags/v${version}";
+    tag = "v${version}";
     hash = "sha256-M/tdKGu6K38TeBZc8/dt376bHhPB0svHB3iis/se0DY=";
   };
 
@@ -50,13 +49,10 @@ buildPythonPackage rec {
     sed -i 's/2999\(-.*T\)/2029\1/g' tests/*.xml
   '';
 
-  pythonRelaxDeps = [
-    "xmlschema"
-  ];
+  pythonRelaxDeps = [ "xmlschema" ];
 
   nativeBuildInputs = [
     poetry-core
-    pythonRelaxDepsHook
   ];
 
   propagatedBuildInputs = [
@@ -70,7 +66,7 @@ buildPythonPackage rec {
     xmlschema
   ];
 
-  passthru.optional-dependencies = {
+  optional-dependencies = {
     s2repoze = [
       paste
       repoze-who
@@ -93,15 +89,16 @@ buildPythonPackage rec {
     "test_conf_syslog"
   ];
 
-  pythonImportsCheck = [
-    "saml2"
-  ];
+  pythonImportsCheck = [ "saml2" ];
 
   meta = with lib; {
     description = "Python implementation of SAML Version 2 Standard";
     homepage = "https://github.com/IdentityPython/pysaml2";
     changelog = "https://github.com/IdentityPython/pysaml2/blob/v${version}/CHANGELOG.md";
     license = licenses.asl20;
-    maintainers = with maintainers; [ ];
+    maintainers = [ ];
+    # Does not support pyopenssl above 24.3.0 due to use of a deprecated API,
+    # see https://github.com/IdentityPython/pysaml2/issues/975
+    broken = true;
   };
 }

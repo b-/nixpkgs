@@ -1,10 +1,13 @@
-{ lib, stdenv
-, fetchFromGitHub
-, pkg-config
-, gettext
-, autoreconfHook
-, gmp
-, mpfr
+{
+  lib,
+  stdenv,
+  fetchFromGitHub,
+  fetchpatch,
+  pkg-config,
+  gettext,
+  autoreconfHook,
+  gmp,
+  mpfr,
 }:
 
 stdenv.mkDerivation rec {
@@ -17,6 +20,13 @@ stdenv.mkDerivation rec {
     rev = version;
     sha256 = "sha256-taSS7jpVyjVfNe6kSuUDXMD2PgKmtG64V5MjZyQzorI=";
   };
+
+  patches = [
+    (fetchpatch {
+      url = "https://github.com/fplll/fplll/commit/317cf70893eebfb2625da12e5377189908c36240.diff";
+      sha256 = "sha256-GbYSolBgv/he4QzjuRFdg93wHJABVHvA9x3PjpJTSRE=";
+    })
+  ];
 
   nativeBuildInputs = [
     pkg-config

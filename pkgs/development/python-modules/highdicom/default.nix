@@ -1,14 +1,16 @@
-{ lib
-, buildPythonPackage
-, fetchFromGitHub
-, pythonOlder
-, pytestCheckHook
-, numpy
-, pillow
-, pillow-jpls
-, pydicom
-, pylibjpeg
-, pylibjpeg-libjpeg
+{
+  lib,
+  buildPythonPackage,
+  fetchFromGitHub,
+  pythonOlder,
+  pytestCheckHook,
+  numpy,
+  pillow,
+  pillow-jpls,
+  pydicom,
+  pylibjpeg,
+  pylibjpeg-libjpeg,
+  setuptools,
 }:
 
 let
@@ -21,41 +23,61 @@ let
 in
 buildPythonPackage rec {
   pname = "highdicom";
-  version = "0.22.0";
+  version = "0.23.1";
   pyproject = true;
 
-  disabled = pythonOlder "3.6";
+  disabled = pythonOlder "3.10";
 
   src = fetchFromGitHub {
     owner = "MGHComputationalPathology";
     repo = "highdicom";
-    rev = "refs/tags/v${version}";
-    hash = "sha256-KHSJWEnm8u0xHkeeLF/U7MY4FfiWb6Q0GQQy2w1mnKw=";
+    tag = "v${version}";
+    hash = "sha256-LrsG85/bpqIEP++LgvyaVyw4tMsuUTtHNwWl7apuToM=";
   };
 
-  propagatedBuildInputs = [
+  build-system = [
+    setuptools
+  ];
+
+  dependencies = [
     numpy
     pillow
     pillow-jpls
     pydicom
   ];
 
-  passthru.optional-dependencies = {
+  optional-dependencies = {
     libjpeg = [
       pylibjpeg
       pylibjpeg-libjpeg
-      #pylibjpeg-openjpeg  # not in nixpkgs yet
+      #pylibjpeg-openjpeg  # broken on aarch64-linux
     ];
   };
 
-  nativeCheckInputs = [
-    pytestCheckHook
-  ] ++ passthru.optional-dependencies.libjpeg;
+  pythonRemoveDeps = [
+    "pyjpegls" # not directly used
+  ];
+
+  nativeCheckInputs = [ pytestCheckHook ] ++ optional-dependencies.libjpeg;
   preCheck = ''
     export HOME=$TMP/test-home
     mkdir -p $HOME/.pydicom/
     ln -s ${test_data}/data_store/data $HOME/.pydicom/data
   '';
+
+  disabledTests = [
+    # require pyjpegls
+    "test_jpegls_monochrome"
+    "test_jpegls_rgb"
+    "test_jpeglsnearlossless_monochrome"
+    "test_jpeglsnearlossless_rgb"
+    "test_multi_frame_sm_image_ushort_encapsulated_jpegls"
+    "test_monochrome_jpegls"
+    "test_monochrome_jpegls_near_lossless"
+    "test_rgb_jpegls"
+    "test_construction_autotile"
+    "test_pixel_types_fractional"
+  ];
 
   pythonImportsCheck = [
     "highdicom"

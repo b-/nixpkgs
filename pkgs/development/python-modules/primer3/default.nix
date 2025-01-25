@@ -1,13 +1,14 @@
-{ lib
-, stdenv
-, buildPythonPackage
-, fetchFromGitHub
-, cython
-, gcc
-, click
-, pytestCheckHook
-, pythonOlder
-, setuptools
+{
+  lib,
+  stdenv,
+  buildPythonPackage,
+  fetchFromGitHub,
+  cython,
+  gcc,
+  click,
+  pytestCheckHook,
+  pythonOlder,
+  setuptools,
 }:
 
 buildPythonPackage rec {
@@ -20,16 +21,14 @@ buildPythonPackage rec {
   src = fetchFromGitHub {
     owner = "libnano";
     repo = "primer3-py";
-    rev = "refs/tags/v${version}";
+    tag = "v${version}";
     hash = "sha256-O8BFjkjG9SfknSrK34s9EJnqTrtCf4zW9A+N+/MHl2w=";
   };
 
   nativeBuildInputs = [
     cython
     setuptools
-  ] ++ lib.optionals stdenv.isDarwin [
-    gcc
-  ];
+  ] ++ lib.optionals stdenv.hostPlatform.isDarwin [ gcc ];
 
   nativeCheckInputs = [
     click
@@ -44,9 +43,7 @@ buildPythonPackage rec {
     python setup.py build_ext --inplace
   '';
 
-  pythonImportsCheck = [
-    "primer3"
-  ];
+  pythonImportsCheck = [ "primer3" ];
 
   meta = with lib; {
     description = "Oligo analysis and primer design";

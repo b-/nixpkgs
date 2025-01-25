@@ -1,4 +1,10 @@
-{ lib, stdenv, fetchFromGitHub, rustPlatform, CoreServices }:
+{
+  lib,
+  stdenv,
+  fetchFromGitHub,
+  rustPlatform,
+  CoreServices,
+}:
 
 rustPlatform.buildRustPackage rec {
   pname = "mdbook-toc";
@@ -13,13 +19,13 @@ rustPlatform.buildRustPackage rec {
 
   cargoHash = "sha256-95W0gERjwL9r0+DOgxQu+sjSFSThWeShLAqlDQiGxFw=";
 
-  buildInputs = lib.optionals stdenv.isDarwin [ CoreServices ];
+  buildInputs = lib.optionals stdenv.hostPlatform.isDarwin [ CoreServices ];
 
   meta = with lib; {
-    description = "A preprocessor for mdbook to add inline Table of Contents support";
+    description = "Preprocessor for mdbook to add inline Table of Contents support";
+    mainProgram = "mdbook-toc";
     homepage = "https://github.com/badboy/mdbook-toc";
     license = [ licenses.mpl20 ];
     maintainers = with maintainers; [ matthiasbeyer ];
   };
 }
-

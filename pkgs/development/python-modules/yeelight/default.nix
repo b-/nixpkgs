@@ -1,18 +1,19 @@
-{ lib
-, async-timeout
-, buildPythonPackage
-, fetchFromGitLab
-, flit-core
-, future
-, ifaddr
-, pytestCheckHook
-, pythonOlder
+{
+  lib,
+  async-timeout,
+  buildPythonPackage,
+  fetchFromGitLab,
+  fetchpatch2,
+  flit-core,
+  ifaddr,
+  pytestCheckHook,
+  pythonOlder,
 }:
 
 buildPythonPackage rec {
   pname = "yeelight";
   version = "0.7.14";
-  format = "pyproject";
+  pyproject = true;
 
   disabled = pythonOlder "3.7";
 
@@ -23,26 +24,23 @@ buildPythonPackage rec {
     hash = "sha256-BnMvRs95rsmoBa/5bp0zShgU1BBHtZzyADjbH0y1d/o=";
   };
 
-  nativeBuildInputs = [ flit-core ];
-
-  propagatedBuildInputs = [
-    future
-    ifaddr
-  ] ++ lib.optionals (pythonOlder "3.11") [
-    async-timeout
+  patches = [
+    (fetchpatch2 {
+      name = "remove-future-dependency.patch";
+      url = "https://gitlab.com/stavros/python-yeelight/-/commit/654f4f34e0246e65d8db02a107e2ab706de4806d.patch";
+      hash = "sha256-olKpYCzIq/E7zup40Kwzwgk5iOtCubLHo9uQDOhaByQ=";
+    })
   ];
 
-  nativeCheckInputs = [
-    pytestCheckHook
-  ];
+  build-system = [ flit-core ];
 
-  pytestFlagsArray = [
-    "yeelight/tests.py"
-  ];
+  dependencies = [ ifaddr ] ++ lib.optionals (pythonOlder "3.11") [ async-timeout ];
 
-  pythonImportsCheck = [
-    "yeelight"
-  ];
+  nativeCheckInputs = [ pytestCheckHook ];
+
+  pytestFlagsArray = [ "yeelight/tests.py" ];
+
+  pythonImportsCheck = [ "yeelight" ];
 
   meta = with lib; {
     description = "Python library for controlling YeeLight RGB bulbs";

@@ -1,6 +1,7 @@
-{ lib
-, rustPlatform
-, fetchFromGitHub
+{
+  lib,
+  rustPlatform,
+  fetchFromGitHub,
 }:
 
 rustPlatform.buildRustPackage rec {
@@ -17,10 +18,13 @@ rustPlatform.buildRustPackage rec {
   cargoHash = "sha256-45cb0yO/ypGLcvEgPOkN6Py99yqK09xnCmMOLOOYYSA=";
 
   meta = with lib; {
-    description = "A fast CLI documentation searcher for Nix";
+    description = "Fast CLI documentation searcher for Nix";
     homepage = "https://github.com/nix-community/manix";
     license = licenses.mpl20;
-    maintainers = with maintainers; [ iogamaster lecoqjacob ];
+    maintainers = with maintainers; [
+      iogamaster
+      lecoqjacob
+    ];
     mainProgram = "manix";
   };
 }

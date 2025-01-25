@@ -1,7 +1,8 @@
-{ lib
-, rustPlatform
-, fetchFromGitHub
-, nix-update-script
+{
+  lib,
+  rustPlatform,
+  fetchFromGitHub,
+  nix-update-script,
 }:
 
 let
@@ -25,7 +26,7 @@ rustPlatform.buildRustPackage rec {
   passthru.updateScript = nix-update-script { };
 
   meta = with lib; {
-    description = "A tool to make pdfpc interpret slides created by polylux correctly";
+    description = "Tool to make pdfpc interpret slides created by polylux correctly";
     homepage = "https://github.com/andreasKroepelin/polylux/tree/main/pdfpc-extractor";
     license = licenses.mit;
     mainProgram = "polylux2pdfpc";

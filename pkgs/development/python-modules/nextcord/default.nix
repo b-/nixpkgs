@@ -1,31 +1,34 @@
-{ lib
-, stdenv
-, buildPythonPackage
-, pythonOlder
-, fetchFromGitHub
-, substituteAll
-, ffmpeg
-, libopus
-, aiohttp
-, aiodns
-, brotli
-, faust-cchardet
-, orjson
-, pynacl
+{
+  lib,
+  stdenv,
+  buildPythonPackage,
+  pythonAtLeast,
+  pythonOlder,
+  fetchFromGitHub,
+  substituteAll,
+  ffmpeg,
+  libopus,
+  aiohttp,
+  aiodns,
+  audioop-lts,
+  brotli,
+  faust-cchardet,
+  orjson,
+  pynacl,
+  setuptools,
 }:
 
 buildPythonPackage rec {
   pname = "nextcord";
   version = "2.6.1";
-
-  format = "setuptools";
+  pyproject = true;
 
   disabled = pythonOlder "3.8";
 
   src = fetchFromGitHub {
     owner = "nextcord";
     repo = "nextcord";
-    rev = "refs/tags/v${version}";
+    tag = "v${version}";
     hash = "sha256-bv4I+Ol/N4kbp/Ch7utaUpo0GmF+Mpx4zWmHL7uIveM=";
   };
 
@@ -37,14 +40,23 @@ buildPythonPackage rec {
     })
   ];
 
-  propagatedBuildInputs = [
-    aiodns
-    aiohttp
-    brotli
-    faust-cchardet
-    orjson
-    pynacl
+  build-system = [
+    setuptools
   ];
+
+  dependencies =
+    [
+      aiodns
+      aiohttp
+      brotli
+      faust-cchardet
+      orjson
+      pynacl
+      setuptools # for pkg_resources, remove with next release
+    ]
+    ++ lib.optionals (pythonAtLeast "3.13") [
+      audioop-lts
+    ];
 
   # upstream has no tests
   doCheck = false;

@@ -1,38 +1,48 @@
 { lib
 , mkXfceDerivation
+, cairo
 , exo
 , garcon
 , gobject-introspection
+, gtk-layer-shell
 , gtk3
 , libdbusmenu-gtk3
 , libwnck
 , libxfce4ui
 , libxfce4util
+, libxfce4windowing
+, perl
 , tzdata
 , vala
+, wayland
 , xfconf
 }:
 
 mkXfceDerivation {
   category = "xfce";
   pname = "xfce4-panel";
-  version = "4.18.5";
+  version = "4.20.0";
 
-  sha256 = "sha256-1oh9C2ZlpcUulqhxUEPLhX22R7tko0rMmDixgkgaU9o=";
+  sha256 = "sha256-oB7mlU7RZtRuCQAKgv5I7ZRRu703Za7Ki9+AkHSELRE=";
 
   nativeBuildInputs = [
     gobject-introspection
+    perl
     vala
   ];
 
   buildInputs = [
+    cairo
     exo
     garcon
+    gtk-layer-shell
     libdbusmenu-gtk3
     libxfce4ui
+    libxfce4windowing
     libwnck
-    xfconf
     tzdata
+    wayland
+    xfconf
   ];
 
   propagatedBuildInputs = [
@@ -40,11 +50,9 @@ mkXfceDerivation {
     libxfce4util
   ];
 
-  patches = [ ./xfce4-panel-datadir.patch ];
-
   postPatch = ''
     substituteInPlace plugins/clock/clock.c \
-       --replace "/usr/share/zoneinfo" "${tzdata}/share/zoneinfo"
+       --replace-fail "/usr/share/zoneinfo" "${tzdata}/share/zoneinfo"
   '';
 
   meta = with lib; {

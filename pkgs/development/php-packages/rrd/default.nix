@@ -1,4 +1,9 @@
-{ buildPecl, lib, pkg-config, rrdtool }:
+{
+  buildPecl,
+  lib,
+  pkg-config,
+  rrdtool,
+}:
 
 buildPecl {
   pname = "rrd";
@@ -6,7 +11,13 @@ buildPecl {
   version = "2.0.3";
   hash = "sha256-pCFh5YzcioU7cs/ymJidy96CsPdkVt1ZzgKFTJK3MPc=";
 
-  nativeBuildInputs = [ pkg-config rrdtool ];
+  buildInputs = [
+    rrdtool
+  ];
+
+  nativeBuildInputs = [
+    pkg-config
+  ];
 
   meta = {
     description = "PHP bindings to RRD tool system";

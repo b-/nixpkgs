@@ -1,7 +1,9 @@
-{ lib
-, installShellFiles
-, rustPlatform
-, fetchgit
+{
+  lib,
+  installShellFiles,
+  rustPlatform,
+  fetchFromGitLab,
+  stdenv,
 }:
 
 let
@@ -11,9 +13,10 @@ in
 rustPlatform.buildRustPackage {
   inherit pname version;
 
-  # fetchFromGitLab doesn't work on GitLab's end for unknown reasons
-  src = fetchgit {
-    url = "https://or.computer.surgery/charles/${pname}";
+  src = fetchFromGitLab {
+    domain = "gitlab.computer.surgery";
+    owner = "charles";
+    repo = "engage";
     rev = "v${version}";
     hash = "sha256-niXh63xTpXSp9Wqwfi8hUBKJSClOUSvB+TPCTaqHfZk=";
   };
@@ -24,23 +27,26 @@ rustPlatform.buildRustPackage {
     installShellFiles
   ];
 
-  postInstall = "installShellCompletion --cmd ${pname} "
-    + builtins.concatStringsSep
-      " "
-      (builtins.map
-        (shell: "--${shell} <($out/bin/${pname} completions ${shell})")
-        [
-          "bash"
-          "fish"
-          "zsh"
-        ]
-      );
+  postInstall = lib.optionalString (stdenv.buildPlatform.canExecute stdenv.hostPlatform) (
+    "installShellCompletion --cmd engage "
+    + builtins.concatStringsSep " " (
+      builtins.map (shell: "--${shell} <($out/bin/engage completions ${shell})") [
+        "bash"
+        "fish"
+        "zsh"
+      ]
+    )
+  );
 
   meta = {
-    description = "A task runner with DAG-based parallelism";
-    homepage = "https://or.computer.surgery/charles/engage";
-    changelog = "https://or.computer.surgery/charles/engage/-/blob/v${version}/CHANGELOG.md";
-    license = with lib.licenses; [ asl20 mit ];
+    description = "Task runner with DAG-based parallelism";
+    mainProgram = "engage";
+    homepage = "https://gitlab.computer.surgery/charles/engage";
+    changelog = "https://gitlab.computer.surgery/charles/engage/-/blob/v${version}/CHANGELOG.md";
+    license = with lib.licenses; [
+      asl20
+      mit
+    ];
     maintainers = with lib.maintainers; [ CobaltCause ];
   };
 }

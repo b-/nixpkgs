@@ -1,27 +1,20 @@
-{ lib
-, buildPythonPackage
-, fetchFromGitHub
-, pythonOlder
-
-# build-system
-, setuptools
-
-# l10n
-, polib
-, lingua
-, chameleon
-
-# dependencies
-, python-dateutil
-
-# tests
-, importlib-metadata
-, pytestCheckHook
+{
+  lib,
+  buildPythonPackage,
+  chameleon,
+  fetchFromGitHub,
+  importlib-metadata,
+  lingva,
+  polib,
+  pytestCheckHook,
+  python-dateutil,
+  pythonOlder,
+  setuptools,
 }:
 
 buildPythonPackage rec {
   pname = "holidays";
-  version = "0.42";
+  version = "0.65";
   pyproject = true;
 
   disabled = pythonOlder "3.8";
@@ -29,15 +22,15 @@ buildPythonPackage rec {
   src = fetchFromGitHub {
     owner = "vacanza";
     repo = "python-holidays";
-    rev = "refs/tags/v${version}";
-    hash = "sha256-oVuzX/H5jj/c4dbPGmXUnZeDbgSd9v9qP2dXe6+PaUQ=";
+    tag = "v${version}";
+    hash = "sha256-ykfcIWTRwYntp0cgrtNdgOH9y8P4TxayFPKRbo+5cI8=";
   };
 
-  nativeBuildInputs = [
+  build-system = [
     setuptools
 
     # l10n
-    lingua
+    lingva
     chameleon
     polib
   ];
@@ -52,9 +45,7 @@ buildPythonPackage rec {
     ./scripts/l10n/generate_mo_files.py
   '';
 
-  propagatedBuildInputs = [
-    python-dateutil
-  ];
+  dependencies = [ python-dateutil ];
 
   doCheck = false;
 
@@ -64,21 +55,16 @@ buildPythonPackage rec {
     pytestCheckHook
   ];
 
-  pythonImportsCheck = [
-    "holidays"
-  ];
-
-  disabledTests = [
-    # Failure starting with 0.24
-    "test_l10n"
-  ];
+  pythonImportsCheck = [ "holidays" ];
 
   meta = with lib; {
     description = "Generate and work with holidays in Python";
     homepage = "https://github.com/vacanza/python-holidays";
     changelog = "https://github.com/vacanza/python-holidays/releases/tag/v${version}";
     license = licenses.mit;
-    maintainers = with maintainers; [ fab jluttine ];
+    maintainers = with maintainers; [
+      fab
+      jluttine
+    ];
   };
 }
-

@@ -1,30 +1,43 @@
-{ buildGoModule
-, fetchFromGitHub
-, fetchpatch
-, protobuf
-, go-protobuf
-, pkg-config
-, libnetfilter_queue
-, libnfnetlink
-, lib
-, coreutils
-, iptables
-, makeWrapper
-, protoc-gen-go-grpc
-, testers
-, opensnitch
-, nixosTests
+{
+  buildGoModule,
+  fetchFromGitHub,
+  protobuf,
+  go-protobuf,
+  pkg-config,
+  libnetfilter_queue,
+  libnfnetlink,
+  lib,
+  iptables,
+  makeWrapper,
+  protoc-gen-go-grpc,
+  testers,
+  opensnitch,
+  nixosTests,
 }:
+let
+  # Override protoc-gen-go-grpc to use the compatible version
+  protoc-gen-go-grpc' = protoc-gen-go-grpc.overrideAttrs (oldAttrs: rec {
+    version = "1.3.0";
 
+    src = fetchFromGitHub {
+      owner = "grpc";
+      repo = "grpc-go";
+      rev = "cmd/protoc-gen-go-grpc/v${version}";
+      hash = "sha256-Zy0k5X/KFzCao9xAGt5DNb0MMGEyqmEsDj+uvXI4xH4=";
+    };
+
+    vendorHash = "sha256-y+/hjYUTFZuq55YAZ5M4T1cwIR+XFQBmWVE+Cg1Y7PI=";
+  });
+in
 buildGoModule rec {
   pname = "opensnitch";
-  version = "1.6.5.1";
+  version = "1.6.7";
 
   src = fetchFromGitHub {
     owner = "evilsocket";
     repo = "opensnitch";
-    rev = "refs/tags/v${version}";
-    hash = "sha256-IVrAAHzLS7A7cYhRk+IUx8/5TGKeqC7M/7iXOpPe2ZA=";
+    tag = "v${version}";
+    hash = "sha256-2BwFCRbVvs7pAM5SnhynWws2+QthB/F9V6DYPViDICU=";
   };
 
   postPatch = ''
@@ -44,17 +57,12 @@ buildGoModule rec {
     protobuf
     go-protobuf
     makeWrapper
-    protoc-gen-go-grpc
+    protoc-gen-go-grpc'
   ];
 
-  vendorHash = "sha256-PX41xeUJb/WKv3+z5kbRmJNP1vFu8x35NZvN2Dgp4CQ=";
+  vendorHash = "sha256-urRujxcp58ZuhUtTAqCK0etSZ16YYG/6JY/aOUodl9g=";
 
   preBuild = ''
-    # Fix inconsistent vendoring build error
-    # https://github.com/evilsocket/opensnitch/issues/770
-    cp ${./go.mod} go.mod
-    cp ${./go.sum} go.sum
-
     make -C ../proto ../daemon/ui/protocol/ui.pb.go
   '';
 
@@ -91,7 +99,8 @@ buildGoModule rec {
   };
 
   meta = with lib; {
-    description = "An application firewall";
+    description = "Application firewall";
+    mainProgram = "opensnitchd";
     homepage = "https://github.com/evilsocket/opensnitch/wiki";
     license = licenses.gpl3Only;
     maintainers = with maintainers; [ onny ];

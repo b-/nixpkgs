@@ -1,16 +1,17 @@
-{ lib
-, buildPythonPackage
-, pythonOlder
-, fetchFromGitHub
-, poetry-core
-, packaging
-, hypothesis
-, pytestCheckHook
+{
+  lib,
+  buildPythonPackage,
+  pythonOlder,
+  fetchFromGitHub,
+  poetry-core,
+  packaging,
+  hypothesis,
+  pytestCheckHook,
 }:
 
 buildPythonPackage rec {
   pname = "rmscene";
-  version = "0.5.0";
+  version = "0.6.1";
   pyproject = true;
 
   disabled = pythonOlder "3.10";
@@ -18,17 +19,17 @@ buildPythonPackage rec {
   src = fetchFromGitHub {
     owner = "ricklupton";
     repo = "rmscene";
-    rev = "v${version}";
-    hash = "sha256-uIvoKdW7caOfc8OEGIcyDwyos9NLwtZ++CeZdUO/G8M=";
+    tag = "v${version}";
+    hash = "sha256-mgEjGfoQW73DcwMEXflR3/Ole4c5uXZJVJ699KNSqKg=";
   };
 
-  nativeBuildInputs = [
+  build-system = [
     poetry-core
   ];
 
-  propagatedBuildInputs = [
-    packaging
-  ];
+  pythonRelaxDeps = [ "packaging" ];
+
+  dependencies = [ packaging ];
 
   pythonImportsCheck = [ "rmscene" ];
 

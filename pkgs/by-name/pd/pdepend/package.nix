@@ -1,6 +1,7 @@
-{ php
-, fetchFromGitHub
-, lib
+{
+  php,
+  fetchFromGitHub,
+  lib,
 }:
 
 php.buildComposerProject (finalAttrs: {
@@ -19,7 +20,7 @@ php.buildComposerProject (finalAttrs: {
 
   meta = {
     changelog = "https://github.com/pdepend/pdepend/releases/tag/${finalAttrs.version}";
-    description = "An adaptation of JDepend for PHP";
+    description = "Adaptation of JDepend for PHP";
     homepage = "https://github.com/pdepend/pdepend";
     license = lib.licenses.bsd3;
     longDescription = "

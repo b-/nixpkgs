@@ -1,19 +1,34 @@
-{ config, lib, pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 
 let
-  inherit (lib) mkEnableOption mkIf mkOption optionalString types;
+  inherit (lib)
+    mkEnableOption
+    mkIf
+    mkOption
+    optionalString
+    types
+    ;
 
   cfg = config.services.bird2;
-  caps = [ "CAP_NET_ADMIN" "CAP_NET_BIND_SERVICE" "CAP_NET_RAW" ];
+  caps = [
+    "CAP_NET_ADMIN"
+    "CAP_NET_BIND_SERVICE"
+    "CAP_NET_RAW"
+  ];
 in
 {
   ###### interface
   options = {
     services.bird2 = {
-      enable = mkEnableOption (lib.mdDoc "BIRD Internet Routing Daemon");
+      enable = mkEnableOption "BIRD Internet Routing Daemon";
       config = mkOption {
         type = types.lines;
-        description = lib.mdDoc ''
+        description = ''
           BIRD Internet Routing Daemon configuration file.
           <http://bird.network.cz/>
         '';
@@ -21,14 +36,14 @@ in
       autoReload = mkOption {
         type = types.bool;
         default = true;
-        description = lib.mdDoc ''
+        description = ''
           Whether bird2 should be automatically reloaded when the configuration changes.
         '';
       };
       checkConfig = mkOption {
         type = types.bool;
         default = true;
-        description = lib.mdDoc ''
+        description = ''
           Whether the config should be checked at build time.
           When the config can't be checked during build time, for example when it includes
           other files, either disable this option or use `preCheckConfig` to create
@@ -41,7 +56,7 @@ in
         example = ''
           echo "cost 100;" > include.conf
         '';
-        description = lib.mdDoc ''
+        description = ''
           Commands to execute before the config file check. The file to be checked will be
           available as `bird2.conf` in the current directory.
 
@@ -51,7 +66,6 @@ in
       };
     };
   };
-
 
   imports = [
     (lib.mkRemovedOptionModule [ "services" "bird" ] "Use services.bird2 instead")

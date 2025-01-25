@@ -1,22 +1,23 @@
-{ lib
-, buildPythonPackage
-, fetchFromGitHub
-, biopython
-, docopt
-, flametree
-, numpy
-, proglog
-, pytestCheckHook
-, pythonOlder
-, python-codon-tables
-, primer3
-, genome-collector
-, matplotlib
+{
+  lib,
+  buildPythonPackage,
+  fetchFromGitHub,
+  biopython,
+  docopt,
+  flametree,
+  numpy,
+  proglog,
+  pytestCheckHook,
+  pythonOlder,
+  python-codon-tables,
+  primer3,
+  genome-collector,
+  matplotlib,
 }:
 
 buildPythonPackage rec {
   pname = "dnachisel";
-  version = "3.2.11";
+  version = "3.2.12";
   format = "setuptools";
 
   disabled = pythonOlder "3.7";
@@ -24,8 +25,8 @@ buildPythonPackage rec {
   src = fetchFromGitHub {
     owner = "Edinburgh-Genome-Foundry";
     repo = "DnaChisel";
-    rev = "refs/tags/v${version}";
-    hash = "sha256-rcZq/HhU1xIyQ1jM8+gO9ONDLBAxiUIByoWk2nMwuGA=";
+    tag = "v${version}";
+    hash = "sha256-zoKaeK0b4EoxEQMODfrzDpI7xIKQ/w6Dmot+dw92fuw=";
   };
 
   propagatedBuildInputs = [
@@ -56,9 +57,7 @@ buildPythonPackage rec {
     "test_avoid_matches_with_phage"
   ];
 
-  pythonImportsCheck = [
-    "dnachisel"
-  ];
+  pythonImportsCheck = [ "dnachisel" ];
 
   meta = with lib; {
     homepage = "https://github.com/Edinburgh-Genome-Foundry/DnaChisel";

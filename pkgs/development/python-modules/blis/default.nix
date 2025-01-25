@@ -1,34 +1,37 @@
-{ lib
-, buildPythonPackage
-, fetchFromGitHub
-, setuptools
-, cython
-, hypothesis
-, numpy
-, pytestCheckHook
-, pythonOlder
-, gitUpdater
+{
+  lib,
+  buildPythonPackage,
+  fetchFromGitHub,
+  setuptools,
+  cython,
+  hypothesis,
+  numpy,
+  pytestCheckHook,
+  pythonOlder,
+  blis,
+  numpy_1,
+  gitUpdater,
 }:
 
 buildPythonPackage rec {
   pname = "blis";
-  version = "0.7.11";
+  version = "1.0.2";
   pyproject = true;
 
-  disabled = pythonOlder "3.7";
+  disabled = pythonOlder "3.9";
 
   src = fetchFromGitHub {
     owner = "explosion";
     repo = "cython-blis";
-    rev = "refs/tags/v${version}";
-    hash = "sha256-p8pzGZc5OiiGTvXULDgzsBC3jIhovTKUq3RtPnQ/+to=";
+    tag = "release-v${version}";
+    hash = "sha256-J/EaJNmImcK4zScpbYPlQuoLyjoUkUgxUp6926P6rUQ=";
   };
 
   postPatch = ''
     # See https://github.com/numpy/numpy/issues/21079
     # has no functional difference as the name is only used in log output
     substituteInPlace blis/benchmark.py \
-      --replace 'numpy.__config__.blas_ilp64_opt_info["libraries"]' '["dummy"]'
+      --replace-fail 'numpy.__config__.blas_ilp64_opt_info["libraries"]' '["dummy"]'
   '';
 
   preCheck = ''
@@ -36,35 +39,34 @@ buildPythonPackage rec {
     rm -rf ./blis
   '';
 
-  nativeBuildInputs = [
+  build-system = [
     setuptools
     cython
-  ];
-
-  propagatedBuildInputs = [
     numpy
   ];
+
+  dependencies = [ numpy ];
 
   nativeCheckInputs = [
     hypothesis
     pytestCheckHook
   ];
 
-  pythonImportsCheck = [
-    "blis"
-  ];
+  pythonImportsCheck = [ "blis" ];
 
   passthru = {
-    # Do not update to BLIS 0.9.x until the following issue is resolved:
-    # https://github.com/explosion/thinc/issues/771#issuecomment-1255825935
-    skipBulkUpdate = true;
+    tests = {
+      numpy_1 = blis.overridePythonAttrs (old: {
+        numpy = numpy_1;
+      });
+    };
     updateScript = gitUpdater {
-      rev-prefix = "v";
-      ignoredVersions = "0\.9\..*";
+      rev-prefix = "release-v";
     };
   };
 
   meta = with lib; {
+    changelog = "https://github.com/explosion/cython-blis/releases/tag/release-v${version}";
     description = "BLAS-like linear algebra library";
     homepage = "https://github.com/explosion/cython-blis";
     license = licenses.bsd3;

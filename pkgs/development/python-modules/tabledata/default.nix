@@ -1,9 +1,10 @@
-{ buildPythonPackage
-, fetchFromGitHub
-, lib
-, dataproperty
-, typepy
-, pytestCheckHook
+{
+  buildPythonPackage,
+  fetchFromGitHub,
+  lib,
+  dataproperty,
+  typepy,
+  pytestCheckHook,
 }:
 
 buildPythonPackage rec {
@@ -14,17 +15,20 @@ buildPythonPackage rec {
   src = fetchFromGitHub {
     owner = "thombashi";
     repo = pname;
-    rev = "refs/tags/v${version}";
+    tag = "v${version}";
     hash = "sha256-84KrXnks76mvIjcEeQPpwd8rPO5SMbH/jfqERaFTrWo=";
   };
 
-  propagatedBuildInputs = [ dataproperty typepy ];
+  propagatedBuildInputs = [
+    dataproperty
+    typepy
+  ];
 
   nativeCheckInputs = [ pytestCheckHook ];
 
   meta = with lib; {
     homepage = "https://github.com/thombashi/tabledata";
-    description = "A library to represent tabular data";
+    description = "Library to represent tabular data";
     changelog = "https://github.com/thombashi/tabledata/releases/tag/v${version}";
     maintainers = with maintainers; [ genericnerdyusername ];
     license = licenses.mit;

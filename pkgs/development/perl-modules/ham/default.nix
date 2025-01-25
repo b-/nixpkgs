@@ -1,11 +1,12 @@
-{ lib
-, buildPerlPackage
-, fetchFromGitHub
-, makeWrapper
-, openssh
-, GitRepository
-, URI
-, XMLParser
+{
+  lib,
+  buildPerlPackage,
+  fetchFromGitHub,
+  makeWrapper,
+  openssh,
+  GitRepository,
+  URI,
+  XMLParser,
 }:
 
 buildPerlPackage {
@@ -22,7 +23,12 @@ buildPerlPackage {
   outputs = [ "out" ];
 
   nativeBuildInputs = [ makeWrapper ];
-  propagatedBuildInputs = [ openssh GitRepository URI XMLParser ];
+  propagatedBuildInputs = [
+    openssh
+    GitRepository
+    URI
+    XMLParser
+  ];
 
   preConfigure = ''
     patchShebangs .
@@ -39,7 +45,7 @@ buildPerlPackage {
   '';
 
   meta = with lib; {
-    description = "A tool to manage big projects consisting of multiple loosely-coupled git repositories";
+    description = "Tool to manage big projects consisting of multiple loosely-coupled git repositories";
     homepage = "https://github.com/kernkonzept/ham";
     license = licenses.bsd2;
     maintainers = with maintainers; [ aw ];

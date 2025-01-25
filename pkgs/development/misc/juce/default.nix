@@ -1,40 +1,50 @@
-{ lib
-, stdenv
-, fetchFromGitHub
-, fetchpatch
+{
+  lib,
+  stdenv,
+  fetchFromGitHub,
 
-# Native build inputs
-, cmake
-, pkg-config
-, makeWrapper
+  # Native build inputs
+  cmake,
+  pkg-config,
+  makeWrapper,
 
-# Dependencies
-, alsa-lib
-, freetype
-, curl
-, libglvnd
-, webkitgtk
-, pcre
-, darwin
+  # Dependencies
+  alsa-lib,
+  freetype,
+  curl,
+  libglvnd,
+  webkitgtk_4_0,
+  pcre2,
+  libsysprof-capture,
+  util-linuxMinimal,
+  libselinux,
+  libsepol,
+  libthai,
+  libdatrie,
+  libXdmcp,
+  lerc,
+  libxkbcommon,
+  libepoxy,
+  libXtst,
+  sqlite,
+  fontconfig,
 }:
 
 stdenv.mkDerivation (finalAttrs: {
   pname = "juce";
-  version = "7.0.9";
+  version = "8.0.4";
 
   src = fetchFromGitHub {
     owner = "juce-framework";
     repo = "juce";
     rev = finalAttrs.version;
-    hash = "sha256-k8cNTPH9OgOav4dsSLqrd5PlJ1rqO0PLt6Lwmumc2Gg=";
+    hash = "sha256-iAueT+yHwUUHOzqfK5zXEZQ0GgOKJ9q9TyRrVfWdewc=";
   };
 
   patches = [
-    (fetchpatch {
-      name = "juce-6.1.2-cmake_install.patch";
-      url = "https://gitlab.archlinux.org/archlinux/packaging/packages/juce/-/raw/4e6d34034b102af3cd762a983cff5dfc09e44e91/juce-6.1.2-cmake_install.patch";
-      hash = "sha256-fr2K/dH0Zam5QKS63zos7eq9QLwdr+bvQL5ZxScagVU=";
-    })
+    # Adapted from https://gitlab.archlinux.org/archlinux/packaging/packages/juce/-/raw/4e6d34034b102af3cd762a983cff5dfc09e44e91/juce-6.1.2-cmake_install.patch
+    # for Juce 8.0.4.
+    ./juce-8.0.4-cmake_install.patch
   ];
 
   nativeBuildInputs = [
@@ -43,26 +53,42 @@ stdenv.mkDerivation (finalAttrs: {
     makeWrapper
   ];
 
-  buildInputs = [
-    freetype # libfreetype.so
-    curl # libcurl.so
-    stdenv.cc.cc.lib # libstdc++.so libgcc_s.so
-    pcre # libpcre2.pc
-  ] ++ lib.optionals stdenv.isLinux [
-    alsa-lib # libasound.so
-    libglvnd # libGL.so
-    webkitgtk # webkit2gtk-4.0
-  ] ++ lib.optionals stdenv.isDarwin [
-    darwin.apple_sdk.frameworks.Cocoa
-    darwin.apple_sdk.frameworks.MetalKit
-    darwin.apple_sdk.frameworks.WebKit
-  ];
+  buildInputs =
+    [
+      freetype # libfreetype.so
+      curl # libcurl.so
+      (lib.getLib stdenv.cc.cc) # libstdc++.so libgcc_s.so
+      pcre2 # libpcre2.pc
+      libsysprof-capture
+      libthai
+      libdatrie
+      lerc
+      libepoxy
+      sqlite
+    ]
+    ++ lib.optionals stdenv.hostPlatform.isLinux [
+      alsa-lib # libasound.so
+      libglvnd # libGL.so
+      webkitgtk_4_0 # webkit2gtk-4.0
+      util-linuxMinimal
+      libselinux
+      libsepol
+      libXdmcp
+      libxkbcommon
+      libXtst
+    ];
+
+  propagatedBuildInputs = [ fontconfig ];
 
   meta = with lib; {
     description = "Cross-platform C++ application framework";
-    longDescription = "JUCE is an open-source cross-platform C++ application framework for desktop and mobile applications, including VST, VST3, AU, AUv3, RTAS and AAX audio plug-ins";
-    homepage = "https://github.com/juce-framework/JUCE";
-    license = with licenses; [ isc gpl3Plus ];
+    mainProgram = "juceaide";
+    longDescription = "Open-source cross-platform C++ application framework for creating desktop and mobile applications, including VST, VST3, AU, AUv3, AAX and LV2 audio plug-ins";
+    homepage = "https://juce.com/";
+    changelog = "https://github.com/juce-framework/JUCE/blob/${finalAttrs.version}/CHANGE_LIST.md";
+    license = with licenses; [
+      agpl3Only # Or alternatively the JUCE license, but that would not be included in nixpkgs then
+    ];
     maintainers = with maintainers; [ kashw2 ];
     platforms = platforms.all;
   };

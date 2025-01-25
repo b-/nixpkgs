@@ -1,10 +1,9 @@
-{ fetchFromGitHub
-, lib
-, Security
-, openssl
-, pkg-config
-, rustPlatform
-, stdenv
+{
+  fetchFromGitHub,
+  lib,
+  openssl,
+  pkg-config,
+  rustPlatform,
 }:
 
 rustPlatform.buildRustPackage rec {
@@ -15,7 +14,7 @@ rustPlatform.buildRustPackage rec {
     owner = "awslabs";
     repo = "dynein";
     rev = "v${version}";
-    sha256 = "sha256-QhasTFGOFOjzNKdQtA+eBhKy51O4dFt6vpeIAIOM2rQ=";
+    hash = "sha256-QhasTFGOFOjzNKdQtA+eBhKy51O4dFt6vpeIAIOM2rQ=";
   };
 
   # Use system openssl.
@@ -27,7 +26,7 @@ rustPlatform.buildRustPackage rec {
 
   buildInputs = [
     openssl
-  ] ++ lib.optionals stdenv.isDarwin [ Security ];
+  ];
 
   preBuild = ''
     export OPENSSL_DIR=${lib.getDev openssl}
@@ -40,6 +39,7 @@ rustPlatform.buildRustPackage rec {
 
   meta = with lib; {
     description = "DynamoDB CLI written in Rust";
+    mainProgram = "dy";
     homepage = "https://github.com/awslabs/dynein";
     license = licenses.asl20;
     platforms = platforms.unix;

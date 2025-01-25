@@ -1,20 +1,20 @@
-{ lib
-, stdenv
-, cmake
-, openmw
-, fetchFromGitHub
-, fetchpatch
-, luajit
-, makeWrapper
-, symlinkJoin
-, disable-warnings-if-gcc13
+{
+  lib,
+  stdenv,
+  cmake,
+  openmw,
+  fetchFromGitHub,
+  fetchpatch,
+  luajit,
+  makeWrapper,
+  symlinkJoin,
 }:
 
 # revisions are taken from https://github.com/GrimKriegor/TES3MP-deploy
 
 let
   # raknet could also be split into dev and lib outputs
-  raknet = disable-warnings-if-gcc13 (stdenv.mkDerivation {
+  raknet = stdenv.mkDerivation {
     pname = "raknet";
     version = "unstable-2020-01-19";
 
@@ -46,7 +46,7 @@ let
     installPhase = ''
       install -Dm555 lib/libRakNetLibStatic.a $out/lib/libRakNetLibStatic.a
     '';
-  });
+  };
 
   coreScripts = stdenv.mkDerivation {
     pname = "corescripts";
@@ -134,7 +134,10 @@ let
       homepage = "https://tes3mp.com/";
       license = licenses.gpl3Only;
       maintainers = with maintainers; [ peterhoeg ];
-      platforms = [ "x86_64-linux" "i686-linux" ];
+      platforms = [
+        "x86_64-linux"
+        "i686-linux"
+      ];
     };
   });
 

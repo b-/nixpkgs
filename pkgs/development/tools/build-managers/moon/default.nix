@@ -1,42 +1,45 @@
-{ lib
-, rustPlatform
-, fetchFromGitHub
-, darwin
-, stdenv
-, openssl
-, pkg-config
+{
+  lib,
+  rustPlatform,
+  fetchFromGitHub,
+  darwin,
+  stdenv,
+  openssl,
+  pkg-config,
 }:
 
 rustPlatform.buildRustPackage rec {
   pname = "moon";
-  version = "1.21.4";
+  version = "1.31.0";
 
   src = fetchFromGitHub {
     owner = "moonrepo";
     repo = pname;
     rev = "v${version}";
-    hash = "sha256-E+B5HBMmYZodZuVNkrwgvN6yeko1Qx4BeAeP6b9vu/0=";
+    hash = "sha256-2418rlM8WdQ2b4wrtUC+6yCgy+wxfApQTaVDPXbnvKo=";
   };
 
-  cargoHash = "sha256-X7R0Tgn3Ekc3QkJiiLfQqUPf3tmf9oYoakUfoONEGZs=";
+  cargoHash = "sha256-I958/qvPqqRayvQwe8/SMgERwM+E7d3J6hpKPHfSBf0=";
 
   env = {
     RUSTFLAGS = "-C strip=symbols";
     OPENSSL_NO_VENDOR = 1;
   };
 
-  buildInputs = [ openssl ] ++
-    lib.optionals stdenv.isDarwin [
+  buildInputs =
+    [ openssl ]
+    ++ lib.optionals stdenv.hostPlatform.isDarwin [
       darwin.apple_sdk.frameworks.Security
       darwin.apple_sdk.frameworks.SystemConfiguration
-  ];
+    ];
   nativeBuildInputs = [ pkg-config ];
 
   # Some tests fail, because test using internet connection and install NodeJS by example
   doCheck = false;
 
   meta = with lib; {
-    description = "A task runner and repo management tool for the web ecosystem, written in Rust";
+    description = "Task runner and repo management tool for the web ecosystem, written in Rust";
+    mainProgram = "moon";
     homepage = "https://github.com/moonrepo/moon";
     license = licenses.mit;
     maintainers = with maintainers; [ flemzord ];

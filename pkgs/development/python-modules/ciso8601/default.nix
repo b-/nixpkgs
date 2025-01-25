@@ -1,9 +1,10 @@
-{ lib
-, buildPythonPackage
-, fetchFromGitHub
-, setuptools
-, pytestCheckHook
-, pytz
+{
+  lib,
+  buildPythonPackage,
+  fetchFromGitHub,
+  setuptools,
+  pytestCheckHook,
+  pytz,
 }:
 
 buildPythonPackage rec {
@@ -14,22 +15,18 @@ buildPythonPackage rec {
   src = fetchFromGitHub {
     owner = "closeio";
     repo = "ciso8601";
-    rev = "refs/tags/v${version}";
+    tag = "v${version}";
     hash = "sha256-KkMa1Rr3Z+5VnZfj25LDYpTfRyKqWA9u0vq6dZpwEy0=";
   };
 
-  nativeBuildInputs = [
-    setuptools
-  ];
+  nativeBuildInputs = [ setuptools ];
 
   nativeCheckInputs = [
     pytestCheckHook
     pytz
   ];
 
-  pytestFlagsArray = [
-    "tests/tests.py"
-  ];
+  pytestFlagsArray = [ "tests/tests.py" ];
 
   pythonImportsCheck = [ "ciso8601" ];
 

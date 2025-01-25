@@ -1,19 +1,20 @@
-{ lib
-, buildPythonPackage
-, fetchFromGitHub
+{
+  lib,
+  buildPythonPackage,
+  fetchFromGitHub,
 
-# tests
-, djangorestframework
-, html5lib
-, lxml
-, pytest-django
-, pytestCheckHook
-, pyyaml
+  # tests
+  djangorestframework,
+  html5lib,
+  lxml,
+  pytest-django,
+  pytestCheckHook,
+  pyyaml,
 }:
 
 buildPythonPackage {
   pname = "django-i18nfield";
-  version = "1.9.4";
+  version = "1.10.2";
   format = "setuptools";
 
   src = fetchFromGitHub {

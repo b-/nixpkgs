@@ -1,14 +1,15 @@
-{ lib
-, buildPythonPackage
-, fetchFromGitHub
-, pythonOlder
+{
+  lib,
+  buildPythonPackage,
+  fetchFromGitHub,
+  pythonOlder,
 
-# build-system
-, flit-core
+  # build-system
+  flit-core,
 
-# tests
-, psutil
-, pytestCheckHook
+  # tests
+  psutil,
+  pytestCheckHook,
 }:
 
 buildPythonPackage rec {
@@ -21,22 +22,18 @@ buildPythonPackage rec {
   src = fetchFromGitHub {
     owner = "cloudpipe";
     repo = "cloudpickle";
-    rev = "refs/tags/v${version}";
+    tag = "v${version}";
     hash = "sha256-UeKVwzT0m4fhEVnG7TvQsFR99JsmwwoXmr+rWnTCeJU=";
   };
 
-  nativeBuildInputs = [
-    flit-core
-  ];
+  nativeBuildInputs = [ flit-core ];
 
   nativeCheckInputs = [
     psutil
     pytestCheckHook
   ];
 
-  pythonImportsCheck = [
-    "cloudpickle"
-  ];
+  pythonImportsCheck = [ "cloudpickle" ];
 
   disabledTestPaths = [
     # ModuleNotFoundError: No module named 'psutil'
@@ -48,6 +45,6 @@ buildPythonPackage rec {
     description = "Extended pickling support for Python objects";
     homepage = "https://github.com/cloudpipe/cloudpickle";
     license = with licenses; [ bsd3 ];
-    maintainers = with maintainers; [ ];
+    maintainers = [ ];
   };
 }

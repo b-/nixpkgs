@@ -1,10 +1,11 @@
-{ lib
-, buildPythonApplication
-, pythonOlder
-, fetchFromGitHub
-, protonvpn-nm-lib
-, pythondialog
-, dialog
+{
+  lib,
+  buildPythonApplication,
+  pythonOlder,
+  fetchFromGitHub,
+  protonvpn-nm-lib,
+  pythondialog,
+  dialog,
 }:
 
 buildPythonApplication rec {
@@ -17,7 +18,7 @@ buildPythonApplication rec {
   src = fetchFromGitHub {
     owner = "protonvpn";
     repo = "linux-cli";
-    rev = "refs/tags/${version}";
+    tag = version;
     sha256 = "sha256-KhfogC23i7THe6YZJ6Sy1+q83vZupHsS69NurHCeo8I=";
   };
 
@@ -33,7 +34,7 @@ buildPythonApplication rec {
   meta = with lib; {
     description = "Linux command-line client for ProtonVPN";
     homepage = "https://github.com/protonvpn/linux-cli";
-    maintainers = with maintainers; [ wolfangaukang ];
+    maintainers = [ ];
     license = licenses.gpl3Plus;
     platforms = platforms.linux;
     mainProgram = "protonvpn-cli";

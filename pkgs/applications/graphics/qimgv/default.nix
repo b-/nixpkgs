@@ -1,16 +1,17 @@
-{ mkDerivation
-, lib
-, fetchFromGitHub
+{
+  mkDerivation,
+  lib,
+  fetchFromGitHub,
 
-, cmake
-, pkg-config
+  cmake,
+  pkg-config,
 
-, exiv2
-, mpv
-, opencv4
-, qtbase
-, qtimageformats
-, qtsvg
+  exiv2,
+  mpv,
+  opencv4,
+  qtbase,
+  qtimageformats,
+  qtsvg,
 }:
 
 mkDerivation rec {
@@ -54,7 +55,8 @@ mkDerivation rec {
   ];
 
   meta = with lib; {
-    description = "A Qt5 image viewer with optional video support";
+    description = "Qt5 image viewer with optional video support";
+    mainProgram = "qimgv";
     homepage = "https://github.com/easymodo/qimgv";
     license = licenses.gpl3;
     platforms = platforms.linux;

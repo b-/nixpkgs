@@ -8,15 +8,15 @@
 , libdrm
 , libGL
 , libinput
-, mesa
+, libgbm
 , seatd
 , udev
 }:
 stdenv.mkDerivation (self: {
   pname = "srm-cuarzo";
-  version = "0.5.2-1";
+  version = "0.11.0-1";
   rev = "v${self.version}";
-  hash = "sha256-FMd1v0K+H7DlSD0osmWrnuSKqQZxw3RUZq8JwZFm/f4=";
+  hash = "sha256-9fs29Us2/Z6d4u0XHKaFUrjxuSDcp9zj+cyIlhAn0Eg=";
 
   src = fetchFromGitHub {
     inherit (self) rev hash;
@@ -35,18 +35,12 @@ stdenv.mkDerivation (self: {
     libdrm
     libGL
     libinput
-    mesa
+    libgbm
     seatd
     udev
   ];
 
   outputs = [ "out" "dev" ];
-
-  postPatch = ''
-    substituteInPlace src/meson.build \
-      --replace "/usr/include/drm" "${libdrm.dev}/include/drm" \
-      --replace "/usr/include/libdrm" "${libdrm.dev}/include/libdrm"
-  '';
 
   preConfigure = ''
     # The root meson.build file is in src/

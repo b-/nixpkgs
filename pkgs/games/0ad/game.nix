@@ -1,9 +1,40 @@
-{ stdenv, lib, fetchpatch, perl, fetchurl, python3, fmt, libidn
-, pkg-config, spidermonkey_78, boost, icu, libxml2, libpng, libsodium
-, libjpeg, zlib, curl, libogg, libvorbis, enet, miniupnpc
-, openal, libGLU, libGL, xorgproto, libX11, libXcursor, nspr, SDL2
-, gloox, nvidia-texture-tools, freetype
-, withEditor ? true, wxGTK
+{
+  stdenv,
+  lib,
+  fetchpatch,
+  fetchpatch2,
+  perl,
+  fetchurl,
+  python3,
+  fmt,
+  libidn,
+  pkg-config,
+  spidermonkey_78,
+  boost183,
+  icu,
+  libxml2,
+  libpng,
+  libsodium,
+  libjpeg,
+  zlib,
+  curl,
+  libogg,
+  libvorbis,
+  enet,
+  miniupnpc,
+  openal,
+  libGLU,
+  libGL,
+  xorgproto,
+  libX11,
+  libXcursor,
+  nspr,
+  SDL2,
+  gloox,
+  nvidia-texture-tools,
+  freetype,
+  withEditor ? true,
+  wxGTK,
 }:
 
 # You can find more instructions on how to build 0ad here:
@@ -12,14 +43,14 @@
 let
   # the game requires a special version 78.6.0 of spidermonkey, otherwise
   # we get compilation errors. We override the src attribute of spidermonkey_78
-  # in order to reuse that declartion, while giving it a different source input.
-  spidermonkey_78_6 = spidermonkey_78.overrideAttrs(old: rec {
+  # in order to reuse that declaration, while giving it a different source input.
+  spidermonkey_78_6 = spidermonkey_78.overrideAttrs (old: rec {
     version = "78.6.0";
     src = fetchurl {
       url = "mirror://mozilla/firefox/releases/${version}esr/source/firefox-${version}esr.source.tar.xz";
       sha256 = "0lyg65v380j8i2lrylwz8a5ya80822l8vcnlx3dfqpd3s6zzjsay";
     };
-    patches = (old.patches or []) ++ [
+    patches = (old.patches or [ ]) ++ [
       ./spidermonkey-cargo-toml.patch
     ];
   });
@@ -33,13 +64,41 @@ stdenv.mkDerivation rec {
     sha256 = "Lhxt9+MxLnfF+CeIZkz/w6eNO/YGBsAAOSdeHRPA7ks=";
   };
 
-  nativeBuildInputs = [ python3 perl pkg-config ];
+  nativeBuildInputs = [
+    python3
+    perl
+    pkg-config
+  ];
 
   buildInputs = [
-    spidermonkey_78_6 boost icu libxml2 libpng libjpeg
-    zlib curl libogg libvorbis enet miniupnpc openal libidn
-    libGLU libGL xorgproto libX11 libXcursor nspr SDL2 gloox
-    nvidia-texture-tools libsodium fmt freetype
+    spidermonkey_78_6
+    # boost 1.86 fails with the following error:
+    # error: 'boost::filesystem::wpath' {aka 'class boost::filesystem::path'} has no member named 'leaf'
+    boost183
+    icu
+    libxml2
+    libpng
+    libjpeg
+    zlib
+    curl
+    libogg
+    libvorbis
+    enet
+    miniupnpc
+    openal
+    libidn
+    libGLU
+    libGL
+    xorgproto
+    libX11
+    libXcursor
+    nspr
+    SDL2
+    gloox
+    nvidia-texture-tools
+    libsodium
+    fmt
+    freetype
   ] ++ lib.optional withEditor wxGTK;
 
   env.NIX_CFLAGS_COMPILE = toString [
@@ -49,6 +108,8 @@ stdenv.mkDerivation rec {
     "-I${SDL2}/include/SDL2"
     "-I${fmt.dev}/include"
     "-I${nvidia-texture-tools.dev}/include"
+    # TODO: drop with next update
+    "-Wno-error=implicit-function-declaration"
   ];
 
   NIX_CFLAGS_LINK = toString [
@@ -71,6 +132,12 @@ stdenv.mkDerivation rec {
       name = "gcc-13-fix.patch";
       url = "https://github.com/0ad/0ad/commit/093e1eb23519ab4a4633a999a555a58e4fd5343e.patch";
       hash = "sha256-NuWO64narU1JID/F3cj7lJKjo96XR7gSW0w8I3/hhuw=";
+    })
+    # Fix build with miniupnpc 2.2.8
+    # https://github.com/0ad/0ad/pull/45
+    (fetchpatch2 {
+      url = "https://github.com/0ad/0ad/commit/1575580bbc5278576693f3fbbb32de0b306aa27e.patch?full_index=1";
+      hash = "sha256-iXiUYTJCWwJpb2U3P58jTV4OpyW6quofu8Jq6xNEq48=";
     })
   ];
 
@@ -117,13 +184,17 @@ stdenv.mkDerivation rec {
   '';
 
   meta = with lib; {
-    description = "A free, open-source game of ancient warfare";
+    description = "Free, open-source game of ancient warfare";
     homepage = "https://play0ad.com/";
     license = with licenses; [
-      gpl2 lgpl21 mit cc-by-sa-30
+      gpl2Plus
+      lgpl21
+      mit
+      cc-by-sa-30
       licenses.zlib # otherwise masked by pkgs.zlib
     ];
     maintainers = with maintainers; [ chvp ];
     platforms = subtractLists platforms.i686 platforms.linux;
+    mainProgram = "0ad";
   };
 }

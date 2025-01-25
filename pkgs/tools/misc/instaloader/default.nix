@@ -9,7 +9,7 @@
 
 buildPythonPackage rec {
   pname = "instaloader";
-  version = "4.10.3";
+  version = "4.14";
   format = "pyproject";
 
   disabled = pythonOlder "3.6";
@@ -17,8 +17,8 @@ buildPythonPackage rec {
   src = fetchFromGitHub {
     owner = "instaloader";
     repo = "instaloader";
-    rev = "refs/tags/v${version}";
-    sha256 = "sha256-+K15MlyOONC5E8ZjtzbYnGGzQEMDGEGBFDbLZp7FeWQ=";
+    tag = "v${version}";
+    sha256 = "sha256-UgnqO52q4kPYPz/eTrQOQXC+zZgtr4KwWPRRDTpzFuc=";
   };
 
   nativeBuildInputs = [

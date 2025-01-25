@@ -1,9 +1,10 @@
-{ fetchFromSourcehut
-, just
-, lib
-, nix-update-script
-, rustPlatform
-, scdoc
+{
+  fetchFromSourcehut,
+  just,
+  lib,
+  nix-update-script,
+  rustPlatform,
+  scdoc,
 }:
 let
   version = "0.8.0";
@@ -47,7 +48,7 @@ rustPlatform.buildRustPackage {
   passthru.updateScript = nix-update-script { };
 
   meta = {
-    description = "An address book for aerc";
+    description = "Address book for aerc";
     homepage = "https://sr.ht/~onemoresuza/aba/";
     changelog = "https://git.sr.ht/~onemoresuza/aba/tree/main/item/CHANGELOG.md";
     downloadPage = "https://git.sr.ht/~onemoresuza/aba/refs/${version}";

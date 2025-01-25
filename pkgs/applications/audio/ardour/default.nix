@@ -29,7 +29,6 @@
 , libltc
 , libogg
 , libpulseaudio
-, librdf_raptor
 , librdf_rasqal
 , libsamplerate
 , libsigcxx
@@ -64,14 +63,14 @@
 }:
 stdenv.mkDerivation rec {
   pname = "ardour";
-  version = "8.2";
+  version = "8.10";
 
   # We can't use `fetchFromGitea` here, as attempting to fetch release archives from git.ardour.org
   # result in an empty archive. See https://tracker.ardour.org/view.php?id=7328 for more info.
   src = fetchgit {
     url = "git://git.ardour.org/ardour/ardour.git";
     rev = version;
-    hash = "sha256-Ito1gy7k7nzTN7Co/ddXYbAvobiZO0V0J5uymsm756k=";
+    hash = "sha256-y4eNo0ukRL6v0T1XvJ46sYnsiVSdL527punnkmf/TIU=";
   };
 
   bundledContent = fetchzip {
@@ -133,7 +132,6 @@ stdenv.mkDerivation rec {
     libltc
     libogg
     libpulseaudio
-    librdf_raptor
     librdf_rasqal
     libsamplerate
     libsigcxx
@@ -214,6 +212,6 @@ stdenv.mkDerivation rec {
     license = licenses.gpl2Plus;
     mainProgram = "ardour8";
     platforms = platforms.linux;
-    maintainers = with maintainers; [ goibhniu magnetophon mitchmindtree ];
+    maintainers = with maintainers; [ magnetophon mitchmindtree ];
   };
 }

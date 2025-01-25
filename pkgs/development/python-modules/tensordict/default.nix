@@ -1,20 +1,29 @@
-{ lib
-, buildPythonPackage
-, pythonOlder
-, fetchFromGitHub
-, setuptools
-, torch
-, wheel
-, which
-, cloudpickle
-, numpy
-, h5py
-, pytestCheckHook
+{
+  lib,
+  buildPythonPackage,
+  pythonOlder,
+  fetchFromGitHub,
+
+  # build-system
+  setuptools,
+  torch,
+  which,
+
+  # dependencies
+  cloudpickle,
+  numpy,
+  orjson,
+
+  # checks
+  h5py,
+  pytestCheckHook,
+
+  stdenv,
 }:
 
 buildPythonPackage rec {
   pname = "tensordict";
-  version = "0.3.0";
+  version = "0.5.0";
   pyproject = true;
 
   disabled = pythonOlder "3.8";
@@ -22,26 +31,24 @@ buildPythonPackage rec {
   src = fetchFromGitHub {
     owner = "pytorch";
     repo = "tensordict";
-    rev = "refs/tags/v${version}";
-    hash = "sha256-XTFUzPs/fqX3DPtu/qSE1hY+7r/HToPVPaTyVRzDT/E=";
+    tag = "v${version}";
+    hash = "sha256-jnRlN9gefR77pioIXf0qM1CP6EtpeQkBvVIecGkb/pw=";
   };
 
-  nativeBuildInputs = [
+  build-system = [
     setuptools
     torch
-    wheel
     which
   ];
 
-  propagatedBuildInputs = [
+  dependencies = [
     cloudpickle
     numpy
+    orjson
     torch
   ];
 
-  pythonImportsCheck = [
-    "tensordict"
-  ];
+  pythonImportsCheck = [ "tensordict" ];
 
   # We have to delete the source because otherwise it is used instead of the installed package.
   preCheck = ''
@@ -53,11 +60,46 @@ buildPythonPackage rec {
     pytestCheckHook
   ];
 
-  meta = with lib; {
-    description = "A pytorch dedicated tensor container";
+  disabledTests =
+    [
+      # Hangs forever
+      "test_copy_onto"
+
+      # EOFError (MPI related)
+      # AssertionError: assert tensor(False)
+      # +  where tensor(False) = <built-in method all of Tensor object at 0x7ffe49bf87d0>()
+      "test_mp"
+
+      # torch._dynamo.exc.InternalTorchDynamoError: RuntimeError: to_module requires TORCHDYNAMO_INLINE_INBUILT_NN_MODULES to be set.
+      "test_functional"
+
+      # hangs forever on some CPUs
+      "test_map_iter_interrupt_early"
+    ]
+    ++ lib.optionals (stdenv.hostPlatform.system == "aarch64-linux") [
+      # RuntimeError: internal error
+      "test_add_scale_sequence"
+      "test_modules"
+      "test_setattr"
+
+      # _queue.Empty errors in multiprocessing tests
+      "test_isend"
+    ];
+
+  disabledTestPaths = lib.optionals stdenv.hostPlatform.isDarwin [
+    # torch._dynamo.exc.BackendCompilerFailed: backend='inductor' raised:
+    # OpenMP support not found.
+    "test/test_compile.py"
+
+    # ModuleNotFoundError: No module named 'torch._C._distributed_c10d'; 'torch._C' is not a package
+    "test/test_distributed.py"
+  ];
+
+  meta = {
+    description = "Pytorch dedicated tensor container";
     changelog = "https://github.com/pytorch/tensordict/releases/tag/v${version}";
     homepage = "https://github.com/pytorch/tensordict";
-    license = licenses.mit;
-    maintainers = with maintainers; [ GaetanLepage ];
+    license = lib.licenses.mit;
+    maintainers = with lib.maintainers; [ GaetanLepage ];
   };
 }

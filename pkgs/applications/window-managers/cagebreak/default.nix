@@ -1,26 +1,29 @@
-{ lib
-, stdenv
-, fetchFromGitHub
-, cairo
-, fontconfig
-, libevdev
-, libinput
-, libxkbcommon
-, xcbutilwm
-, makeWrapper
-, mesa
-, meson
-, ninja
-, nixosTests
-, pango
-, pixman
-, pkg-config
-, scdoc
-, systemd
-, wayland
-, wayland-protocols
-, withXwayland ? true , xwayland
-, wlroots
+{
+  lib,
+  stdenv,
+  fetchFromGitHub,
+  cairo,
+  fontconfig,
+  libdrm,
+  libevdev,
+  libinput,
+  libxkbcommon,
+  xcbutilwm,
+  makeWrapper,
+  meson,
+  ninja,
+  nixosTests,
+  pango,
+  pixman,
+  pkg-config,
+  scdoc,
+  systemd,
+  wayland,
+  wayland-protocols,
+  wayland-scanner,
+  withXwayland ? true,
+  xwayland,
+  wlroots,
 }:
 
 stdenv.mkDerivation rec {
@@ -40,17 +43,17 @@ stdenv.mkDerivation rec {
     ninja
     pkg-config
     scdoc
-    wayland
+    wayland-scanner
   ];
 
   buildInputs = [
     cairo
     fontconfig
+    libdrm
     libevdev
     libinput
     libxkbcommon
     xcbutilwm
-    mesa # for libEGL headers
     pango
     pixman
     systemd
@@ -82,7 +85,7 @@ stdenv.mkDerivation rec {
 
   meta = with lib; {
     homepage = "https://github.com/project-repo/cagebreak";
-    description = "A Wayland tiling compositor inspired by ratpoison";
+    description = "Wayland tiling compositor inspired by ratpoison";
     license = licenses.mit;
     maintainers = with maintainers; [ berbiche ];
     platforms = platforms.linux;

@@ -1,35 +1,38 @@
-{ lib
-, blueprint-compiler
-, cargo
-, desktop-file-utils
-, fetchFromGitHub
-, glib
-, gtk4
-, libadwaita
-, meson
-, ninja
-, pkg-config
-, rustPlatform
-, rustc
-, stdenv
-, wrapGAppsHook4
+{
+  lib,
+  blueprint-compiler,
+  cargo,
+  darwin,
+  desktop-file-utils,
+  fetchFromGitHub,
+  glib,
+  gtk4,
+  libadwaita,
+  meson,
+  ninja,
+  nix-update-script,
+  pkg-config,
+  rustPlatform,
+  rustc,
+  stdenv,
+  wrapGAppsHook4,
 }:
 
-stdenv.mkDerivation rec {
+stdenv.mkDerivation (finalAttrs: {
   pname = "fretboard";
-  version = "5.3";
+  version = "8.0";
 
   src = fetchFromGitHub {
     owner = "bragefuglseth";
-    repo = pname;
-    rev = "v${version}";
-    hash = "sha256-wwq4Xq6IVLF2hICk9HfCpfxpWer8PNWywD8p3wQdp6U=";
+    repo = "fretboard";
+    rev = "v${finalAttrs.version}";
+    hash = "sha256-8xINlVhWgg73DrRi8S5rhNc1sbG4DbWOsiEBjU8NSXo=";
   };
 
   cargoDeps = rustPlatform.fetchCargoTarball {
-    inherit src;
-    name = "${pname}-${version}";
-    hash = "sha256-H/dAKaYHxRmldny8EoasrcDROZhLo5UbHPAoMicDehA=";
+    src = finalAttrs.src;
+    name = "${finalAttrs.pname}-${finalAttrs.version}";
+    hash = "sha256-LSL7VvRgA8MaFXn/vi5Zf1sY4cqv0a9PNnZ3JlDNIaE=";
   };
 
   nativeBuildInputs = [
@@ -44,19 +47,34 @@ stdenv.mkDerivation rec {
     wrapGAppsHook4
   ];
 
-  buildInputs = [
-    glib
-    gtk4
-    libadwaita
-  ];
+  buildInputs =
+    [
+      glib
+      gtk4
+      libadwaita
+    ]
+    ++ lib.optionals stdenv.hostPlatform.isDarwin [
+      darwin.apple_sdk.frameworks.Foundation
+    ];
 
-  meta = with lib; {
-    description = "Look up guitar chords";
-    homepage = "https://github.com/bragefuglseth/fretboard";
-    changelog = "https://github.com/bragefuglseth/fretboard/releases/tag/v${version}";
-    license = licenses.gpl3Plus;
-    maintainers = with maintainers; [ michaelgrahamevans ];
-    mainProgram = "fretboard";
-    platforms = platforms.linux;
+  env.NIX_CFLAGS_COMPILE = toString (
+    lib.optionals stdenv.cc.isClang [
+      "-Wno-error=incompatible-function-pointer-types"
+    ]
+  );
+
+  passthru = {
+    updateScript = nix-update-script { };
   };
-}
+
+  meta = {
+    changelog = "https://github.com/bragefuglseth/fretboard/releases/tag/v${finalAttrs.version}";
+    description = "Look up guitar chords";
+    homepage = "https://apps.gnome.org/Fretboard/";
+    license = lib.licenses.gpl3Plus;
+    mainProgram = "fretboard";
+    maintainers = lib.teams.gnome-circle.members;
+    platforms = lib.platforms.unix;
+    broken = stdenv.hostPlatform.isDarwin;
+  };
+})

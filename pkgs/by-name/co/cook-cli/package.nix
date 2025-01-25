@@ -1,11 +1,12 @@
-{ lib
-, stdenv
-, fetchFromGitHub
-, buildNpmPackage
-, rustPlatform
-, pkg-config
-, openssl
-, darwin
+{
+  lib,
+  stdenv,
+  fetchFromGitHub,
+  buildNpmPackage,
+  rustPlatform,
+  pkg-config,
+  openssl,
+  darwin,
 }:
 rustPlatform.buildRustPackage rec {
   pname = "cook-cli";
@@ -20,11 +21,14 @@ rustPlatform.buildRustPackage rec {
 
   cargoHash = "sha256-6lnURuE1cgNAniHl5ozXo1W3cLYYje7er+ZhvZDKdVg=";
 
-  nativeBuildInputs = [ pkg-config openssl ];
+  nativeBuildInputs = [
+    pkg-config
+    openssl
+  ];
 
   buildInputs = [
     openssl
-  ] ++ lib.optionals stdenv.isDarwin [ darwin.apple_sdk.frameworks.SystemConfiguration ];
+  ] ++ lib.optionals stdenv.hostPlatform.isDarwin [ darwin.apple_sdk.frameworks.SystemConfiguration ];
 
   postPatch = ''
     rm -rf "ui/public"
@@ -48,7 +52,7 @@ rustPlatform.buildRustPackage rec {
 
   meta = with lib; {
     changelog = "https://github.com/cooklang/cookcli/releases/tag/v${version}";
-    description = "A suite of tools to create shopping lists and maintain recipes";
+    description = "Suite of tools to create shopping lists and maintain recipes";
     homepage = "https://cooklang.org/";
     license = [ licenses.mit ];
     mainProgram = "cook";

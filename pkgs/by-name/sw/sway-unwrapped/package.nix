@@ -2,7 +2,7 @@
 , meson, ninja, pkg-config, wayland-scanner, scdoc
 , libGL, wayland, libxkbcommon, pcre2, json_c, libevdev
 , pango, cairo, libinput, gdk-pixbuf, librsvg
-, wlroots_0_16, wayland-protocols, libdrm
+, wlroots, wayland-protocols, libdrm
 , nixosTests
 # Used by the NixOS module:
 , isNixOS ? false
@@ -11,19 +11,16 @@
 , trayEnabled ? systemdSupport
 }:
 
-let
-  wlroots = wlroots_0_16;
-in
 stdenv.mkDerivation (finalAttrs: {
   pname = "sway-unwrapped";
-  version = "1.8.1";
+  version = "1.10";
 
   inherit enableXWayland isNixOS systemdSupport trayEnabled;
   src = fetchFromGitHub {
     owner = "swaywm";
     repo = "sway";
     rev = finalAttrs.version;
-    hash = "sha256-WxnT+le9vneQLFPz2KoBduOI+zfZPhn1fKlaqbPL6/g=";
+    hash = "sha256-PzeU/niUdqI6sf2TCG19G2vNgAZJE5JCyoTwtO9uFTk=";
   };
 
   patches = [
@@ -34,10 +31,17 @@ stdenv.mkDerivation (finalAttrs: {
       inherit swaybg;
     })
 
+    # libinput-1.27 support:
+    #   https://github.com/swaywm/sway/pull/8470
     (fetchpatch {
-      name = "LIBINPUT_CONFIG_ACCEL_PROFILE_CUSTOM.patch";
-      url = "https://github.com/swaywm/sway/commit/dee032d0a0ecd958c902b88302dc59703d703c7f.diff";
-      hash = "sha256-dx+7MpEiAkxTBnJcsT3/1BO8rYRfNLecXmpAvhqGMD0=";
+      name = "libinput-1.27-p1.patch";
+      url = "https://github.com/swaywm/sway/commit/bbadf9b8b10d171a6d5196da7716ea50ee7a6062.patch";
+      hash = "sha256-lA+oL1vqGQOm7K+AthzHYBzmOALrDgxzX/5Dx7naq84=";
+    })
+    (fetchpatch {
+      name = "libinput-1.27-p2.patch";
+      url = "https://github.com/swaywm/sway/commit/e2409aa49611bee1e1b99033461bfab0a7550c48.patch";
+      hash = "sha256-l598qfq+rpKy3/0arQruwd+BsELx85XDjwIDkb/o6og=";
     })
   ] ++ lib.optionals (!finalAttrs.isNixOS) [
     # References to /nix/store/... will get GC'ed which causes problems when
@@ -68,6 +72,8 @@ stdenv.mkDerivation (finalAttrs: {
   ];
 
   mesonFlags = let
+    inherit (lib.strings) mesonEnable mesonOption;
+
     # The "sd-bus-provider" meson option does not include a "none" option,
     # but it is silently ignored iff "-Dtray=disabled".  We use "basu"
     # (which is not in nixpkgs) instead of "none" to alert us if this
@@ -75,16 +81,15 @@ stdenv.mkDerivation (finalAttrs: {
     # assert trayEnabled -> systemdSupport && dbusSupport;
 
     sd-bus-provider =  if systemdSupport then "libsystemd" else "basu";
-    in
-    [ "-Dsd-bus-provider=${sd-bus-provider}" ]
-    ++ lib.optional (!finalAttrs.enableXWayland) "-Dxwayland=disabled"
-    ++ lib.optional (!finalAttrs.trayEnabled)    "-Dtray=disabled"
-  ;
+    in [
+      (mesonOption "sd-bus-provider" sd-bus-provider)
+      (mesonEnable "tray" finalAttrs.trayEnabled)
+    ];
 
   passthru.tests.basic = nixosTests.sway;
 
-  meta = with lib; {
-    description = "An i3-compatible tiling Wayland compositor";
+  meta = {
+    description = "I3-compatible tiling Wayland compositor";
     longDescription = ''
       Sway is a tiling Wayland compositor and a drop-in replacement for the i3
       window manager for X11. It works with your existing i3 configuration and
@@ -95,10 +100,10 @@ stdenv.mkDerivation (finalAttrs: {
       using only the keyboard.
     '';
     homepage    = "https://swaywm.org";
-    changelog   = "https://github.com/swaywm/sway/releases/tag/${version}";
-    license     = licenses.mit;
-    platforms   = platforms.linux;
-    maintainers = with maintainers; [ primeos synthetica ];
+    changelog   = "https://github.com/swaywm/sway/releases/tag/${finalAttrs.version}";
+    license     = lib.licenses.mit;
+    platforms   = lib.platforms.linux;
+    maintainers = with lib.maintainers; [ primeos synthetica ];
     mainProgram = "sway";
   };
 })

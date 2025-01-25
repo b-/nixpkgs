@@ -1,4 +1,9 @@
-{ lib, libpcap, rustPlatform, fetchFromGitHub }:
+{
+  lib,
+  libpcap,
+  rustPlatform,
+  fetchFromGitHub,
+}:
 
 rustPlatform.buildRustPackage rec {
   pname = "netop";
@@ -18,7 +23,7 @@ rustPlatform.buildRustPackage rec {
 
   meta = with lib; {
     changelog = "https://github.com/ZingerLittleBee/netop/raw/v${version}/CHANGELOG.md";
-    description = "A network monitor using bpf";
+    description = "Network monitor using bpf";
     homepage = "https://github.com/ZingerLittleBee/netop";
     license = licenses.mit;
     mainProgram = "netop";

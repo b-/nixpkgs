@@ -1,6 +1,7 @@
-{ lib
-, rustPlatform
-, fetchFromGitHub
+{
+  lib,
+  rustPlatform,
+  fetchFromGitHub,
 }:
 
 rustPlatform.buildRustPackage rec {
@@ -15,11 +16,6 @@ rustPlatform.buildRustPackage rec {
   };
 
   cargoHash = "sha256-Z7uYOjMNxsEmsEXDOIr1zIq4nCgHvHIqpRnRH037b8g=";
-
-  # Cargo.lock is outdated
-  postConfigure = ''
-    cargo metadata --offline
-  '';
 
   meta = with lib; {
     description = "Config files for esbuild";

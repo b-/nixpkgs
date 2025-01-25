@@ -1,17 +1,18 @@
-{ lib
-, buildPythonPackage
-, fetchFromGitHub
+{
+  lib,
+  buildPythonPackage,
+  fetchFromGitHub,
 
-# build-system
-, setuptools
+  # build-system
+  setuptools,
 
-# dependencies
-, numpy
-, joblib
-, networkx
-, scipy
-, pyyaml
-, cython
+  # dependencies
+  numpy,
+  joblib,
+  networkx,
+  scipy,
+  pyyaml,
+  cython,
 }:
 
 buildPythonPackage rec {
@@ -23,13 +24,11 @@ buildPythonPackage rec {
     repo = pname;
     owner = "jmschrei";
     # no tags for recent versions: https://github.com/jmschrei/pomegranate/issues/974
-    rev = "refs/tags/v${version}";
+    tag = "v${version}";
     hash = "sha256-PoDAtNm/snq4isotkoCTVYUuwr9AKKwiXIojUFMH/YE=";
   };
 
-  nativeBuildInputs = [
-    setuptools
-  ];
+  nativeBuildInputs = [ setuptools ];
 
   propagatedBuildInputs = [
     numpy

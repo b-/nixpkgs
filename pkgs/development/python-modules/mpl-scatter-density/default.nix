@@ -1,16 +1,17 @@
-{ lib
-, buildPythonPackage
-, pytestCheckHook
-, fetchFromGitHub
-, fetchpatch
-, pythonOlder
-, setuptools-scm
-, setuptools
-, fast-histogram
-, matplotlib
-, numpy
-, wheel
-, pytest-mpl
+{
+  lib,
+  buildPythonPackage,
+  pytestCheckHook,
+  fetchFromGitHub,
+  fetchpatch,
+  pythonOlder,
+  setuptools-scm,
+  setuptools,
+  fast-histogram,
+  matplotlib,
+  numpy,
+  wheel,
+  pytest-mpl,
 }:
 
 buildPythonPackage rec {
@@ -23,7 +24,7 @@ buildPythonPackage rec {
   src = fetchFromGitHub {
     owner = "astrofrog";
     repo = pname;
-    rev = "refs/tags/v${version}";
+    tag = "v${version}";
     sha256 = "sha256-MMxM+iv5p9ZLcBpqa3tBBPbsMM/PTg6BXaDpGgSw+DE=";
   };
 
@@ -42,7 +43,11 @@ buildPythonPackage rec {
     wheel
   ];
 
-  propagatedBuildInputs = [ matplotlib numpy fast-histogram ];
+  propagatedBuildInputs = [
+    matplotlib
+    numpy
+    fast-histogram
+  ];
 
   nativeCheckInputs = [
     pytestCheckHook

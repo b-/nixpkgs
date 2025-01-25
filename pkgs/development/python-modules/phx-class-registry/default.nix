@@ -1,8 +1,9 @@
-{ lib
-, buildPythonPackage
-, fetchFromGitHub
-, pytestCheckHook
-, pythonOlder
+{
+  lib,
+  buildPythonPackage,
+  fetchFromGitHub,
+  pytestCheckHook,
+  pythonOlder,
 }:
 
 buildPythonPackage rec {
@@ -13,22 +14,20 @@ buildPythonPackage rec {
   src = fetchFromGitHub {
     owner = "todofixthis";
     repo = pname;
-    rev = "refs/tags/${version}";
+    tag = version;
     hash = "sha256-kJbyUzyklVSvW6bBxTTTrY+WhfcV0GUf/+Pzyv+7sEA=";
   };
 
-  nativeCheckInputs = [
-    pytestCheckHook
-  ];
+  nativeCheckInputs = [ pytestCheckHook ];
 
-  pythonImportsCheck = [
-    "class_registry"
-  ];
+  pythonImportsCheck = [ "class_registry" ];
 
   meta = with lib; {
     description = "Factory and registry pattern for Python classes";
     homepage = "https://class-registry.readthedocs.io/en/latest/";
     license = licenses.mit;
-    maintainers = with maintainers; [ kevincox ];
+    maintainers = with maintainers; [
+      hrdinka
+    ];
   };
 }

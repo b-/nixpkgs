@@ -5,6 +5,8 @@ lib.makeScope newScope (self: with self; {
 
   autopair = callPackage ./autopair.nix { };
 
+  bang-bang = callPackage ./bang-bang.nix { };
+
   bobthefish = callPackage ./bobthefish.nix { };
 
   bobthefisher = callPackage ./bobthefisher.nix { };
@@ -19,10 +21,16 @@ lib.makeScope newScope (self: with self; {
 
   done = callPackage ./done.nix { };
 
+  fifc = callPackage ./fifc.nix { };
+
+  fish-bd = callPackage ./fish-bd.nix { };
+
   # Fishtape 2.x and 3.x aren't compatible,
   # but both versions are used in the tests of different other plugins.
   fishtape = callPackage ./fishtape.nix { };
   fishtape_3 = callPackage ./fishtape_3.nix { };
+
+  fish-you-should-use = callPackage ./fish-you-should-use.nix { };
 
   foreign-env = callPackage ./foreign-env { };
 
@@ -34,7 +42,11 @@ lib.makeScope newScope (self: with self; {
 
   github-copilot-cli-fish = callPackage ./github-copilot-cli-fish.nix { };
 
+  git-abbr = callPackage ./git-abbr.nix { };
+
   grc = callPackage ./grc.nix { };
+
+  gruvbox = callPackage ./gruvbox.nix { };
 
   humantime-fish = callPackage ./humantime-fish.nix { };
 
@@ -44,15 +56,21 @@ lib.makeScope newScope (self: with self; {
 
   plugin-git = callPackage ./plugin-git.nix { };
 
+  plugin-sudope = callPackage ./plugin-sudope.nix { };
+
   puffer = callPackage ./puffer.nix { };
 
   pure = callPackage ./pure.nix { };
 
   sdkman-for-fish = callPackage ./sdkman-for-fish.nix { };
 
+  spark = callPackage ./spark.nix { };
+
   sponge = callPackage ./sponge.nix { };
 
   tide = callPackage ./tide.nix { };
+
+  transient-fish = callPackage ./transient-fish.nix { };
 
   wakatime-fish = callPackage ./wakatime-fish.nix { };
 

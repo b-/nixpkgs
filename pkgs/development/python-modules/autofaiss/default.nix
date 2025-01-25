@@ -1,15 +1,15 @@
-{ buildPythonPackage
-, embedding-reader
-, faiss
-, fetchFromGitHub
-, fire
-, fsspec
-, lib
-, numpy
-, pyarrow
-, pytestCheckHook
-, pythonRelaxDepsHook
-, pythonOlder
+{
+  buildPythonPackage,
+  embedding-reader,
+  faiss,
+  fetchFromGitHub,
+  fire,
+  fsspec,
+  lib,
+  numpy,
+  pyarrow,
+  pytestCheckHook,
+  pythonOlder,
 }:
 
 buildPythonPackage rec {
@@ -22,13 +22,9 @@ buildPythonPackage rec {
   src = fetchFromGitHub {
     owner = "criteo";
     repo = pname;
-    rev = "refs/tags/${version}";
+    tag = version;
     hash = "sha256-pey3wrW7CDLMiPPKnmYrcSJqGuy6ecA2SE9m3Jtt6DU=";
   };
-
-  nativeBuildInputs = [
-    pythonRelaxDepsHook
-  ];
 
   pythonRemoveDeps = [
     # The `dataclasses` packages is a python2-only backport, unnecessary in
@@ -56,9 +52,7 @@ buildPythonPackage rec {
     pyarrow
   ];
 
-  nativeCheckInputs = [
-    pytestCheckHook
-  ];
+  nativeCheckInputs = [ pytestCheckHook ];
 
   disabledTests = [
     # Attempts to spin up a Spark cluster and talk to it which doesn't work in
@@ -71,6 +65,7 @@ buildPythonPackage rec {
 
   meta = with lib; {
     description = "Automatically create Faiss knn indices with the most optimal similarity search parameters";
+    mainProgram = "autofaiss";
     homepage = "https://github.com/criteo/autofaiss";
     changelog = "https://github.com/criteo/autofaiss/blob/${version}/CHANGELOG.md";
     license = licenses.asl20;

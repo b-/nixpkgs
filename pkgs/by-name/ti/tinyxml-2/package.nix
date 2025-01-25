@@ -1,7 +1,8 @@
-{ lib
-, stdenv
-, fetchFromGitHub
-, cmake
+{
+  lib,
+  stdenv,
+  fetchFromGitHub,
+  cmake,
 }:
 
 stdenv.mkDerivation (finalAttrs: {
@@ -27,7 +28,7 @@ stdenv.mkDerivation (finalAttrs: {
   ];
 
   meta = {
-    description = "A simple, small, efficient, C++ XML parser";
+    description = "Simple, small, efficient, C++ XML parser";
     homepage = "https://github.com/leethomason/tinyxml2";
     changelog = "https://github.com/leethomason/tinyxml2/releases/tag/${finalAttrs.src.rev}";
     license = with lib.licenses; [ zlib ];

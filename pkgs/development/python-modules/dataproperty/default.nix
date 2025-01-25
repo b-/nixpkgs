@@ -1,13 +1,14 @@
-{ lib
-, buildPythonPackage
-, fetchFromGitHub
-, loguru
-, mbstrdecoder
-, pytestCheckHook
-, pythonOlder
-, tcolorpy
-, termcolor
-, typepy
+{
+  lib,
+  buildPythonPackage,
+  fetchFromGitHub,
+  loguru,
+  mbstrdecoder,
+  pytestCheckHook,
+  pythonOlder,
+  tcolorpy,
+  termcolor,
+  typepy,
 }:
 
 buildPythonPackage rec {
@@ -20,7 +21,7 @@ buildPythonPackage rec {
   src = fetchFromGitHub {
     owner = "thombashi";
     repo = pname;
-    rev = "refs/tags/v${version}";
+    tag = "v${version}";
     hash = "sha256-adUxUU9eASkC9n5ppZYNN0MP19u4xcL8XziBWSCp2L8=";
   };
 
@@ -30,10 +31,8 @@ buildPythonPackage rec {
     tcolorpy
   ] ++ typepy.optional-dependencies.datetime;
 
-  passthru.optional-dependencies = {
-    logging = [
-      loguru
-    ];
+  optional-dependencies = {
+    logging = [ loguru ];
   };
 
   nativeCheckInputs = [
@@ -41,9 +40,7 @@ buildPythonPackage rec {
     termcolor
   ];
 
-  pythonImportsCheck = [
-    "dataproperty"
-  ];
+  pythonImportsCheck = [ "dataproperty" ];
 
   meta = with lib; {
     description = "Library for extracting properties from data";

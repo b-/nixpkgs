@@ -1,23 +1,28 @@
-{ lib, fetchgit, php }:
+{
+  lib,
+  fetchFromGitHub,
+  php,
+}:
 
-php.buildComposerProject (finalAttrs: {
+php.buildComposerProject2 (finalAttrs: {
   pname = "psalm";
-  version = "5.15.0";
+  version = "5.26.1";
 
-  src = fetchgit {
-    url = "https://github.com/vimeo/psalm.git";
-    rev = finalAttrs.version;
-    hash = "sha256-rRExT82+IwgVo7pL3rrTjW/qj/MJf4m4L3PywaeSHYU=";
+  src = fetchFromGitHub {
+    owner = "vimeo";
+    repo = "psalm";
+    tag = finalAttrs.version;
+    hash = "sha256-TZm7HByPoCB4C0tdU5rzTfjMQEnhRhWPEiNR0bQDkTs=";
   };
 
-  # TODO: Open a PR against https://github.com/vimeo/psalm
   # Missing `composer.lock` from the repository.
+  # Issue open at https://github.com/vimeo/psalm/issues/10446
   composerLock = ./composer.lock;
-  vendorHash = "sha256-Vho1ri/Qm2SYeXB9ZoXvH1vB/eSBwHnAT/pI4jjUYhU=";
+  vendorHash = "sha256-po43yrMlvX7Y91Z3D5IYSpY7FOS6+tL/+a3AozopZ9Q=";
 
   meta = {
     changelog = "https://github.com/vimeo/psalm/releases/tag/${finalAttrs.version}";
-    description = "A static analysis tool for finding errors in PHP applications";
+    description = "Static analysis tool for finding errors in PHP applications";
     homepage = "https://github.com/vimeo/psalm";
     license = lib.licenses.mit;
     mainProgram = "psalm";
