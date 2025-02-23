@@ -1,11 +1,12 @@
-{ lib
-, python3
-, fetchPypi
+{
+  lib,
+  python3,
+  fetchPypi,
 }:
 
 let
   pname = "csvkit";
-  version = "1.4.0";
+  version = "2.0.1";
   pythonEnv = python3;
 in
 pythonEnv.pkgs.buildPythonApplication {
@@ -14,7 +15,7 @@ pythonEnv.pkgs.buildPythonApplication {
 
   src = fetchPypi {
     inherit pname version;
-    hash = "sha256-LP7EM2egXMXl35nJCZC5WmNtjPmEukbOePzuj/ynr/g=";
+    hash = "sha256-qpRgJm1XE/8xKkFO0+3Ybgw6MdqbLidYy+VkP+EUbdE=";
   };
 
   propagatedBuildInputs = with pythonEnv.pkgs; [
@@ -40,9 +41,9 @@ pythonEnv.pkgs.buildPythonApplication {
 
   meta = {
     homepage = "https://github.com/wireservice/csvkit";
-    description = "A suite of command-line tools for converting to and working with CSV";
+    description = "Suite of command-line tools for converting to and working with CSV";
     changelog = "https://github.com/wireservice/csvkit/blob/${version}/CHANGELOG.rst";
     license = lib.licenses.mit;
-    maintainers = with lib.maintainers; [ AndersonTorres ];
+    maintainers = with lib.maintainers; [ ];
   };
 }

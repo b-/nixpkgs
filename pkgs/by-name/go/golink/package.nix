@@ -1,6 +1,7 @@
-{ lib
-, buildGoModule
-, fetchFromGitHub
+{
+  lib,
+  buildGoModule,
+  fetchFromGitHub,
 }:
 
 buildGoModule rec {
@@ -23,7 +24,7 @@ buildGoModule rec {
   ];
 
   meta = with lib; {
-    description = "A private shortlink service for tailnets";
+    description = "Private shortlink service for tailnets";
     homepage = "https://github.com/tailscale/golink";
     license = licenses.bsd3;
     maintainers = with maintainers; [ fab ];

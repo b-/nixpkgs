@@ -1,6 +1,7 @@
-{ lib
-, fetchFromGitHub
-, python3
+{
+  lib,
+  fetchFromGitHub,
+  python3,
 }:
 
 python3.pkgs.buildPythonApplication rec {
@@ -11,34 +12,37 @@ python3.pkgs.buildPythonApplication rec {
   src = fetchFromGitHub {
     owner = "mxrch";
     repo = "ghunt";
-    rev = "refs/tags/v${version}";
+    tag = "v${version}";
     hash = "sha256-UeHVATTyAH3Xdm/NVSUhiicM+tZ4UnLeJsy1jSLK3v8=";
   };
 
   pythonRelaxDeps = true;
 
   nativeBuildInputs = with python3.pkgs; [
-    pythonRelaxDepsHook
     setuptools
   ];
 
-  propagatedBuildInputs = with python3.pkgs; [
-    alive-progress
-    autoslot
-    beautifulsoup4
-    beautifultable
-    geopy
-    httpx
-    humanize
-    imagehash
-    inflection
-    jsonpickle
-    pillow
-    protobuf
-    python-dateutil
-    rich
-    trio
-  ];
+  propagatedBuildInputs =
+    with python3.pkgs;
+    [
+      alive-progress
+      autoslot
+      beautifulsoup4
+      beautifultable
+      geopy
+      httpx
+      humanize
+      imagehash
+      inflection
+      jsonpickle
+      pillow
+      protobuf
+      python-dateutil
+      rich
+      trio
+      packaging
+    ]
+    ++ httpx.optional-dependencies.http2;
 
   # Project has no tests
   doCheck = false;
@@ -49,6 +53,7 @@ python3.pkgs.buildPythonApplication rec {
 
   meta = with lib; {
     description = "Offensive Google framework";
+    mainProgram = "ghunt";
     homepage = "https://github.com/mxrch/ghunt";
     changelog = "https://github.com/mxrch/GHunt/releases/tag/v${version}";
     license = licenses.agpl3Only;

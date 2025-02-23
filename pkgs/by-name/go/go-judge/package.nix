@@ -5,16 +5,16 @@
 
 buildGoModule rec {
   pname = "go-judge";
-  version = "1.8.1";
+  version = "1.8.9";
 
   src = fetchFromGitHub {
     owner = "criyle";
     repo = pname;
     rev = "v${version}";
-    hash = "sha256-yWO4LD8inFOZiyrwFhjl2FCkGePpLfXuLCTwBUUGal4=";
+    hash = "sha256-mYbE3QTnWrdfoqtI+RjXI+Vt7EjM7eHYBkTHfjURL6o=";
   };
 
-  vendorHash = "sha256-lMqZGrrMwNER8RKABheUH4GPy0q32FBTY3zmYHtssKo=";
+  vendorHash = "sha256-47h/qN2vWTTrzoE7sEywYq8uGbyR04agbjiA+aEoQIQ=";
 
   tags = [ "nomsgpack" ];
 
@@ -24,7 +24,7 @@ buildGoModule rec {
     echo v${version} > ./cmd/go-judge/version/version.txt
   '';
 
-  CGO_ENABLED = 0;
+  env.CGO_ENABLED = 0;
 
   meta = with lib; {
     description = "High performance sandbox service based on container technologies";

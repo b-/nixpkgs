@@ -1,22 +1,23 @@
-{ lib
-, buildGoModule
-, fetchFromGitHub
-, testers
-, crc
-, coreutils
+{
+  lib,
+  buildGoModule,
+  fetchFromGitHub,
+  testers,
+  crc,
+  coreutils,
 }:
 
 let
-  openShiftVersion = "4.14.8";
-  okdVersion = "4.14.0-0.okd-scos-2024-01-10-151818";
-  microshiftVersion = "4.14.8";
+  openShiftVersion = "4.15.12";
+  okdVersion = "4.15.0-0.okd-2024-02-23-163410";
+  microshiftVersion = "4.15.12";
   podmanVersion = "4.4.4";
   writeKey = "$(MODULEPATH)/pkg/crc/segment.WriteKey=cvpHsNcmGCJqVzf6YxrSnVlwFSAZaYtp";
-  gitCommit = "54a6f9a15155edb2bdb70128c7c535fc69841031";
-  gitHash = "sha256-tjrlh31J3fDiYm2+PUnVVRIxxQvJKQVLcYEnMekD4Us=";
+  gitCommit = "27c493c19b7f396931c3b94cc3367f572e6af04a";
+  gitHash = "sha256-uxp3DVYbbjKf1Cjj7GCf9QBxFq3K136k51eymD0U018=";
 in
 buildGoModule rec {
-  version = "2.32.0";
+  version = "2.36.0";
   pname = "crc";
 
   src = fetchFromGitHub {
@@ -68,6 +69,10 @@ buildGoModule rec {
     changelog = "https://github.com/crc-org/crc/releases/tag/v${version}";
     license = licenses.asl20;
     mainProgram = "crc";
-    maintainers = with maintainers; [ matthewpi shikanime tricktron ];
+    maintainers = with maintainers; [
+      matthewpi
+      shikanime
+      tricktron
+    ];
   };
 }

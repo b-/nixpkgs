@@ -1,20 +1,21 @@
-{ lib
-, stdenv
-, fetchFromGitHub
-, autoreconfHook
-, openssl
-, db
+{
+  lib,
+  stdenv,
+  fetchFromGitHub,
+  autoreconfHook,
+  openssl,
+  db,
 }:
 
 stdenv.mkDerivation rec {
   pname = "bruteforce-wallet";
-  version = "1.5.3";
+  version = "1.5.4";
 
   src = fetchFromGitHub {
     owner = "glv2";
     repo = "bruteforce-wallet";
     rev = version;
-    hash = "sha256-1sMoVlQK3ceFOHyGeXKXUD35HmMxVX8w7qefZrzAj5k=";
+    hash = "sha256-ngzG39c/bWv++PHVgce9r1PXElFhpgYoAepbqD/1Dq0=";
   };
 
   nativeBuildInputs = [

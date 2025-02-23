@@ -1,6 +1,7 @@
-{ lib
-, python3
-, fetchFromGitHub
+{
+  lib,
+  python3,
+  fetchFromGitHub,
 }:
 
 python3.pkgs.buildPythonApplication rec {
@@ -11,7 +12,7 @@ python3.pkgs.buildPythonApplication rec {
   src = fetchFromGitHub {
     owner = "avito-tech";
     repo = "deepsecrets";
-    rev = "refs/tags/v${version}";
+    tag = "v${version}";
     hash = "sha256-VfIsPgStHcIYGbfrOs1mvgoq0ZoVSZwILFVBeMt/5Jc=";
   };
 
@@ -42,6 +43,7 @@ python3.pkgs.buildPythonApplication rec {
 
   meta = with lib; {
     description = "Secrets scanner that understands code";
+    mainProgram = "deepsecrets";
     homepage = "https://github.com/avito-tech/deepsecrets";
     changelog = "https://github.com/avito-tech/deepsecrets/releases/tag/v${version}";
     license = licenses.mit;

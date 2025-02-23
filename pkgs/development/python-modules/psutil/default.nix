@@ -1,18 +1,20 @@
-{ lib
-, stdenv
-, buildPythonPackage
-, CoreFoundation
-, fetchPypi
-, IOKit
-, pytestCheckHook
-, python
-, pythonOlder
+{
+  lib,
+  stdenv,
+  buildPythonPackage,
+  CoreFoundation,
+  fetchPypi,
+  setuptools,
+  IOKit,
+  pytestCheckHook,
+  python,
+  pythonOlder,
 }:
 
 buildPythonPackage rec {
   pname = "psutil";
-  version = "5.9.8";
-  format = "setuptools";
+  version = "6.1.1";
+  pyproject = true;
 
   inherit stdenv;
 
@@ -20,7 +22,7 @@ buildPythonPackage rec {
 
   src = fetchPypi {
     inherit pname version;
-    hash = "sha256-a+Em4yJUht/yhqj7mgYkalJT9MfFO0depfWsk05kGUw=";
+    hash = "sha256-z4SWcowY8tC0UZjwaJW+UvNmEXEXRrfzDEZLQitQ4vU=";
   };
 
   postPatch = ''
@@ -31,21 +33,18 @@ buildPythonPackage rec {
       --replace-fail kIOMainPortDefault kIOMasterPortDefault
   '';
 
+  build-system = [ setuptools ];
+
   buildInputs =
     # workaround for https://github.com/NixOS/nixpkgs/issues/146760
-    lib.optionals (stdenv.isDarwin && stdenv.isx86_64) [
-      CoreFoundation
-    ] ++ lib.optionals stdenv.isDarwin [
-      IOKit
-  ];
+    lib.optionals (stdenv.hostPlatform.isDarwin && stdenv.hostPlatform.isx86_64) [ CoreFoundation ]
+    ++ lib.optionals stdenv.hostPlatform.isDarwin [ IOKit ];
 
-  nativeCheckInputs = [
-    pytestCheckHook
-  ];
+  nativeCheckInputs = [ pytestCheckHook ];
 
   # Segfaults on darwin:
   # https://github.com/giampaolo/psutil/issues/1715
-  doCheck = !stdenv.isDarwin;
+  doCheck = !stdenv.hostPlatform.isDarwin;
 
   # In addition to the issues listed above there are some that occure due to
   # our sandboxing which we can work around by disabling some tests:
@@ -53,7 +52,7 @@ buildPythonPackage rec {
   # - the other disabled tests are likely due to sanboxing (missing specific errors)
   pytestFlagsArray = [
     # Note: $out must be referenced as test import paths are relative
-    "$out/${python.sitePackages}/psutil/tests/test_system.py"
+    "${placeholder "out"}/${python.sitePackages}/psutil/tests/test_system.py"
   ];
 
   disabledTests = [
@@ -69,15 +68,13 @@ buildPythonPackage rec {
     "test_disk_partitions" # problematic on Hydra's Linux builders, apparently
   ];
 
-  pythonImportsCheck = [
-    "psutil"
-  ];
+  pythonImportsCheck = [ "psutil" ];
 
   meta = with lib; {
     description = "Process and system utilization information interface";
     homepage = "https://github.com/giampaolo/psutil";
     changelog = "https://github.com/giampaolo/psutil/blob/release-${version}/HISTORY.rst";
     license = licenses.bsd3;
-    maintainers = with maintainers; [ jonringer ];
+    maintainers = [ ];
   };
 }

@@ -1,8 +1,9 @@
-{ lib
-, stdenv
-, fetchFromGitHub
-, obs-studio
-, cmake
+{
+  lib,
+  stdenv,
+  fetchFromGitHub,
+  obs-studio,
+  cmake,
 }:
 
 stdenv.mkDerivation rec {
@@ -32,7 +33,7 @@ stdenv.mkDerivation rec {
   '';
 
   meta = with lib; {
-    description = "A comprehensive blur plugin for OBS that provides several different blur algorithms, and proper compositing";
+    description = "Comprehensive blur plugin for OBS that provides several different blur algorithms, and proper compositing";
     homepage = "https://github.com/FiniteSingularity/obs-composite-blur";
     license = licenses.gpl2Only;
     maintainers = with maintainers; [ GaetanLepage ];

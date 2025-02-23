@@ -1,8 +1,9 @@
-{ buildPythonApplication
-, fetchPypi
-, lib
-, python-gnupg
-, setuptools
+{
+  buildPythonApplication,
+  fetchPypi,
+  lib,
+  python-gnupg,
+  setuptools,
 }:
 
 buildPythonApplication rec {
@@ -27,9 +28,10 @@ buildPythonApplication rec {
   doCheck = false;
 
   meta = with lib; {
-    description = "Export pass(1), \"the standard unix password manager\", to CSV";
+    description = "Export pass(1), \"Standard unix password manager\", to CSV";
+    mainProgram = "pass2csv";
     homepage = "https://github.com/reinefjord/pass2csv";
     license = licenses.mit;
-    maintainers = with maintainers; [ wolfangaukang ];
+    maintainers = [ ];
   };
 }

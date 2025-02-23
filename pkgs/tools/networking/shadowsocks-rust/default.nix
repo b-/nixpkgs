@@ -1,26 +1,32 @@
-{ lib, stdenv, fetchFromGitHub, rustPlatform, pkg-config, openssl, Security, CoreServices }:
+{
+  lib,
+  stdenv,
+  fetchFromGitHub,
+  rustPlatform,
+  pkg-config,
+  openssl,
+}:
 
 rustPlatform.buildRustPackage rec {
   pname = "shadowsocks-rust";
-  version = "1.18.1";
+  version = "1.22.0";
 
   src = fetchFromGitHub {
-    rev = "v${version}";
     owner = "shadowsocks";
-    repo = pname;
-    hash = "sha256-q7XtYOBruEmjPC4gx+hBO5oRwbxL7wQJenBS8Pl6yRk=";
+    repo = "shadowsocks-rust";
+    tag = "v${version}";
+    hash = "sha256-rufOrNwUp8h0LoBKPyDV63WAYTLJbctWrq5Ghj6ODB4=";
   };
 
-  cargoHash = "sha256-av4xUjoUGt53UoEpWULv15JKVWZq1x0YXvF5XFf4meQ=";
+  useFetchCargoVendor = true;
+  cargoHash = "sha256-hdHCpER4qs8W6rMmwys2KhaGDiTWcnntAL3ZeTBgt84=";
 
-  nativeBuildInputs = lib.optionals stdenv.isLinux [ pkg-config ];
+  nativeBuildInputs = lib.optionals stdenv.hostPlatform.isLinux [ pkg-config ];
 
-  buildInputs = lib.optionals stdenv.isLinux [ openssl ]
-    ++ lib.optionals stdenv.isDarwin [ Security CoreServices ];
+  buildInputs = lib.optionals stdenv.hostPlatform.isLinux [ openssl ];
 
   buildFeatures = [
     "trust-dns"
-    "local-http-native-tls"
     "local-tunnel"
     "local-socks4"
     "local-redir"
@@ -47,11 +53,11 @@ rustPlatform.buildRustPackage rec {
   # timeouts in sandbox
   doCheck = false;
 
-  meta = with lib; {
-    description = "A Rust port of Shadowsocks";
+  meta = {
+    description = "Rust port of Shadowsocks";
     homepage = "https://github.com/shadowsocks/shadowsocks-rust";
     changelog = "https://github.com/shadowsocks/shadowsocks-rust/raw/v${version}/debian/changelog";
-    license = licenses.mit;
-    maintainers = [ maintainers.marsam ];
+    license = lib.licenses.mit;
+    maintainers = [ ];
   };
 }

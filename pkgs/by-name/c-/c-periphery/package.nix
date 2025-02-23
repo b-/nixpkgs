@@ -1,7 +1,8 @@
-{ lib
-, stdenv
-, fetchFromGitHub
-, cmake
+{
+  lib,
+  stdenv,
+  fetchFromGitHub,
+  cmake,
 }:
 
 stdenv.mkDerivation (finalAttrs: {
@@ -15,7 +16,11 @@ stdenv.mkDerivation (finalAttrs: {
     hash = "sha256-uUSXvMQcntUqD412UWkMif0wLxPhpPdnMb96Pqqh/B4=";
   };
 
-  outputs = [ "dev" "lib" "out" ];
+  outputs = [
+    "dev"
+    "lib"
+    "out"
+  ];
 
   postPatch = ''
     substituteInPlace src/libperiphery.pc.in \
@@ -26,7 +31,7 @@ stdenv.mkDerivation (finalAttrs: {
   nativeBuildInputs = [ cmake ];
 
   meta = with lib; {
-    description = "A C library for peripheral I/O (GPIO, LED, PWM, SPI, I2C, MMIO, Serial) in Linux";
+    description = "C library for peripheral I/O (GPIO, LED, PWM, SPI, I2C, MMIO, Serial) in Linux";
     homepage = "https://github.com/vsergeev/c-periphery";
     license = licenses.mit;
     maintainers = with maintainers; [ sikmir ];

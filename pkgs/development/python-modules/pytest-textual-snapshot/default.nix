@@ -1,18 +1,19 @@
-{ lib
-, buildPythonPackage
-, fetchFromGitHub
-, poetry-core
-, jinja2
-, pytest
-, rich
-, pythonOlder
-, syrupy
-, textual
+{
+  lib,
+  buildPythonPackage,
+  fetchFromGitHub,
+  poetry-core,
+  jinja2,
+  pytest,
+  rich,
+  pythonOlder,
+  syrupy,
+  textual,
 }:
 
 buildPythonPackage rec {
   pname = "pytest-textual-snapshot";
-  version = "0.4.0";
+  version = "1.1.0";
   pyproject = true;
 
   disabled = pythonOlder "3.8";
@@ -20,17 +21,13 @@ buildPythonPackage rec {
   src = fetchFromGitHub {
     owner = "Textualize";
     repo = "pytest-textual-snapshot";
-    rev = "refs/tags/v${version}";
-    hash = "sha256-XkXeyodRdwWqCP63Onx82Z3IbNLDDR/Lvaw8xUY7fAg=";
+    tag = "v${version}";
+    hash = "sha256-ItwwaODnlya/T0Fk5DOPRLoBOwkUN5wq69cELuvy/Js=";
   };
 
-  nativeBuildInputs = [
-    poetry-core
-  ];
+  nativeBuildInputs = [ poetry-core ];
 
-  buildInputs = [
-    pytest
-  ];
+  buildInputs = [ pytest ];
 
   propagatedBuildInputs = [
     jinja2
@@ -39,12 +36,14 @@ buildPythonPackage rec {
     textual
   ];
 
+  pythonRelaxDeps = [
+    "syrupy"
+  ];
+
   # Module has no tests
   doCheck = false;
 
-  pythonImportsCheck = [
-    "pytest_textual_snapshot"
-  ];
+  pythonImportsCheck = [ "pytest_textual_snapshot" ];
 
   meta = with lib; {
     description = "Snapshot testing for Textual applications";

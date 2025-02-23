@@ -1,14 +1,15 @@
-{ fetchFromSourcehut
-, file
-, installShellFiles
-, less
-, lib
-, offpunk
-, python3Packages
-, testers
-, timg
-, xdg-utils
-, xsel
+{
+  fetchFromSourcehut,
+  file,
+  installShellFiles,
+  less,
+  lib,
+  offpunk,
+  python3Packages,
+  testers,
+  timg,
+  xdg-utils,
+  xsel,
 }:
 
 let
@@ -32,7 +33,7 @@ let
 in
 python3Packages.buildPythonApplication rec {
   pname = "offpunk";
-  version = "2.2";
+  version = "2.4";
   pyproject = true;
 
   disabled = python3Packages.pythonOlder "3.7";
@@ -41,10 +42,13 @@ python3Packages.buildPythonApplication rec {
     owner = "~lioploum";
     repo = "offpunk";
     rev = "v${version}";
-    hash = "sha256-ygVL17qqmNB7hzw1VuYIAbirbaq4EVppWCHSvTl+/Jw=";
+    hash = "sha256-ttR8S7FQQs8DkgAEvTIhuQ5zZrHtovy2W8TOw0xhSGk=";
   };
 
-  nativeBuildInputs = [ python3Packages.hatchling installShellFiles ];
+  nativeBuildInputs = [
+    python3Packages.hatchling
+    installShellFiles
+  ];
   propagatedBuildInputs = otherDependencies ++ pythonDependencies;
 
   postInstall = ''
@@ -54,7 +58,7 @@ python3Packages.buildPythonApplication rec {
   passthru.tests.version = testers.testVersion { package = offpunk; };
 
   meta = {
-    description = "A command-line and offline-first smolnet browser/feed reader";
+    description = "Command-line and offline-first smolnet browser/feed reader";
     homepage = src.meta.homepage;
     license = lib.licenses.agpl3Plus;
     mainProgram = "offpunk";

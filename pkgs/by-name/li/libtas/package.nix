@@ -9,6 +9,7 @@
 , lua5_3
 , qt5
 , file
+, binutils
 , makeDesktopItem
 }:
 
@@ -39,7 +40,7 @@ stdenv.mkDerivation (finalAttrs: {
 
   postFixup = ''
     wrapProgram $out/bin/libTAS \
-      --suffix PATH : ${lib.makeBinPath [ file ]} \
+      --suffix PATH : ${lib.makeBinPath [ file binutils ffmpeg ]} \
       --set-default LIBTAS_SO_PATH $out/lib/libtas.so
   '';
 
@@ -56,6 +57,7 @@ stdenv.mkDerivation (finalAttrs: {
 
   meta = with lib; {
     homepage = "https://clementgallet.github.io/libTAS/";
+    changelog = "https://github.com/clementgallet/libTAS/blob/${finalAttrs.src.rev}/CHANGELOG.md";
     description = "GNU/Linux software to give TAS tools to games";
     license = lib.licenses.gpl3Only;
     maintainers = with maintainers; [ skyrina ];

@@ -1,40 +1,45 @@
-{ stdenv
-, lib
-, buildGoModule
-, fetchFromGitHub
-, pcsclite
-, pkg-config
-, installShellFiles
-, PCSC
-, pivKeySupport ? true
-, pkcs11Support ? true
-, testers
-, cosign
+{
+  stdenv,
+  lib,
+  buildGoModule,
+  fetchFromGitHub,
+  pcsclite,
+  pkg-config,
+  installShellFiles,
+  PCSC,
+  pivKeySupport ? true,
+  pkcs11Support ? true,
+  testers,
+  cosign,
 }:
 buildGoModule rec {
   pname = "cosign";
-  version = "2.2.3";
+  version = "2.4.3";
 
   src = fetchFromGitHub {
     owner = "sigstore";
     repo = pname;
     rev = "v${version}";
-    hash = "sha256-+y79Uml1TvKypbwcWkZZF415qUPPfieP5pKHO+APjPE=";
+    hash = "sha256-9hUf6J3kTI0nvLExReUUovW8pZjlaoqgFmLd5mShZzU=";
   };
 
   buildInputs =
-    lib.optional (stdenv.isLinux && pivKeySupport) (lib.getDev pcsclite)
-    ++ lib.optionals (stdenv.isDarwin && pivKeySupport) [ PCSC ];
+    lib.optional (stdenv.hostPlatform.isLinux && pivKeySupport) (lib.getDev pcsclite)
+    ++ lib.optionals (stdenv.hostPlatform.isDarwin && pivKeySupport) [ PCSC ];
 
-  nativeBuildInputs = [ pkg-config installShellFiles ];
+  nativeBuildInputs = [
+    pkg-config
+    installShellFiles
+  ];
 
-  vendorHash = "sha256-udMnSdXBjlDQlQRzhhLBDBcHwREkEev0uLIVjT8BbuU=";
+  vendorHash = "sha256-jNRNjAecf84XzkPLWHjCYPxh1igUs7Yd0MSAmRcPtlc=";
 
   subPackages = [
     "cmd/cosign"
   ];
 
-  tags = [ ] ++ lib.optionals pivKeySupport [ "pivkey" ] ++ lib.optionals pkcs11Support [ "pkcs11key" ];
+  tags =
+    [ ] ++ lib.optionals pivKeySupport [ "pivkey" ] ++ lib.optionals pkcs11Support [ "pkcs11key" ];
 
   ldflags = [
     "-s"
@@ -51,11 +56,12 @@ buildGoModule rec {
 
     rm pkg/cosign/ctlog_test.go # Require network access
     rm pkg/cosign/tlog_test.go # Require network access
+    rm cmd/cosign/cli/verify/verify_test.go # Require network access
     rm cmd/cosign/cli/verify/verify_blob_attestation_test.go # Require network access
     rm cmd/cosign/cli/verify/verify_blob_test.go # Require network access
   '';
 
-  postInstall = ''
+  postInstall = lib.optionalString (stdenv.buildPlatform.canExecute stdenv.hostPlatform) ''
     installShellCompletion --cmd cosign \
       --bash <($out/bin/cosign completion bash) \
       --fish <($out/bin/cosign completion fish) \
@@ -72,7 +78,12 @@ buildGoModule rec {
     homepage = "https://github.com/sigstore/cosign";
     changelog = "https://github.com/sigstore/cosign/releases/tag/v${version}";
     description = "Container Signing CLI with support for ephemeral keys and Sigstore signing";
+    mainProgram = "cosign";
     license = licenses.asl20;
-    maintainers = with maintainers; [ lesuisse jk developer-guy ];
+    maintainers = with maintainers; [
+      lesuisse
+      jk
+      developer-guy
+    ];
   };
 }
