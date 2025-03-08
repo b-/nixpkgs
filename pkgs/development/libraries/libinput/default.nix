@@ -22,6 +22,7 @@
 , valgrind
 , python3
 , nixosTests
+, wayland-scanner
 }:
 
 let
@@ -45,7 +46,7 @@ in
 
 stdenv.mkDerivation rec {
   pname = "libinput";
-  version = "1.25.0";
+  version = "1.27.1";
 
   outputs = [ "bin" "out" "dev" ];
 
@@ -54,7 +55,7 @@ stdenv.mkDerivation rec {
     owner = "libinput";
     repo = "libinput";
     rev = version;
-    hash = "sha256-c2FU5OW+CIgtYTQy+bwIbaw3SP1pVxaLokhO+ag5/1s=";
+    hash = "sha256-3U+2a/uSoSj1t34uz7xO2QQtJExygKOhBL7BUGP0Fbo=";
   };
 
   patches = [
@@ -86,6 +87,7 @@ stdenv.mkDerivation rec {
     cairo
     glib
     gtk3
+    wayland-scanner
   ];
 
   propagatedBuildInputs = [
@@ -128,6 +130,7 @@ stdenv.mkDerivation rec {
 
   meta = with lib; {
     description = "Handles input devices in Wayland compositors and provides a generic X.Org input driver";
+    mainProgram = "libinput";
     homepage = "https://www.freedesktop.org/wiki/Software/libinput/";
     license = licenses.mit;
     platforms = platforms.linux;

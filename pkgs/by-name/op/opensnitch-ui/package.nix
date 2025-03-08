@@ -1,27 +1,29 @@
-{ python3Packages
-, fetchFromGitHub
-, qt5
-, lib
+{
+  python311Packages,
+  fetchFromGitHub,
+  nix-update-script,
+  qt5,
+  lib,
 }:
 
-python3Packages.buildPythonApplication rec {
+python311Packages.buildPythonApplication rec {
   pname = "opensnitch-ui";
-  version = "1.6.5.1";
+  version = "1.6.8";
 
   src = fetchFromGitHub {
     owner = "evilsocket";
     repo = "opensnitch";
     rev = "refs/tags/v${version}";
-    hash = "sha256-IVrAAHzLS7A7cYhRk+IUx8/5TGKeqC7M/7iXOpPe2ZA=";
+    hash = "sha256-zn5kBnINLt/qqAbka9wShFLWJoMJ6SXu2OL6V6uQ2IM=";
   };
 
   postPatch = ''
     substituteInPlace ui/opensnitch/utils/__init__.py \
-      --replace /usr/lib/python3/dist-packages/data ${python3Packages.pyasn}/${python3Packages.python.sitePackages}/pyasn/data
+      --replace /usr/lib/python3/dist-packages/data ${python311Packages.pyasn}/${python311Packages.python.sitePackages}/pyasn/data
   '';
 
   nativeBuildInputs = [
-    python3Packages.pyqt5
+    python311Packages.pyqt5
     qt5.wrapQtAppsHook
   ];
 
@@ -29,9 +31,10 @@ python3Packages.buildPythonApplication rec {
     qt5.qtwayland
   ];
 
-  propagatedBuildInputs = with python3Packages; [
+  propagatedBuildInputs = with python311Packages; [
     grpcio-tools
     notify2
+    packaging
     pyasn
     pyinotify
     pyqt5
@@ -56,7 +59,7 @@ python3Packages.buildPythonApplication rec {
   '';
 
   postInstall = ''
-    mv $out/${python3Packages.python.sitePackages}/usr/* $out/
+    mv $out/${python311Packages.python.sitePackages}/usr/* $out/
   '';
 
   dontWrapQtApps = true;
@@ -65,8 +68,11 @@ python3Packages.buildPythonApplication rec {
   # All tests are sandbox-incompatible and disabled for now
   doCheck = false;
 
+  passthru.updateScript = nix-update-script { };
+
   meta = with lib; {
-    description = "An application firewall";
+    description = "Application firewall";
+    mainProgram = "opensnitch-ui";
     homepage = "https://github.com/evilsocket/opensnitch/wiki";
     license = licenses.gpl3Only;
     maintainers = with maintainers; [ onny ];

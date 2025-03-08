@@ -1,4 +1,4 @@
-{ lib, stdenv, fetchurl, config, wrapGAppsHook, autoPatchelfHook
+{ lib, stdenv, fetchurl, config, wrapGAppsHook3, autoPatchelfHook
 , alsa-lib
 , curl
 , dbus-glib
@@ -20,6 +20,7 @@
 , runtimeShell
 , systemLocale ? config.i18n.defaultLocale or "en_US"
 , patchelfUnstable  # have to use patchelfUnstable to support --no-clobber-old-sections
+, applicationName? "Firefox"
 }:
 
 let
@@ -31,6 +32,7 @@ let
   mozillaPlatforms = {
     i686-linux = "linux-i686";
     x86_64-linux = "linux-x86_64";
+    aarch64-linux = "linux-aarch64";
   };
 
   arch = mozillaPlatforms.${stdenv.hostPlatform.system};
@@ -64,7 +66,7 @@ stdenv.mkDerivation {
 
   src = fetchurl { inherit (source) url sha256; };
 
-  nativeBuildInputs = [ wrapGAppsHook autoPatchelfHook patchelfUnstable ];
+  nativeBuildInputs = [ wrapGAppsHook3 autoPatchelfHook patchelfUnstable ];
   buildInputs = [
     gtk3
     adwaita-icon-theme
@@ -97,7 +99,7 @@ stdenv.mkDerivation {
     '';
 
   passthru = {
-    inherit binaryName;
+    inherit applicationName binaryName;
     libName = "firefox-bin-${version}";
     ffmpegSupport = true;
     gssSupport = true;

@@ -38,12 +38,12 @@ Here is a simple package example.
 
 - It uses the `fetchFromGitHub` fetcher to get its source.
 
-- It also accept `duneVersion` parameter (valid value are `"1"`, `"2"`, and
-  `"3"`). The recommended practice it to set only if you don't want the default
+- It also accepts a `duneVersion` parameter (valid values are `"1"`, `"2"`, and
+  `"3"`). The recommended practice is to set it only if you don't want the default
   value and/or it depends on something else like package version. You might see
   a not-supported argument `useDune2`. The behavior was `useDune2 = true;` =>
   `duneVersion = "2";` and `useDune2 = false;` => `duneVersion = "1";`. It was
-  used at the time when dune3 didn't existed.
+  used at the time when dune3 didn't exist.
 
 - It sets the optional `doCheck` attribute such that tests will be run with
   `dune runtest -p angstrom` after the build (`dune build -p angstrom`) is
@@ -92,6 +92,7 @@ buildDunePackage rec {
     license = lib.licenses.bsd3;
     maintainers = with lib.maintainers; [ sternenseemann ];
   };
+}
 ```
 
 Here is a second example, this time using a source archive generated with `dune-release`. It is a good idea to use this archive when it is available as it will usually contain substituted variables such as a `%%VERSION%%` field. This library does not depend on any other OCaml library and no tests are run after building it.
@@ -110,22 +111,14 @@ buildDunePackage rec {
     hash = "sha256-d5/3KUBAWRj8tntr4RkJ74KWW7wvn/B/m1nx0npnzyc=";
   };
 
-  meta = with lib; {
+  meta = {
     homepage = "https://github.com/flowtype/ocaml-wtf8";
-    description = "WTF-8 is a superset of UTF-8 that allows unpaired surrogates.";
-    license = licenses.mit;
-    maintainers = [ maintainers.eqyiel ];
+    description = "WTF-8 is a superset of UTF-8 that allows unpaired surrogates";
+    license = lib.licenses.mit;
+    maintainers = [ lib.maintainers.eqyiel ];
   };
 }
 ```
-
-Note about `minimalOCamlVersion`.  A deprecated version of this argument was
-spelled `minimumOCamlVersion`; setting the old attribute wrongly modifies the
-derivation hash and is therefore inappropriate. As a technical dept, currently
-packaged libraries may still use the old spelling: maintainers are invited to
-fix this when updating packages. Massive renaming is strongly discouraged as it
-would be challenging to review, difficult to test, and will cause unnecessary
-rebuild.
 
 The build will automatically fail if two distinct versions of the same library
 are added to `buildInputs` (which usually happens transitively because of

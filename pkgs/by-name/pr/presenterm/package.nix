@@ -1,47 +1,51 @@
-{ lib
-, fetchFromGitHub
-, rustPlatform
-, libsixel
-, testers
-, presenterm
-, stdenv
+{
+  lib,
+  rustPlatform,
+  fetchFromGitHub,
+  libsixel,
+  versionCheckHook,
+  nix-update-script,
 }:
 
 rustPlatform.buildRustPackage rec {
   pname = "presenterm";
-  version = "0.6.1";
+  version = "0.10.1";
 
   src = fetchFromGitHub {
     owner = "mfontanini";
     repo = "presenterm";
-    rev = "refs/tags/v${version}";
-    hash = "sha256-+XESFDseRScWYOry58JLknGv+xhewTKx38lrzQu2mQ4=";
+    tag = "v${version}";
+    hash = "sha256-ow87vKHfdstL2k73wHD06HsX28mLvTrWh5yIbo/a54M=";
   };
 
   buildInputs = [
     libsixel
   ];
 
-  cargoHash = "sha256-xZLGm+tGAmmo/OzDMrgQK0uH7GMG6fTkpPsXwLe94VM=";
+  useFetchCargoVendor = true;
+  cargoHash = "sha256-KpwW2lblX4aCN73jWFY9Ylp+AEbGWCu/jb/c8wTao08=";
 
-  # Crashes at runtime on darwin with:
-  # Library not loaded: .../out/lib/libsixel.1.dylib
-  buildFeatures = lib.optionals (!stdenv.isDarwin) [ "sixel" ];
+  checkFlags = [
+    # failed to load .tmpEeeeaQ: No such file or directory (os error 2)
+    "--skip=external_snippet"
+  ];
 
-  # Skip test that currently doesn't work
-  checkFlags = [ "--skip=execute::test::shell_code_execution" ];
+  nativeInstallCheckInputs = [
+    versionCheckHook
+  ];
+  versionCheckProgramArg = [ "--version" ];
+  doInstallCheck = true;
 
-  passthru.tests.version = testers.testVersion {
-    package = presenterm;
-    command = "presenterm --version";
+  passthru = {
+    updateScript = nix-update-script { };
   };
 
-  meta = with lib; {
-    description = "A terminal based slideshow tool";
+  meta = {
+    description = "Terminal based slideshow tool";
     changelog = "https://github.com/mfontanini/presenterm/releases/tag/v${version}";
     homepage = "https://github.com/mfontanini/presenterm";
-    license = licenses.bsd2;
-    maintainers = with maintainers; [ mikaelfangel ];
+    license = lib.licenses.bsd2;
+    maintainers = with lib.maintainers; [ mikaelfangel ];
     mainProgram = "presenterm";
   };
 }

@@ -1,12 +1,11 @@
 { lib
 , stdenv
 , fetchurl
-, substituteAll
+, replaceVars
 , gettext
 , pkg-config
 , dbus
-, gnome
-, systemd
+, gitUpdater
 , libuuid
 , polkit
 , gnutls
@@ -28,7 +27,7 @@
 , openresolv
 , libndp
 , newt
-, libsoup
+, libsoup_2_4
 , ethtool
 , gnused
 , iputils
@@ -50,18 +49,22 @@
 , mobile-broadband-provider-info
 , runtimeShell
 , buildPackages
+, nixosTests
+, systemd
+, udev
+, withSystemd ? lib.meta.availableOn stdenv.hostPlatform systemd
 }:
 
 let
   pythonForDocs = python3.pythonOnBuildForHost.withPackages (pkgs: with pkgs; [ pygobject3 ]);
 in
-stdenv.mkDerivation rec {
+stdenv.mkDerivation (finalAttrs: {
   pname = "networkmanager";
-  version = "1.44.2";
+  version = "1.52.0";
 
   src = fetchurl {
-    url = "mirror://gnome/sources/NetworkManager/${lib.versions.majorMinor version}/NetworkManager-${version}.tar.xz";
-    sha256 = "sha256-S1i/OsV+LO+1ZS79CUXrC0vDamPZKmGrRx2LssmkIOE=";
+    url = "https://gitlab.freedesktop.org/NetworkManager/NetworkManager/-/releases/${finalAttrs.version}/downloads/NetworkManager-${finalAttrs.version}.tar.xz";
+    hash = "sha256-NW8hoV2lHkIY/U0P14zqYeBnsRFqJc3e5K+d8FBi6S0=";
   };
 
   outputs = [ "out" "dev" "devdoc" "man" "doc" ];
@@ -73,7 +76,8 @@ stdenv.mkDerivation rec {
     # System paths
     "--sysconfdir=/etc"
     "--localstatedir=/var"
-    "-Dsystemdsystemunitdir=${placeholder "out"}/etc/systemd/system"
+    (lib.mesonOption "systemdsystemunitdir"
+      (if withSystemd then "${placeholder "out"}/etc/systemd/system" else "no"))
     # to enable link-local connections
     "-Dudev_dir=${placeholder "out"}/lib/udev"
     "-Ddbus_conf_dir=${placeholder "out"}/share/dbus-1/system.d"
@@ -81,7 +85,8 @@ stdenv.mkDerivation rec {
 
     # Platform
     "-Dmodprobe=${kmod}/bin/modprobe"
-    "-Dsession_tracking=systemd"
+    (lib.mesonOption "session_tracking" (if withSystemd then "systemd" else "no"))
+    (lib.mesonBool "systemd_journal" withSystemd)
     "-Dlibaudit=yes-disabled-by-default"
     "-Dpolkit_agent_helper_1=/run/wrappers/bin/polkit-agent-helper-1"
 
@@ -100,10 +105,7 @@ stdenv.mkDerivation rec {
     "-Dresolvconf=${openresolv}/bin/resolvconf"
 
     # DHCP clients
-    # ISC DHCP client has reached it's end of life, so stop using it
-    "-Ddhclient=no"
     "-Ddhcpcd=${dhcpcd}/bin/dhcpcd"
-    "-Ddhcpcanon=no"
 
     # Miscellaneous
     # almost cross-compiles, however fails with
@@ -117,10 +119,11 @@ stdenv.mkDerivation rec {
   ];
 
   patches = [
-    (substituteAll {
-      src = ./fix-paths.patch;
-      inherit iputils openconnect ethtool gnused systemd;
+    (replaceVars ./fix-paths.patch {
+      inherit iputils openconnect ethtool gnused;
       inherit runtimeShell;
+      # patch context
+      OUTPUT = null;
     })
 
     # Meson does not support using different directories during build and
@@ -129,7 +132,7 @@ stdenv.mkDerivation rec {
   ];
 
   buildInputs = [
-    systemd
+    (if withSystemd then systemd else udev)
     libselinux
     audit
     libpsl
@@ -144,7 +147,7 @@ stdenv.mkDerivation rec {
     modemmanager
     readline
     newt
-    libsoup
+    libsoup_2_4
     jansson
     dbus # used to get directory paths with pkg-config during configuration
   ];
@@ -181,6 +184,9 @@ stdenv.mkDerivation rec {
     # TODO: submit upstream
     substituteInPlace meson.build \
       --replace "'vala', req" "'vala', native: false, req"
+  '' + lib.optionalString withSystemd ''
+    substituteInPlace data/NetworkManager.service.in \
+      --replace-fail /usr/bin/busctl ${systemd}/bin/busctl
   '';
 
   preBuild = ''
@@ -198,19 +204,25 @@ stdenv.mkDerivation rec {
   '';
 
   passthru = {
-    updateScript = gnome.updateScript {
-      packageName = "NetworkManager";
-      attrPath = "networkmanager";
-      versionPolicy = "odd-unstable";
+    updateScript = gitUpdater {
+      odd-unstable = true;
+      url = "https://gitlab.freedesktop.org/NetworkManager/NetworkManager.git";
+    };
+    tests = {
+      inherit (nixosTests.networking) networkmanager;
     };
   };
 
   meta = with lib; {
-    homepage = "https://wiki.gnome.org/Projects/NetworkManager";
+    homepage = "https://networkmanager.dev";
     description = "Network configuration and management tool";
     license = licenses.gpl2Plus;
     changelog = "https://gitlab.freedesktop.org/NetworkManager/NetworkManager/-/raw/${version}/NEWS";
-    maintainers = teams.freedesktop.members ++ (with maintainers; [ domenkozar obadz amaxine ]);
+    maintainers = teams.freedesktop.members ++ (with maintainers; [ domenkozar obadz ]);
     platforms = platforms.linux;
+    badPlatforms = [
+      # Mandatory shared libraries.
+      lib.systems.inspect.platformPatterns.isStatic
+    ];
   };
-}
+})

@@ -1,57 +1,42 @@
-{ lib
-, stdenv
-, fetchFromGitHub
-, fetchpatch
-, installShellFiles
-, rustPlatform
-, libiconv
-, darwin
-, nixosTests
+{
+  lib,
+  stdenv,
+  fetchFromGitHub,
+  installShellFiles,
+  rustPlatform,
+  nixosTests,
+  jq,
+  moreutils,
 }:
 
 rustPlatform.buildRustPackage rec {
   pname = "atuin";
-  version = "18.0.1";
+  version = "18.4.0";
 
   src = fetchFromGitHub {
     owner = "atuinsh";
     repo = "atuin";
     rev = "v${version}";
-    hash = "sha256-fuVSn1vhKn2+Tw5f6zBYHFW3QSL4eisZ6d5pxsj5hh4=";
+    hash = "sha256-P/q4XYhpXo9kwiltA0F+rQNSlqI+s8TSi5v5lFJWJ/4=";
   };
 
-  patches = [
-    # atuin with bash-preexec wasn't recording history properly after searching,
-    # backport recent fix until next release
-    (fetchpatch {
-      url = "https://github.com/atuinsh/atuin/commit/cb11af25afddbad552d337a9c82e74ac4302feca.patch";
-      sha256 = "sha256-cG99aLKs5msatT7vXiX9Rn5xur2WUjQ/U33nOxuon7I=";
-    })
-  ];
-
-  # TODO: unify this to one hash because updater do not support this
-  cargoHash =
-    if stdenv.isLinux
-    then "sha256-lHWgsVnjSeBmd7O4Fn0pUtTn4XbkBOAouaRHRozil50="
-    else "sha256-LxfpllzvgUu7ZuD97n3W+el3bdOt5QGXzJbDQ0w8seo=";
+  useFetchCargoVendor = true;
+  cargoHash = "sha256-0KswWFy44ViPHlMCmwgVlDe7diDjLmVUk2517BEMTtk=";
 
   # atuin's default features include 'check-updates', which do not make sense
   # for distribution builds. List all other default features.
   buildNoDefaultFeatures = true;
   buildFeatures = [
-    "client" "sync" "server" "clipboard"
+    "client"
+    "sync"
+    "server"
+    "clipboard"
+    "daemon"
   ];
 
   nativeBuildInputs = [ installShellFiles ];
 
-  buildInputs = lib.optionals stdenv.isDarwin [
-    libiconv
-    darwin.apple_sdk.frameworks.AppKit
-    darwin.apple_sdk.frameworks.Security
-    darwin.apple_sdk.frameworks.SystemConfiguration
-  ];
-
-  postInstall = ''
+  postInstall = lib.optionalString (stdenv.buildPlatform.canExecute stdenv.hostPlatform) ''
     installShellCompletion --cmd atuin \
       --bash <($out/bin/atuin gen-completions -s bash) \
       --fish <($out/bin/atuin gen-completions -s fish) \
@@ -70,13 +55,20 @@ rustPlatform.buildRustPackage rec {
     # PermissionDenied (Operation not permitted)
     "--skip=change_password"
     "--skip=multi_user_test"
+    "--skip=store::var::tests::build_vars"
+    # Tries to touch files
+    "--skip=build_aliases"
   ];
 
-  meta = with lib; {
+  meta = {
     description = "Replacement for a shell history which records additional commands context with optional encrypted synchronization between machines";
     homepage = "https://github.com/atuinsh/atuin";
-    license = licenses.mit;
-    maintainers = with maintainers; [ SuperSandro2000 sciencentistguy _0x4A6F ];
+    license = lib.licenses.mit;
+    maintainers = with lib.maintainers; [
+      SuperSandro2000
+      sciencentistguy
+      _0x4A6F
+    ];
     mainProgram = "atuin";
   };
 }
