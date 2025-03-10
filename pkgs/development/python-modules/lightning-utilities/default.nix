@@ -1,43 +1,47 @@
-{ lib
-, buildPythonPackage
-, fetchFromGitHub
+{
+  lib,
+  buildPythonPackage,
+  fetchFromGitHub,
 
-# build
-, setuptools
+  # build
+  setuptools,
 
-# runtime
-, packaging
-, typing-extensions
+  # runtime
+  looseversion,
+  packaging,
+  typing-extensions,
 
-# tests
-, pytest-timeout
-, pytestCheckHook
+  # tests
+  pytest-timeout,
+  pytestCheckHook,
 }:
 
 buildPythonPackage rec {
   pname = "lightning-utilities";
-  version = "0.10.1";
-  format = "pyproject";
+  version = "0.14.0";
+  pyproject = true;
 
   src = fetchFromGitHub {
     owner = "Lightning-AI";
     repo = "utilities";
-    rev = "refs/tags/v${version}";
-    hash = "sha256-kP7BllA9FR/nMNTxRCxmG6IJYHz/Nxqb1HoF9KxuKl8=";
+    tag = "v${version}";
+    hash = "sha256-lRH1ZQQHnn18NxmLDHy/uSgzgXpLuDD5/08OIErEs7g=";
   };
 
-  nativeBuildInputs = [
-    setuptools
-  ];
+  postPatch = ''
+    substituteInPlace src/lightning_utilities/install/requirements.py \
+      --replace-fail "from distutils.version import LooseVersion" "from looseversion import LooseVersion"
+  '';
 
-  propagatedBuildInputs = [
+  build-system = [ setuptools ];
+
+  dependencies = [
+    looseversion
     packaging
     typing-extensions
   ];
 
-  pythonImportsCheck = [
-    "lightning_utilities"
-  ];
+  pythonImportsCheck = [ "lightning_utilities" ];
 
   nativeCheckInputs = [
     pytest-timeout
@@ -49,10 +53,10 @@ buildPythonPackage rec {
     "lightning_utilities.core.imports.RequirementCache"
     "lightning_utilities.core.imports.compare_version"
     "lightning_utilities.core.imports.get_dependency_min_version_spec"
+
     # weird doctests fail on imports, but providing the dependency
     # fails another test
     "lightning_utilities.core.imports.ModuleAvailableCache"
-    "lightning_utilities.core.imports.requires"
   ];
 
   disabledTestPaths = [
@@ -61,16 +65,11 @@ buildPythonPackage rec {
     "src/lightning_utilities/install/requirements.py"
   ];
 
-  pytestFlagsArray = [
-    # warns about distutils removal in python 3.12
-    "-W" "ignore::DeprecationWarning"
-  ];
-
-  meta = with lib; {
+  meta = {
     changelog = "https://github.com/Lightning-AI/utilities/releases/tag/v${version}";
     description = "Common Python utilities and GitHub Actions in Lightning Ecosystem";
     homepage = "https://github.com/Lightning-AI/utilities";
-    license = licenses.asl20;
-    maintainers = with maintainers; [ ];
+    license = lib.licenses.asl20;
+    maintainers = with lib.maintainers; [ GaetanLepage ];
   };
 }

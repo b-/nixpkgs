@@ -1,57 +1,78 @@
-{ lib
-, stdenv
-, AppKit
-, Security
-, fetchFromGitLab
-, rustPlatform
-, protobuf
-, capnproto
+{
+  lib,
+  stdenv,
+  AppKit,
+  Security,
+  fetchFromGitLab,
+  rustPlatform,
+  protobuf,
+  capnproto,
+  cmake,
+  testers,
+  veilid,
+  gitUpdater,
 }:
 
 rustPlatform.buildRustPackage rec {
   pname = "veilid";
-  version = "0.2.5";
+  version = "0.4.3";
 
   src = fetchFromGitLab {
     owner = "veilid";
     repo = pname;
     rev = "v${version}";
-    sha256 = "sha256-jcSoZhAAoiKn3Jsov4Q0vunPRC+JwX8O0vYZDT5uO0I=";
+    hash = "sha256-D6mfYiUj9W+2l/is/KkzwIQ1Erbapf5dl4uWGKd42r4=";
   };
 
-  cargoLock = {
-    lockFile = ./Cargo.lock;
-    outputHashes = {
-      "async-tls-0.12.0" = "sha256-SAirarvQKsYLftr3u29czQFBwVZgl2cSCUqC0/Qgye0=";
-      "cursive-0.20.0" = "sha256-jETyRRnzt7OMkTo4LRfeRr37oPJpn9R2soxkH7tzGy8=";
-      "cursive-flexi-logger-view-0.5.0" = "sha256-zFpfVFNZNNdNMdpJbaT4O2pMYccGEAGnvYzpRziMwfQ=";
-      "cursive_buffered_backend-0.6.1" = "sha256-+sTJnp570HupwaJxV2x+oKyLwNmqQ4HqOH2P1s9Hhw8=";
-    };
-  };
+  useFetchCargoVendor = true;
+  cargoHash = "sha256-jjcx78iSIwMxbkJP5K0Xh9aIL1sDsX8cvjc5br8JjLM=";
 
   nativeBuildInputs = [
     capnproto
+    cmake
     protobuf
   ];
 
-  buildInputs = lib.optionals stdenv.isDarwin [ AppKit Security ];
+  buildInputs = lib.optionals stdenv.hostPlatform.isDarwin [
+    AppKit
+    Security
+  ];
 
   cargoBuildFlags = [
     "--workspace"
   ];
 
+  RUSTFLAGS = "--cfg tokio_unstable";
+
   doCheck = false;
 
-  outputs = [ "out" "lib" "dev" ];
+  outputs = [
+    "out"
+    "lib"
+    "dev"
+  ];
 
   postInstall = ''
     moveToOutput "lib" "$lib"
   '';
 
+  passthru = {
+    updateScript = gitUpdater { rev-prefix = "v"; };
+    tests = {
+      veilid-version = testers.testVersion {
+        package = veilid;
+      };
+    };
+  };
+
   meta = with lib; {
-    description = "An open-source, peer-to-peer, mobile-first, networked application framework";
+    description = "Open-source, peer-to-peer, mobile-first, networked application framework";
+    mainProgram = "veilid-server";
     homepage = "https://veilid.com";
     license = licenses.mpl20;
-    maintainers = with maintainers; [ bbigras qbit ];
+    maintainers = with maintainers; [
+      bbigras
+      qbit
+    ];
   };
 }

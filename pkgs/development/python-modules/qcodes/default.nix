@@ -1,72 +1,86 @@
-{ lib
-, broadbean
-, buildPythonPackage
-, cf-xarray
-, dask
-, deepdiff
-, fetchFromGitHub
-, h5netcdf
-, h5py
-, hypothesis
-, importlib-metadata
-, ipykernel
-, ipython
-, ipywidgets
-, jsonschema
-, lxml
-, matplotlib
-, numpy
-, opencensus
-, opencensus-ext-azure
-, opentelemetry-api
-, packaging
-, pandas
-, pillow
-, pip
-, pytest-asyncio
-, pytest-mock
-, pytest-rerunfailures
-, pytest-xdist
-, pytestCheckHook
-, pythonOlder
-, pyvisa
-, pyvisa-sim
-, rsa
-, ruamel-yaml
-, setuptools
-, sphinx
-, tabulate
-, tqdm
-, typing-extensions
-, uncertainties
-, versioningit
-, websockets
-, wheel
-, wrapt
-, xarray
+{
+  lib,
+  buildPythonPackage,
+  fetchFromGitHub,
+
+  # build-system
+  setuptools,
+  versioningit,
+
+  # dependencies
+  broadbean,
+  cf-xarray,
+  dask,
+  h5netcdf,
+  h5py,
+  ipykernel,
+  ipython,
+  ipywidgets,
+  jsonschema,
+  libcst,
+  matplotlib,
+  numpy,
+  opentelemetry-api,
+  packaging,
+  pandas,
+  pillow,
+  pyarrow,
+  pyvisa,
+  ruamel-yaml,
+  tabulate,
+  tqdm,
+  typing-extensions,
+  uncertainties,
+  websockets,
+  wrapt,
+  xarray,
+
+  # optional-dependencies
+  furo,
+  jinja2,
+  nbsphinx,
+  pyvisa-sim,
+  scipy,
+  sphinx,
+  sphinx-issues,
+  towncrier,
+
+  # tests
+  deepdiff,
+  hypothesis,
+  lxml,
+  pip,
+  pytest-asyncio,
+  pytest-mock,
+  pytest-rerunfailures,
+  pytest-xdist,
+  pytestCheckHook,
+  writableTmpDirAsHomeHook,
 }:
 
 buildPythonPackage rec {
   pname = "qcodes";
-  version = "0.44.1";
+  version = "0.51.0";
   pyproject = true;
-
-  disabled = pythonOlder "3.9";
 
   src = fetchFromGitHub {
     owner = "microsoft";
     repo = "Qcodes";
-    rev = "refs/tags/v${version}";
-    hash = "sha256-AggAVq/yfJUZRwoQb29QoIbVIAdV3solKCjivqucLZk=";
+    tag = "v${version}";
+    hash = "sha256-QgCMoZrC3ZCo8yayRXw9fvBj5xi+XH2x/E1MuQFULPo=";
   };
 
-  nativeBuildInputs = [
+  postPatch = ''
+    substituteInPlace pyproject.toml \
+      --replace-fail 'default-version = "0.0"' 'default-version = "${version}"'
+  '';
+
+  build-system = [
     setuptools
     versioningit
-    wheel
   ];
 
-  propagatedBuildInputs = [
+  dependencies = [
     broadbean
     cf-xarray
     dask
@@ -78,14 +92,12 @@ buildPythonPackage rec {
     jsonschema
     matplotlib
     numpy
-    opencensus
-    opencensus-ext-azure
     opentelemetry-api
     packaging
     pandas
     pillow
+    pyarrow
     pyvisa
-    rsa
     ruamel-yaml
     tabulate
     tqdm
@@ -94,13 +106,39 @@ buildPythonPackage rec {
     websockets
     wrapt
     xarray
-  ] ++ lib.optionals (pythonOlder "3.10") [
-    importlib-metadata
   ];
+
+  optional-dependencies = {
+    docs = [
+      # autodocsumm
+      furo
+      jinja2
+      nbsphinx
+      pyvisa-sim
+      # qcodes-loop
+      scipy
+      sphinx
+      # sphinx-favicon
+      sphinx-issues
+      # sphinx-jsonschema
+      # sphinxcontrib-towncrier
+      towncrier
+    ];
+    loop = [
+      # qcodes-loop
+    ];
+    refactor = [
+      libcst
+    ];
+    zurichinstruments = [
+      # zhinst-qcodes
+    ];
+  };
 
   nativeCheckInputs = [
     deepdiff
     hypothesis
+    libcst
     lxml
     pip
     pytest-asyncio
@@ -110,14 +148,13 @@ buildPythonPackage rec {
     pytestCheckHook
     pyvisa-sim
     sphinx
+    writableTmpDirAsHomeHook
   ];
 
   __darwinAllowLocalNetworking = true;
 
   pytestFlagsArray = [
     "-v"
-    "-n"
-    "$NIX_BUILD_CORES"
     # Follow upstream with settings
     "-m 'not serial'"
     "--hypothesis-profile ci"
@@ -150,25 +187,14 @@ buildPythonPackage rec {
     "test_step_ramp"
   ];
 
-  pythonImportsCheck = [
-    "qcodes"
-  ];
+  pythonImportsCheck = [ "qcodes" ];
 
-  postPatch = ''
-    substituteInPlace pyproject.toml \
-      --replace-fail 'default-version = "0.0"' 'default-version = "${version}"'
-  '';
-
-  postInstall = ''
-    export HOME="$TMPDIR"
-  '';
-
-  meta = with lib; {
+  meta = {
     description = "Python-based data acquisition framework";
     changelog = "https://github.com/QCoDeS/Qcodes/releases/tag/v${version}";
     downloadPage = "https://github.com/QCoDeS/Qcodes";
     homepage = "https://qcodes.github.io/Qcodes/";
-    license = licenses.mit;
-    maintainers = with maintainers; [ evilmav ];
+    license = lib.licenses.mit;
+    maintainers = with lib.maintainers; [ evilmav ];
   };
 }

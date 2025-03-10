@@ -1,27 +1,38 @@
-{ lib, elixir, fetchFromGitHub, fetchMixDeps, mixRelease, nix-update-script }:
+{
+  lib,
+  elixir,
+  fetchFromGitHub,
+  fetchMixDeps,
+  mixRelease,
+  nix-update-script,
+}:
 # Based on the work of Hauleth
 # None of this would have happened without him
 
 let
   pname = "elixir-ls";
-  version = "0.19.0";
+  version = "0.27.1";
   src = fetchFromGitHub {
     owner = "elixir-lsp";
     repo = "elixir-ls";
     rev = "v${version}";
-    hash = "sha256-pd/ZkDpzlheEJfX7X6fFWY4Y5B5Y2EnJMBtuNHPuUJw=";
-    fetchSubmodules = true;
+    hash = "sha256-YSu9uN0n8x1833iqvskk/47JnoXJ2Y8RCRmA12YYgDc=";
   };
 in
 mixRelease {
-  inherit pname version src elixir;
+  inherit
+    pname
+    version
+    src
+    elixir
+    ;
 
   stripDebug = true;
 
   mixFodDeps = fetchMixDeps {
     pname = "mix-deps-${pname}";
     inherit src version elixir;
-    hash = "sha256-yxcUljclKKVFbY6iUphnTUSqMPpsEiPcw4yUs6atU0c=";
+    hash = "sha256-een28zUukN8H/8bZNc3pqtg1NXmkU9zv89muCAF93Xk=";
   };
 
   # elixir-ls is an umbrella app
@@ -37,7 +48,7 @@ mixRelease {
   # of the no-deps-check requirement
   buildPhase = ''
     runHook preBuild
-    mix do compile --no-deps-check, elixir_ls.release
+    mix do compile --no-deps-check, elixir_ls.release${lib.optionalString (lib.versionAtLeast elixir.version "1.16.0") "2"}
     runHook postBuild
   '';
 
@@ -53,10 +64,13 @@ mixRelease {
     substitute release/debug_adapter.sh $out/bin/elixir-debug-adapter \
       --replace 'exec "''${dir}/launch.sh"' "exec $out/lib/launch.sh"
     chmod +x $out/bin/elixir-debug-adapter
-    # prepare the launcher
+    # prepare the launchers
     substituteInPlace $out/lib/launch.sh \
       --replace "ERL_LIBS=\"\$SCRIPTPATH:\$ERL_LIBS\"" \
                 "ERL_LIBS=$out/lib:\$ERL_LIBS" \
+      --replace "exec elixir" "exec ${elixir}/bin/elixir" \
+      --replace 'echo "" | elixir' "echo \"\" | ${elixir}/bin/elixir"
+    substituteInPlace $out/lib/exec.zsh \
       --replace "exec elixir" "exec ${elixir}/bin/elixir"
     runHook postInstall
   '';

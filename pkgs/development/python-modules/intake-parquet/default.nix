@@ -1,36 +1,49 @@
-{ lib
-, buildPythonPackage
-, fetchFromGitHub
-, pandas
-, dask
-, fastparquet
-, pyarrow
+{
+  lib,
+  buildPythonPackage,
+  dask,
+  fastparquet,
+  fetchFromGitHub,
+  pandas,
+  pyarrow,
+  pythonOlder,
+  setuptools,
+  versioneer,
 }:
 
 buildPythonPackage rec {
   pname = "intake-parquet";
   version = "0.3.0";
-  format = "setuptools";
+  pyproject = true;
+
+  disabled = pythonOlder "3.7";
 
   src = fetchFromGitHub {
     owner = "intake";
-    repo = pname;
-    rev = version;
-    sha256 = "sha256-zSwylXBKOM/tG5mwYtc0FmxwcKJ6j+lw1bxJqf57NY8=";
+    repo = "intake-parquet";
+    tag = version;
+    hash = "sha256-zSwylXBKOM/tG5mwYtc0FmxwcKJ6j+lw1bxJqf57NY8=";
   };
 
-  propagatedBuildInputs = [
+  postPatch = ''
+    # Remove vendorized versioneer.py
+    rm versioneer.py
+  '';
+
+  # Break circular dependency
+  pythonRemoveDeps = [ "intake" ];
+
+  build-system = [
+    setuptools
+    versioneer
+  ];
+
+  dependencies = [
     pandas
     dask
     fastparquet
     pyarrow
   ];
-
-  postPatch = ''
-    # Break circular dependency
-    substituteInPlace requirements.txt \
-      --replace "intake" ""
-  '';
 
   doCheck = false;
 

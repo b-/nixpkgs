@@ -1,60 +1,69 @@
-{ lib
-, arviz
-, buildPythonPackage
-, cachetools
-, cloudpickle
-, fastprogress
-, fetchFromGitHub
-, numpy
-, pytensor
-, pythonOlder
-, scipy
-, typing-extensions
+{
+  lib,
+  buildPythonPackage,
+  fetchFromGitHub,
+
+  # build-system
+  setuptools,
+  versioneer,
+
+  # dependencies
+  arviz,
+  cachetools,
+  cloudpickle,
+  numpy,
+  pandas,
+  pytensor,
+  rich,
+  scipy,
+  threadpoolctl,
+  typing-extensions,
 }:
 
 buildPythonPackage rec {
   pname = "pymc";
-  version = "5.10.4";
+  version = "5.21.1";
   pyproject = true;
-
-  disabled = pythonOlder "3.9";
 
   src = fetchFromGitHub {
     owner = "pymc-devs";
     repo = "pymc";
-    rev = "refs/tags/v${version}";
-    hash = "sha256-bOrWgZaSOXXalw251cm5JUDkAARGaxmUk+z3SY6Git8=";
+    tag = "v${version}";
+    hash = "sha256-XwStIPjhCw3Vf8jAMG7x8uc/t4h1JYTDz4Lobv/nS1g=";
   };
 
-  propagatedBuildInputs = [
+  build-system = [
+    setuptools
+    versioneer
+  ];
+
+  dependencies = [
     arviz
     cachetools
     cloudpickle
-    fastprogress
     numpy
+    pandas
     pytensor
+    rich
     scipy
+    threadpoolctl
     typing-extensions
   ];
-
-  postPatch = ''
-    substituteInPlace setup.py \
-      --replace ', "pytest-cov"' ""
-  '';
 
   # The test suite is computationally intensive and test failures are not
   # indicative for package usability hence tests are disabled by default.
   doCheck = false;
 
-  pythonImportsCheck = [
-    "pymc"
-  ];
+  pythonImportsCheck = [ "pymc" ];
 
-  meta = with lib; {
+  meta = {
     description = "Bayesian estimation, particularly using Markov chain Monte Carlo (MCMC)";
     homepage = "https://github.com/pymc-devs/pymc";
     changelog = "https://github.com/pymc-devs/pymc/releases/tag/v${version}";
-    license = licenses.asl20;
-    maintainers = with maintainers; [ nidabdella ];
+    license = lib.licenses.asl20;
+    maintainers = with lib.maintainers; [
+      nidabdella
+      ferrine
+    ];
   };
 }

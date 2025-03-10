@@ -1,59 +1,63 @@
-{ lib
-, stdenv
-, fetchFromGitHub
-, fetchpatch
-, cmake
-, expat
-, flac
-, fontconfig
-, freetype
-, fribidi
-, gdk-pixbuf
-, gdk-pixbuf-xlib
-, gettext
-, giflib
-, glib
-, imlib2
-, libICE
-, libSM
-, libX11
-, libXcomposite
-, libXdamage
-, libXdmcp
-, libXext
-, libXfixes
-, libXft
-, libXinerama
-, libXpm
-, libXrandr
-, libjpeg
-, libogg
-, libpng
-, libpthreadstubs
-, libsndfile
-, libtiff
-, libxcb
-, mkfontdir
-, pcre2
-, perl
-, pkg-config
+{
+  lib,
+  stdenv,
+  fetchFromGitHub,
+  cmake,
+  expat,
+  flac,
+  fontconfig,
+  freetype,
+  fribidi,
+  gdk-pixbuf,
+  gdk-pixbuf-xlib,
+  gettext,
+  giflib,
+  glib,
+  imlib2,
+  libICE,
+  libSM,
+  libX11,
+  libXcomposite,
+  libXdamage,
+  libXdmcp,
+  libXext,
+  libXfixes,
+  libXft,
+  libXinerama,
+  libXpm,
+  libXrandr,
+  libjpeg,
+  libogg,
+  libpng,
+  libpthreadstubs,
+  libsndfile,
+  libtiff,
+  libxcb,
+  mkfontdir,
+  pcre2,
+  perl,
+  pkg-config,
+  fetchpatch,
 }:
 
 stdenv.mkDerivation (finalAttrs: {
   pname = "icewm";
-  version = "3.4.5";
+  version = "3.7.1";
 
   src = fetchFromGitHub {
     owner = "ice-wm";
     repo = "icewm";
     rev = finalAttrs.version;
-    hash = "sha256-Auuu+hRYVziAF3hXH7XSOyNlDehEKg6QmSJicY+XQLk=";
+    hash = "sha256-4JF2ZAp8dx2fpSYRUz4I8US3oIZrSS90oljuxQDm38A=";
   };
+
+  strictDeps = true;
 
   nativeBuildInputs = [
     cmake
     perl
     pkg-config
+    gettext # msgmerge
   ];
 
   buildInputs = [
@@ -91,6 +95,17 @@ stdenv.mkDerivation (finalAttrs: {
     pcre2
   ];
 
+  patches = [
+    # https://github.com/NixOS/nixpkgs/issues/385959
+    # https://github.com/bbidulock/icewm/issues/794
+    # TODO: remove this patch when it is included in a release
+    (fetchpatch {
+      name = "fdomenu-icons-quoted";
+      url = "https://github.com/bbidulock/icewm/commit/74bb0a2989127a3ff87d2932ff547713bc710cfe.patch";
+      hash = "sha256-/rMSJYGAJs9cgNu5j4Mov/PfO7ocXQeNRq0vasfRcKA=";
+    })
+  ];
+
   cmakeFlags = [
     "-DPREFIX=$out"
     "-DCFGDIR=/etc/icewm"
@@ -104,7 +119,7 @@ stdenv.mkDerivation (finalAttrs: {
 
   meta = with lib; {
     homepage = "https://ice-wm.org/";
-    description = "A simple, lightweight X window manager";
+    description = "Simple, lightweight X window manager";
     longDescription = ''
       IceWM is a window manager for the X Window System. The goal of IceWM is
       speed, simplicity, and not getting in the user’s way. It comes with a
@@ -119,7 +134,7 @@ stdenv.mkDerivation (finalAttrs: {
       a simple session manager and a system tray.
     '';
     license = licenses.lgpl2Only;
-    maintainers = [ maintainers.AndersonTorres ];
+    maintainers = [ ];
     platforms = platforms.linux;
   };
 })

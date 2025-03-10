@@ -1,56 +1,51 @@
-{ lib
-, fsspec
-, stdenv
-, buildPythonPackage
-, pythonOlder
-, fetchFromGitHub
-, hatch-fancy-pypi-readme
-, hatchling
-, awkward-cpp
-, importlib-metadata
-, numpy
-, packaging
-, typing-extensions
-, jax
-, jaxlib
-, numba
-, setuptools
-, numexpr
-, pandas
-, pyarrow
-, pytest-xdist
-, pytestCheckHook
+{
+  lib,
+  stdenv,
+  buildPythonPackage,
+  fetchFromGitHub,
+
+  # build-system
+  hatch-fancy-pypi-readme,
+  hatchling,
+
+  # dependencies
+  awkward-cpp,
+  fsspec,
+  numpy,
+  packaging,
+
+  # tests
+  numba,
+  numexpr,
+  pandas,
+  pyarrow,
+  pytest-xdist,
+  pytestCheckHook,
+  pythonAtLeast,
 }:
 
 buildPythonPackage rec {
   pname = "awkward";
-  version = "2.6.1";
+  version = "2.7.4";
   pyproject = true;
-
-  disabled = pythonOlder "3.8";
 
   src = fetchFromGitHub {
     owner = "scikit-hep";
     repo = "awkward";
-    rev = "refs/tags/v${version}";
-    hash = "sha256-G9jXAo37mhvXzn7cQ/DEUGauGs+P7JxBntfu7ZPfaHc=";
+    tag = "v${version}";
+    hash = "sha256-OXSl+8sfrx+JlLu40wHf+98WVNNwm9uxvsnGXRDztDg=";
   };
 
-  nativeBuildInputs = [
+  build-system = [
     hatch-fancy-pypi-readme
     hatchling
   ];
 
-  propagatedBuildInputs = [
+  dependencies = [
     awkward-cpp
     fsspec
-    importlib-metadata
     numpy
     packaging
-  ] ++ lib.optionals (pythonOlder "3.11") [
-    typing-extensions
-  ] ++ lib.optionals (pythonOlder "3.12") [
-    importlib-metadata
   ];
 
   dontUseCmakeConfigure = true;
@@ -60,28 +55,44 @@ buildPythonPackage rec {
   nativeCheckInputs = [
     fsspec
     numba
-    setuptools
     numexpr
     pandas
     pyarrow
     pytest-xdist
     pytestCheckHook
-  ] ++ lib.optionals (!stdenv.isDarwin) [
-    # no support for darwin
-    jax
-    jaxlib
   ];
 
-  # The following tests have been disabled because they need to be run on a GPU platform.
-  disabledTestPaths = [
-    "tests-cuda"
-  ];
+  disabledTests =
+    [
+      # pyarrow.lib.ArrowInvalid
+      "test_recordarray"
+    ]
+    ++ lib.optionals (pythonAtLeast "3.13") [
+      # AttributeError: 'FrameLocalsProxy' object has no attribute 'clear'
+      "test_numexpr"
+    ];
 
-  meta = with lib; {
+  disabledTestPaths =
+    [
+      # Need to be run on a GPU platform.
+      "tests-cuda"
+    ]
+    ++ lib.optionals (stdenv.hostPlatform.isLinux && stdenv.hostPlatform.isAarch64) [
+      # Fatal Python error: Segmentation fault at:
+      # numba/typed/typedlist.py", line 344 in append
+      "tests/test_0118_numba_cpointers.py"
+      "tests/test_0397_arrays_as_constants_in_numba.py"
+      "tests/test_1677_array_builder_in_numba.py"
+      "tests/test_2055_array_builder_check.py"
+      "tests/test_2349_growablebuffer_in_numba.py"
+      "tests/test_2408_layoutbuilder_in_numba.py"
+    ];
+
+  meta = {
     description = "Manipulate JSON-like data with NumPy-like idioms";
     homepage = "https://github.com/scikit-hep/awkward";
     changelog = "https://github.com/scikit-hep/awkward/releases/tag/v${version}";
-    license = licenses.bsd3;
-    maintainers = with maintainers; [ veprbl ];
+    license = lib.licenses.bsd3;
+    maintainers = with lib.maintainers; [ veprbl ];
   };
 }

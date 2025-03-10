@@ -1,18 +1,18 @@
-{ lib, rel, buildKodiBinaryAddon, fetchFromGitHub, pkg-config, glm, libGL, projectm }:
+{ lib, rel, buildKodiBinaryAddon, fetchFromGitHub, pkg-config, glm, libGL, projectm_3 }:
 
 buildKodiBinaryAddon rec {
   pname = "visualization-projectm";
   namespace = "visualization.projectm";
-  version = "20.2.0";
+  version = "21.0.3";
 
   src = fetchFromGitHub {
     owner = "xbmc";
     repo = namespace;
     rev = "${version}-${rel}";
-    hash = "sha256-Kcl1ep+RJlofFmxkrGT3T+XXdwiCofq1hggwU0PAd0E=";
+    hash = "sha256-J3RtVl+hO8DspLyF2KAVMLDIJBiEb0bKosKhJyKy9hk=";
   };
 
-  extraBuildInputs = [ pkg-config libGL projectm ];
+  extraBuildInputs = [ pkg-config libGL projectm_3 ];
 
   propagatedBuildInputs = [ glm ];
   meta = with lib; {

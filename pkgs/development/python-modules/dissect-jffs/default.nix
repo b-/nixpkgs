@@ -1,16 +1,17 @@
-{ lib
-, buildPythonPackage
-, dissect-cstruct
-, dissect-util
-, fetchFromGitHub
-, pythonOlder
-, setuptools
-, setuptools-scm
+{
+  lib,
+  buildPythonPackage,
+  dissect-cstruct,
+  dissect-util,
+  fetchFromGitHub,
+  pythonOlder,
+  setuptools,
+  setuptools-scm,
 }:
 
 buildPythonPackage rec {
   pname = "dissect-jffs";
-  version = "1.0";
+  version = "1.3";
   pyproject = true;
 
   disabled = pythonOlder "3.9";
@@ -18,8 +19,8 @@ buildPythonPackage rec {
   src = fetchFromGitHub {
     owner = "fox-it";
     repo = "dissect.jffs";
-    rev = "refs/tags/${version}";
-    hash = "sha256-Rj8/WRHNl2IQ6zwvLhqEIEMzk8BH1fv7KQkw1NzoDjI=";
+    tag = version;
+    hash = "sha256-hpCgo3Qj8nWvqVdKESrR6Tafgvxuc7xzhq8oiHApbwM=";
   };
 
   nativeBuildInputs = [
@@ -32,12 +33,7 @@ buildPythonPackage rec {
     dissect-util
   ];
 
-  # Test file handling fails
-  doCheck = true;
-
-  pythonImportsCheck = [
-    "dissect.jffs"
-  ];
+  pythonImportsCheck = [ "dissect.jffs" ];
 
   meta = with lib; {
     description = "Dissect module implementing a parser for the JFFS2 file system";

@@ -3,27 +3,42 @@
   buildGoModule,
   fetchFromGitHub,
   installShellFiles,
+  iana-etc,
+  libredirect,
   nixosTests,
+  postgresql,
+  stdenv,
 }:
 buildGoModule rec {
   pname = "headscale";
-  version = "0.22.3";
+  version = "0.25.1";
 
   src = fetchFromGitHub {
     owner = "juanfont";
     repo = "headscale";
-    rev = "v${version}";
-    hash = "sha256-nqmTqe3F3Oh8rnJH0clwACD/0RpqmfOMXNubr3C8rEc=";
+    tag = "v${version}";
+    hash = "sha256-CrdMxRAgrDE1lJ3v9AhCN+cKOVqmIVwjE0x+msSVT+c=";
   };
 
-  vendorHash = "sha256-IOkbbFtE6+tNKnglE/8ZuNxhPSnloqM2sLgTvagMmnc=";
+  vendorHash = "sha256-ZQj2A0GdLhHc7JLW7qgpGBveXXNWg9ueSG47OZQQXEw=";
 
-  ldflags = ["-s" "-w" "-X github.com/juanfont/headscale/cmd/headscale/cli.Version=v${version}"];
+  subPackages = [ "cmd/headscale" ];
 
-  nativeBuildInputs = [installShellFiles];
+  ldflags = [
+    "-s"
+    "-w"
+    "-X github.com/juanfont/headscale/cmd/headscale/cli.Version=v${version}"
+  ];
+
+  nativeBuildInputs = [ installShellFiles ];
+
+  nativeCheckInputs = [ libredirect.hook postgresql ];
+
   checkFlags = ["-short"];
 
-  tags = ["ts2019"];
+  preCheck = lib.optionalString stdenv.hostPlatform.isDarwin ''
+    export NIX_REDIRECTS=/etc/protocols=${iana-etc}/etc/protocols:/etc/services=${iana-etc}/etc/services
+  '';
 
   postInstall = ''
     installShellCompletion --cmd headscale \
@@ -36,7 +51,7 @@ buildGoModule rec {
 
   meta = with lib; {
     homepage = "https://github.com/juanfont/headscale";
-    description = "An open source, self-hosted implementation of the Tailscale control server";
+    description = "Open source, self-hosted implementation of the Tailscale control server";
     longDescription = ''
       Tailscale is a modern VPN built on top of Wireguard. It works like an
       overlay network between the computers of your networks - using all kinds
@@ -54,6 +69,10 @@ buildGoModule rec {
       Headscale implements this coordination server.
     '';
     license = licenses.bsd3;
-    maintainers = with maintainers; [nkje jk kradalby misterio77 ghuntley];
+    mainProgram = "headscale";
+    maintainers = with maintainers; [
+      kradalby
+      misterio77
+    ];
   };
 }
