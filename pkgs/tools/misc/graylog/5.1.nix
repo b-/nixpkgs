@@ -1,9 +1,10 @@
-{ callPackage, lib, ...}:
+{ callPackage, lib, ... }:
 let
-  buildGraylog = callPackage ./graylog.nix {};
-in buildGraylog {
-  version = "5.1.11";
-  sha256 = "sha256-xvG9COKMNgHg5zzyCRfXsfrW3C2Gwbdxf8PMXQnJ2yg=";
+  buildGraylog = callPackage ./graylog.nix { };
+in
+buildGraylog {
+  version = "5.1.13";
+  hash = "sha256-qjNJ51EbPjtDR5h4DElpSblj/c8WarXxPfcLTuTx5AQ=";
   maintainers = [ lib.maintainers.f2k1de ];
   license = lib.licenses.sspl;
 }

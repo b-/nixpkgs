@@ -1,38 +1,53 @@
-{ lib
-, fetchFromSourcehut
-, buildGoModule
-, unzip
+{
+  lib,
+  fetchFromSourcehut,
+  buildGoModule,
+  unzip,
 }:
 
-buildGoModule (rec {
-  pname = "pagessrht";
-  version = "0.15.4";
+buildGoModule (
+  rec {
+    pname = "pagessrht";
+    version = "0.15.7";
 
-  src = fetchFromSourcehut {
-    owner = "~sircmpwn";
-    repo = "pages.sr.ht";
-    rev = version;
-    hash = "sha256-3kdQVIL7xaIPu2elxj1k+4/y75bd+OKP5+VPSniF7w8=";
-  };
+    src = fetchFromSourcehut {
+      owner = "~sircmpwn";
+      repo = "pages.sr.ht";
+      rev = version;
+      hash = "sha256-Lobuf12ybSO7Y4ztOLMFW0dmPFaBSEPCy4Nmh89tylI=";
+    };
 
-  postPatch = ''
-    substituteInPlace Makefile \
-      --replace "all: server" ""
-  '';
+    postPatch = ''
+      substituteInPlace Makefile \
+        --replace "all: server" ""
 
-  vendorHash = "sha256-DP+6rxjiXzs0RbSuMD20XwO/+v7QXCNgXj2LxZ96lWE=";
+      # fix build failure due to unused import
+      substituteInPlace server.go \
+        --replace-warn '	"fmt"' ""
+    '';
 
-  postInstall = ''
-    mkdir -p $out/share/sql/
-    cp -r -t $out/share/sql/ schema.sql migrations
-  '';
+    vendorHash = "sha256-9hpOkP6AYSZe7MW1mrwFEKq7TvVt6OcF6eHWY4jARuU=";
 
-  meta = with lib; {
-    homepage = "https://git.sr.ht/~sircmpwn/pages.sr.ht";
-    description = "Web hosting service for the sr.ht network";
-    license = licenses.agpl3Only;
-    maintainers = with maintainers; [ eadwu christoph-heiss ];
-  };
-  # There is no ./loaders but this does not cause troubles
-  # to go generate
-} // import ./fix-gqlgen-trimpath.nix { inherit unzip; })
+    postInstall = ''
+      mkdir -p $out/share/sql/
+      cp -r -t $out/share/sql/ schema.sql migrations
+    '';
+
+    meta = with lib; {
+      homepage = "https://git.sr.ht/~sircmpwn/pages.sr.ht";
+      description = "Web hosting service for the sr.ht network";
+      mainProgram = "pages.sr.ht";
+      license = licenses.agpl3Only;
+      maintainers = with maintainers; [
+        eadwu
+        christoph-heiss
+      ];
+    };
+    # There is no ./loaders but this does not cause troubles
+    # to go generate
+  }
+  // import ./fix-gqlgen-trimpath.nix {
+    inherit unzip;
+    gqlgenVersion = "0.17.42";
+  }
+)

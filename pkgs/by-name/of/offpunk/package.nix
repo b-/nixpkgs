@@ -1,14 +1,15 @@
-{ fetchFromSourcehut
-, file
-, installShellFiles
-, less
-, lib
-, offpunk
-, python3Packages
-, testers
-, timg
-, xdg-utils
-, xsel
+{
+  fetchFromSourcehut,
+  file,
+  installShellFiles,
+  less,
+  lib,
+  offpunk,
+  python3Packages,
+  testers,
+  timg,
+  xdg-utils,
+  xsel,
 }:
 
 let
@@ -17,7 +18,6 @@ let
     chardet
     cryptography
     feedparser
-    pillow
     readability-lxml
     requests
     setproctitle
@@ -32,7 +32,7 @@ let
 in
 python3Packages.buildPythonApplication rec {
   pname = "offpunk";
-  version = "2.2";
+  version = "2.6";
   pyproject = true;
 
   disabled = python3Packages.pythonOlder "3.7";
@@ -41,10 +41,13 @@ python3Packages.buildPythonApplication rec {
     owner = "~lioploum";
     repo = "offpunk";
     rev = "v${version}";
-    hash = "sha256-ygVL17qqmNB7hzw1VuYIAbirbaq4EVppWCHSvTl+/Jw=";
+    hash = "sha256-bVWPmCs8vspW0leaNajEYy+c3WRRMzIB8b9nXDDB8tw=";
   };
 
-  nativeBuildInputs = [ python3Packages.hatchling installShellFiles ];
+  nativeBuildInputs = [
+    python3Packages.hatchling
+    installShellFiles
+  ];
   propagatedBuildInputs = otherDependencies ++ pythonDependencies;
 
   postInstall = ''
@@ -54,11 +57,10 @@ python3Packages.buildPythonApplication rec {
   passthru.tests.version = testers.testVersion { package = offpunk; };
 
   meta = {
-    description = "A command-line and offline-first smolnet browser/feed reader";
+    description = "Command-line and offline-first smolnet browser/feed reader";
     homepage = src.meta.homepage;
     license = lib.licenses.agpl3Plus;
     mainProgram = "offpunk";
     maintainers = with lib.maintainers; [ DamienCassou ];
-    platforms = lib.platforms.linux;
   };
 }

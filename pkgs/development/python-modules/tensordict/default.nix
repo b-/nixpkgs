@@ -1,47 +1,51 @@
-{ lib
-, buildPythonPackage
-, pythonOlder
-, fetchFromGitHub
-, setuptools
-, torch
-, wheel
-, which
-, cloudpickle
-, numpy
-, h5py
-, pytestCheckHook
+{
+  lib,
+  buildPythonPackage,
+  fetchFromGitHub,
+
+  # build-system
+  setuptools,
+  torch,
+
+  # dependencies
+  cloudpickle,
+  numpy,
+  orjson,
+  packaging,
+
+  # tests
+  h5py,
+  pytestCheckHook,
+
+  stdenv,
 }:
 
 buildPythonPackage rec {
   pname = "tensordict";
-  version = "0.3.0";
+  version = "0.7.2";
   pyproject = true;
-
-  disabled = pythonOlder "3.8";
 
   src = fetchFromGitHub {
     owner = "pytorch";
     repo = "tensordict";
-    rev = "refs/tags/v${version}";
-    hash = "sha256-XTFUzPs/fqX3DPtu/qSE1hY+7r/HToPVPaTyVRzDT/E=";
+    tag = "v${version}";
+    hash = "sha256-ZDfRvfyBashU4kIoo8JX/EoCv4tpDOyggOlpdVCudT8=";
   };
 
-  nativeBuildInputs = [
+  build-system = [
     setuptools
     torch
-    wheel
-    which
   ];
 
-  propagatedBuildInputs = [
+  dependencies = [
     cloudpickle
     numpy
+    orjson
+    packaging
     torch
   ];
 
-  pythonImportsCheck = [
-    "tensordict"
-  ];
+  pythonImportsCheck = [ "tensordict" ];
 
   # We have to delete the source because otherwise it is used instead of the installed package.
   preCheck = ''
@@ -53,11 +57,30 @@ buildPythonPackage rec {
     pytestCheckHook
   ];
 
-  meta = with lib; {
-    description = "A pytorch dedicated tensor container";
-    changelog = "https://github.com/pytorch/tensordict/releases/tag/v${version}";
+  disabledTests = [
+    # FileNotFoundError: [Errno 2] No such file or directory: '/build/source/tensordict/tensorclass.pyi
+    "test_tensorclass_instance_methods"
+    "test_tensorclass_stub_methods"
+
+    # hangs forever on some CPUs
+    "test_map_iter_interrupt_early"
+  ];
+
+  disabledTestPaths =
+    [
+      # torch._dynamo.exc.Unsupported: Graph break due to unsupported builtin None.ReferenceType.__new__.
+      "test/test_compile.py"
+    ]
+    ++ lib.optionals stdenv.hostPlatform.isDarwin [
+      # ModuleNotFoundError: No module named 'torch._C._distributed_c10d'; 'torch._C' is not a package
+      "test/test_distributed.py"
+    ];
+
+  meta = {
+    description = "Pytorch dedicated tensor container";
+    changelog = "https://github.com/pytorch/tensordict/releases/tag/${src.tag}";
     homepage = "https://github.com/pytorch/tensordict";
-    license = licenses.mit;
-    maintainers = with maintainers; [ GaetanLepage ];
+    license = lib.licenses.mit;
+    maintainers = with lib.maintainers; [ GaetanLepage ];
   };
 }

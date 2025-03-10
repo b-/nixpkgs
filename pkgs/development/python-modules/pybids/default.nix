@@ -1,43 +1,50 @@
-{ buildPythonPackage
-, lib
-, fetchPypi
-, setuptools
-, formulaic
-, click
-, num2words
-, numpy
-, scipy
-, pandas
-, nibabel
-, bids-validator
-, sqlalchemy
-, pytestCheckHook
-, versioneer
-, pythonRelaxDepsHook
+{
+  lib,
+  buildPythonPackage,
+  fetchFromGitHub,
+  setuptools,
+  formulaic,
+  click,
+  num2words,
+  numpy,
+  scipy,
+  pandas,
+  nibabel,
+  bids-validator,
+  sqlalchemy,
+  universal-pathlib,
+  pytestCheckHook,
+  versioneer,
 }:
 
 buildPythonPackage rec {
   pname = "pybids";
-  version = "0.16.4";
+  version = "0.18.1";
   pyproject = true;
 
-  src = fetchPypi {
-    inherit pname version;
-    hash = "sha256-pahl8wi6Sf8AuVqkvi7H90ViHr+9utb14ZVmKK3rFm4=";
+  src = fetchFromGitHub {
+    owner = "bids-standard";
+    repo = "pybids";
+    rev = version;
+    hash = "sha256-nSBc4vhkCdRo7CNBwvJreCiwoxJK6ztyI5gvcpzYZ/Y=";
   };
+
+  postPatch = ''
+    substituteInPlace pyproject.toml \
+      --replace-fail 'dynamic = ["version"]' 'version = "${version}"'
+  '';
 
   pythonRelaxDeps = [
     "formulaic"
     "sqlalchemy"
   ];
 
-  nativeBuildInputs = [
-    pythonRelaxDepsHook
+  build-system = [
     setuptools
     versioneer
   ] ++ versioneer.optional-dependencies.toml;
 
-  propagatedBuildInputs = [
+  dependencies = [
     bids-validator
     click
     formulaic
@@ -47,29 +54,30 @@ buildPythonPackage rec {
     pandas
     scipy
     sqlalchemy
+    universal-pathlib
   ];
 
-  pythonImportsCheck = [
-    "bids"
-  ];
+  pythonImportsCheck = [ "bids" ];
 
-  nativeCheckInputs = [
-    pytestCheckHook
+  nativeCheckInputs = [ pytestCheckHook ];
+
+  disabledTestPaths = [
+    # Could not connect to the endpoint URL
+    "src/bids/layout/tests/test_remote_bids.py"
   ];
 
   disabledTests = [
-    # looks for missing data:
-    "test_config_filename"
-    # regression associated with formulaic >= 0.6.0
+    # Regression associated with formulaic >= 0.6.0
     # (see https://github.com/bids-standard/pybids/issues/1000)
     "test_split"
   ];
 
-  meta = with lib; {
+  meta = {
     description = "Python tools for querying and manipulating BIDS datasets";
     homepage = "https://github.com/bids-standard/pybids";
     changelog = "https://github.com/bids-standard/pybids/blob/${version}/CHANGELOG.rst";
-    license = licenses.mit;
-    maintainers = with maintainers; [ jonringer ];
+    license = lib.licenses.mit;
+    maintainers = with lib.maintainers; [ wegank ];
+    mainProgram = "pybids";
   };
 }

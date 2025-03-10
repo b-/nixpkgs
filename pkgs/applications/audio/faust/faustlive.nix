@@ -1,28 +1,29 @@
-{ lib
-, stdenv
-, fetchFromGitHub
-, fetchpatch
-, cmake
-, pkg-config
-, which
-, alsa-lib
-, curl
-, faust
-, flac
-, gnutls
-, libjack2
-, libmicrohttpd
-, libmpg123
-, libogg
-, libopus
-, libsndfile
-, libtasn1
-, libvorbis
-, libxcb
-, llvm
-, p11-kit
-, qrencode
-, qt5
+{
+  lib,
+  stdenv,
+  fetchFromGitHub,
+  fetchpatch,
+  cmake,
+  pkg-config,
+  which,
+  alsa-lib,
+  curl,
+  faust,
+  flac,
+  gnutls,
+  libjack2,
+  libmicrohttpd,
+  libmpg123,
+  libogg,
+  libopus,
+  libsndfile,
+  libtasn1,
+  libvorbis,
+  libxcb,
+  llvm,
+  p11-kit,
+  qrencode,
+  qt5,
 }:
 
 stdenv.mkDerivation rec {
@@ -85,7 +86,8 @@ stdenv.mkDerivation rec {
   postPatch = "cd Build";
 
   meta = with lib; {
-    description = "A standalone just-in-time Faust compiler";
+    description = "Standalone just-in-time Faust compiler";
+    mainProgram = "FaustLive";
     longDescription = ''
       FaustLive is a standalone just-in-time Faust compiler. It tries to bring
       together the convenience of a standalone interpreted language with the

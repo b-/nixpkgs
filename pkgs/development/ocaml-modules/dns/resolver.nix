@@ -1,26 +1,27 @@
-{ buildDunePackage
-, dns
-, dns-server
-, dns-mirage
-, lru
-, duration
-, randomconv
-, lwt
-, mirage-time
-, mirage-clock
-, mirage-random
-, tcpip
-, tls
-, tls-mirage
-, dnssec
-, alcotest
+{
+  buildDunePackage,
+  dns,
+  dns-server,
+  dns-mirage,
+  lru,
+  duration,
+  randomconv,
+  lwt,
+  mirage-time,
+  mirage-clock,
+  mirage-random,
+  tcpip,
+  tls,
+  tls-mirage,
+  mirage-crypto-rng-mirage,
+  dnssec,
+  alcotest,
 }:
 
 buildDunePackage {
   pname = "dns-resolver";
 
   inherit (dns) version src;
-  duneVersion = "3";
 
   propagatedBuildInputs = [
     dns
@@ -37,6 +38,7 @@ buildDunePackage {
     tcpip
     tls
     tls-mirage
+    mirage-crypto-rng-mirage
   ];
 
   doCheck = true;

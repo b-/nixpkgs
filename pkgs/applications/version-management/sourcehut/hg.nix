@@ -1,21 +1,25 @@
-{ lib
-, fetchFromSourcehut
-, buildGoModule
-, buildPythonPackage
-, srht
-, python-hglib
-, scmsrht
-, unidiff
-, python
-, unzip
-, pip
-, pythonOlder
-, setuptools
+{
+  lib,
+  fetchFromSourcehut,
+  buildGoModule,
+  buildPythonPackage,
+  srht,
+  python-hglib,
+  scmsrht,
+  unidiff,
+  python,
+  unzip,
+  pip,
+  pythonOlder,
+  setuptools,
 }:
 
 let
-  version = "0.32.4";
-  gqlgen = import ./fix-gqlgen-trimpath.nix { inherit unzip; gqlgenVersion = "0.17.20"; };
+  version = "0.33.0";
+  gqlgen = import ./fix-gqlgen-trimpath.nix {
+    inherit unzip;
+    gqlgenVersion = "0.17.45";
+  };
 
   pyproject = true;
 
@@ -25,16 +29,19 @@ let
     owner = "~sircmpwn";
     repo = "hg.sr.ht";
     rev = version;
-    hash = "sha256-mYkA44c9wy/Iy1h1lXkVpc9gN7rQXFm4T3YBlQ1Dj60=";
+    hash = "sha256-+BYeE+8dXY/MLLYyBBLD+eKqmrPiKyyCGIZLkCPzNYM=";
     vc = "hg";
   };
 
-  hgsrht-api = buildGoModule ({
-    inherit src version;
-    pname = "hgsrht-api";
-    modRoot = "api";
-    vendorHash = "sha256-vuOYpnF3WjA6kOe9MVSuVMhJBQqCmIex+QUBJrP+VDs=";
-  } // gqlgen);
+  hgsrht-api = buildGoModule (
+    {
+      inherit src version;
+      pname = "hgsrht-api";
+      modRoot = "api";
+      vendorHash = "sha256-K+KMhcvkG/qeQTnlHS4xhLCcvBQNNp2DcScJPm8Dbic=";
+    }
+    // gqlgen
+  );
 
   hgsrht-keys = buildGoModule {
     inherit src version;
@@ -88,6 +95,9 @@ buildPythonPackage rec {
     homepage = "https://git.sr.ht/~sircmpwn/hg.sr.ht";
     description = "Mercurial repository hosting service for the sr.ht network";
     license = licenses.agpl3Only;
-    maintainers = with maintainers; [ eadwu christoph-heiss ];
+    maintainers = with maintainers; [
+      eadwu
+      christoph-heiss
+    ];
   };
 }

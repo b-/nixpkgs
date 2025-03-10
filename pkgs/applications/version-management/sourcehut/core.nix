@@ -1,34 +1,35 @@
-{ lib
-, fetchFromSourcehut
-, buildPythonPackage
-, flask
-, humanize
-, sqlalchemy
-, sqlalchemy-utils
-, psycopg2
-, markdown
-, mistletoe
-, bleach
-, requests
-, beautifulsoup4
-, pygments
-, cryptography
-, prometheus-client
-, alembic
-, redis
-, celery
-, html5lib
-, importlib-metadata
-, tinycss2
-, sassc
-, pythonOlder
-, minify
-, setuptools
+{
+  lib,
+  fetchFromSourcehut,
+  buildPythonPackage,
+  flask,
+  humanize,
+  sqlalchemy,
+  sqlalchemy-utils,
+  psycopg2,
+  markdown,
+  mistletoe,
+  bleach,
+  requests,
+  beautifulsoup4,
+  pygments,
+  cryptography,
+  prometheus-client,
+  alembic,
+  redis,
+  celery,
+  html5lib,
+  importlib-metadata,
+  tinycss2,
+  sassc,
+  pythonOlder,
+  minify,
+  setuptools,
 }:
 
 buildPythonPackage rec {
   pname = "srht";
-  version = "0.71.5";
+  version = "0.71.8";
   pyproject = true;
 
   disabled = pythonOlder "3.7";
@@ -37,7 +38,7 @@ buildPythonPackage rec {
     owner = "~sircmpwn";
     repo = "core.sr.ht";
     rev = version;
-    hash = "sha256-YIoKOiTi/9X4bSiG+GvnwzvKYhbfywrv/dTjxaJOOTQ=";
+    hash = "sha256-rDpm2HJOWScvIxOmHcat6y4CWdBE9T2gE/jZskYAFB0=";
     fetchSubmodules = true;
   };
 
@@ -89,6 +90,9 @@ buildPythonPackage rec {
     homepage = "https://git.sr.ht/~sircmpwn/srht";
     description = "Core modules for sr.ht";
     license = licenses.bsd3;
-    maintainers = with maintainers; [ eadwu christoph-heiss ];
+    maintainers = with maintainers; [
+      eadwu
+      christoph-heiss
+    ];
   };
 }

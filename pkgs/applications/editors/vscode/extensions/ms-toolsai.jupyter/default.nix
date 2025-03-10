@@ -1,11 +1,16 @@
-{ lib, vscode-utils, jq, moreutils }:
+{
+  lib,
+  vscode-utils,
+  jq,
+  moreutils,
+}:
 
 vscode-utils.buildVscodeMarketplaceExtension {
   mktplcRef = {
     name = "jupyter";
     publisher = "ms-toolsai";
-    version = "2023.2.1000411022";
-    sha256 = "sha256-gMK/t/rLXYN3rlHxxVeW0W/FWEP0ZCiEwzM8DY14vYg=";
+    version = "2025.1.2025013001";
+    hash = "sha256-q9LYXw1LhEnc0RzUCpx83/TF1Shf6vqTbL0+BzU5O3U=";
   };
 
   nativeBuildInputs = [

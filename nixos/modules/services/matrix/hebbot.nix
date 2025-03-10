@@ -11,7 +11,7 @@ let
   settingsFile = format.generate "config.toml" cfg.settings;
   mkTemplateOption = templateName: mkOption {
     type = types.path;
-    description = lib.mdDoc ''
+    description = ''
       A path to the Markdown file for the ${templateName}.
     '';
   };
@@ -20,9 +20,10 @@ in
     meta.maintainers = [ lib.maintainers.raitobezarius ];
     options.services.hebbot = {
       enable = mkEnableOption "hebbot";
+      package = lib.mkPackageOption pkgs "hebbot" {};
       botPasswordFile = mkOption {
         type = types.path;
-        description = lib.mdDoc ''
+        description = ''
           A path to the password file for your bot.
 
           Consider using a path that does not end up in your Nix store
@@ -37,7 +38,7 @@ in
       settings = mkOption {
         type = format.type;
         default = { };
-        description = lib.mdDoc ''
+        description = ''
           Configuration for Hebbot, see, for examples:
 
           - <https://github.com/matrix-org/twim-config/blob/master/config.toml>
@@ -61,7 +62,7 @@ in
 
         script = ''
           export BOT_PASSWORD="$(cat $CREDENTIALS_DIRECTORY/bot-password-file)"
-          ${lib.getExe pkgs.hebbot}
+          ${lib.getExe cfg.package}
         '';
 
         serviceConfig = {
@@ -70,7 +71,7 @@ in
           LoadCredential = "bot-password-file:${cfg.botPasswordFile}";
           RestartSec = "10s";
           StateDirectory = "hebbot";
-          WorkingDirectory = "hebbot";
+          WorkingDirectory = "/var/lib/hebbot";
       };
     };
   };

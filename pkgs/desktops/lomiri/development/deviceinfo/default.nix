@@ -1,13 +1,14 @@
-{ stdenv
-, lib
-, fetchFromGitLab
-, gitUpdater
-, testers
-, cmake
-, pkg-config
-, cmake-extras
-, gtest
-, yaml-cpp
+{
+  stdenv,
+  lib,
+  fetchFromGitLab,
+  gitUpdater,
+  testers,
+  cmake,
+  pkg-config,
+  cmake-extras,
+  gtest,
+  yaml-cpp,
 }:
 
 stdenv.mkDerivation (finalAttrs: {
@@ -26,6 +27,12 @@ stdenv.mkDerivation (finalAttrs: {
     "dev"
     "bin"
   ];
+
+  postPatch = ''
+    # For our automatic pkg-config output patcher to work, prefix must be used here
+    substituteInPlace headers/deviceinfo.pc.in \
+      --replace-fail 'libdir=''${exec_prefix}' 'libdir=''${prefix}'
+  '';
 
   strictDeps = true;
 

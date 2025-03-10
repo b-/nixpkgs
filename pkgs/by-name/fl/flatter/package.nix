@@ -1,25 +1,26 @@
-{ lib
-, stdenv
-, fetchFromGitHub
-, unstableGitUpdater
-, cmake
-, blas
-, gmp
-, mpfr
-, fplll
-, eigen
-, llvmPackages
+{
+  lib,
+  stdenv,
+  fetchFromGitHub,
+  unstableGitUpdater,
+  cmake,
+  blas,
+  gmp,
+  mpfr,
+  fplll,
+  eigen,
+  llvmPackages,
 }:
 
 stdenv.mkDerivation {
   pname = "flatter";
-  version = "0-unstable-2023-08-10";
+  version = "0-unstable-2025-02-03";
 
   src = fetchFromGitHub {
     owner = "keeganryan";
     repo = "flatter";
-    rev = "500e31df6b7308e8101b2a4a9cc816bf8f483417";
-    hash = "sha256-STYx7cXvkcF+KqrG32pN16HWfEScc0zxkmOmfv43zIw=";
+    rev = "96993e47874c302395721d76d06f7ab4fee09839";
+    hash = "sha256-eMZZsgLeTzMAHohmvR13KQERtYQpB2nj/v5MCKtGFaI=";
   };
 
   strictDeps = true;
@@ -28,15 +29,17 @@ stdenv.mkDerivation {
     cmake
   ];
 
-  buildInputs = [
-    blas
-    gmp
-    mpfr
-    fplll
-    eigen
-  ] ++ lib.optionals stdenv.isDarwin [
-    llvmPackages.openmp
-  ];
+  buildInputs =
+    [
+      blas
+      gmp
+      mpfr
+      fplll
+      eigen
+    ]
+    ++ lib.optionals stdenv.hostPlatform.isDarwin [
+      llvmPackages.openmp
+    ];
 
   passthru.updateScript = unstableGitUpdater { };
 

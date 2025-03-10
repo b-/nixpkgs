@@ -1,7 +1,9 @@
-{ lib
-, buildPythonPackage
-, fetchFromGitHub
-, aiohttp
+{
+  lib,
+  buildPythonPackage,
+  fetchFromGitHub,
+  aiohttp,
+  typing-extensions,
 }:
 
 buildPythonPackage rec {
@@ -19,6 +21,7 @@ buildPythonPackage rec {
 
   propagatedBuildInputs = [
     aiohttp
+    typing-extensions
   ];
 
   # tests require docker daemon

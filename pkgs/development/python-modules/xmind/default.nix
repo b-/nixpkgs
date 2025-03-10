@@ -1,7 +1,8 @@
-{ lib
-, buildPythonPackage
-, fetchFromGitHub
-, pythonOlder
+{
+  lib,
+  buildPythonPackage,
+  fetchFromGitHub,
+  pythonOlder,
 }:
 
 buildPythonPackage rec {
@@ -18,12 +19,10 @@ buildPythonPackage rec {
     sha256 = "xC1WpHz2eHb5+xShM/QUQAIYnJNyK1EKWbTXJKhDwbQ=";
   };
 
-  # Projec thas no tests
+  # Project thas no tests
   doCheck = false;
 
-  pythonImportsCheck = [
-    "xmind"
-  ];
+  pythonImportsCheck = [ "xmind" ];
 
   meta = with lib; {
     description = "Python module to create mindmaps";

@@ -1,64 +1,76 @@
-{ lib, stdenv, buildGoModule, fetchFromGitHub, removeReferencesTo
-, tzdata, wire
-, yarn, nodejs, python3, cacert
-, jq, moreutils
-, nix-update-script, nixosTests
+{
+  lib,
+  stdenv,
+  buildGoModule,
+  fetchFromGitHub,
+  removeReferencesTo,
+  tzdata,
+  wire,
+  yarn,
+  nodejs,
+  python3,
+  cacert,
+  jq,
+  moreutils,
+  nix-update-script,
+  nixosTests,
+  xcbuild,
+  faketty,
+  git,
 }:
 
 let
-  # We need dev dependencies to run webpack, but patch away
-  # `cypress` (and @grafana/e2e which has a direct dependency on cypress).
-  # This attempts to download random blobs from the Internet in
-  # postInstall. Also, it's just a testing framework, so not worth the hassle.
-  patchAwayGrafanaE2E = ''
-    find . -name package.json | while IFS=$'\n' read -r pkg_json; do
-      <"$pkg_json" jq '. + {
-        "devDependencies": .devDependencies | del(."@grafana/e2e") | del(.cypress)
-      }' | sponge "$pkg_json"
-    done
-    rm -r packages/grafana-e2e
+  # Grafana seems to just set it to the latest version available
+  # nowadays.
+  patchGoVersion = ''
+    substituteInPlace go.{mod,work} apps/alerting/notifications/go.mod pkg/storage/unified/apistore/go.mod pkg/storage/unified/resource/go.mod \
+      --replace-fail "go 1.23.5" "go 1.23.4"
+    substituteInPlace Makefile \
+      --replace-fail "GO_VERSION = 1.23.5" "GO_VERSION = 1.23.4"
   '';
-
-  # Injects a `t.Skip()` into a given test since
-  # there's apparently no other way to skip tests here.
-  skipTest = lineOffset: testCase: file:
-    let
-      jumpAndAppend = lib.concatStringsSep ";" (lib.replicate (lineOffset - 1) "n" ++ [ "a" ]);
-    in ''
-      sed -i -e '/${testCase}/{
-      ${jumpAndAppend} t.Skip();
-      }' ${file}
-    '';
 in
 buildGoModule rec {
   pname = "grafana";
-  version = "10.3.3";
+  version = "11.5.2";
 
-  excludedPackages = [ "alert_webhook_listener" "clean-swagger" "release_publisher" "slow_proxy" "slow_proxy_mac" "macaron" "devenv" "modowners" ];
+  subPackages = [
+    "pkg/cmd/grafana"
+    "pkg/cmd/grafana-server"
+    "pkg/cmd/grafana-cli"
+  ];
 
   src = fetchFromGitHub {
     owner = "grafana";
     repo = "grafana";
     rev = "v${version}";
-    hash = "sha256-uAfHcW9j+al8IIH2N6X5wssQmSXqJjVQzwERBCxGxVE=";
+    hash = "sha256-W0wn19SqqzxHm2fRtsEOru4khNqZziAfzWWc6H+Juew=";
+  };
+
+  # borrowed from: https://github.com/NixOS/nixpkgs/blob/d70d9425f49f9aba3c49e2c389fe6d42bac8c5b0/pkgs/development/tools/analysis/snyk/default.nix#L20-L22
+  env = {
+    CYPRESS_INSTALL_BINARY = 0;
   };
 
   offlineCache = stdenv.mkDerivation {
     name = "${pname}-${version}-yarn-offline-cache";
-    inherit src;
+    inherit src env;
     nativeBuildInputs = [
-      yarn nodejs cacert
-      jq moreutils
-    ];
-    postPatch = ''
-      ${patchAwayGrafanaE2E}
-    '';
+      yarn
+      nodejs
+      cacert
+      jq
+      moreutils
+      # required to run old node-gyp
+      (python3.withPackages (ps: [ ps.distutils ]))
+      git
+      # @esfx/equatable@npm:1.0.2 fails to build on darwin as it requires `xcbuild`
+    ] ++ lib.optionals stdenv.hostPlatform.isDarwin [ xcbuild.xcbuild ];
     buildPhase = ''
       runHook preBuild
       export HOME="$(mktemp -d)"
       yarn config set enableTelemetry 0
       yarn config set cacheFolder $out
-      yarn config set --json supportedArchitectures.os '[ "linux" ]'
+      yarn config set --json supportedArchitectures.os '[ "linux", "darwin" ]'
       yarn config set --json supportedArchitectures.cpu '["arm", "arm64", "ia32", "x64"]'
       yarn
       runHook postBuild
@@ -67,18 +79,34 @@ buildGoModule rec {
     dontInstall = true;
     dontFixup = true;
     outputHashMode = "recursive";
-    outputHash = "sha256-70eMa8E483f/Bz7iy+4Seap1EfIdjD5krnt6W9CUows=";
+    outputHash =
+      rec {
+        x86_64-linux = "sha256-8KoSBzcEih9UKOkbcNTN1pZz/wVTedJ8qLRe+uXV/dE=";
+        aarch64-linux = x86_64-linux;
+        aarch64-darwin = "sha256-XW6AV0tzrEWizn4G0KEXegEcNmlTJl6mZ92ZRmz17HM=";
+        x86_64-darwin = aarch64-darwin;
+      }
+      .${stdenv.hostPlatform.system} or (throw "Unsupported system: ${stdenv.hostPlatform.system}");
   };
 
   disallowedRequisites = [ offlineCache ];
 
-  vendorHash = "sha256-nGv/DBNnQ4AOJtrsYIGLCrV1xNmBN0dDf6u46R3TAHo=";
+  postPatch = patchGoVersion;
 
-  nativeBuildInputs = [ wire yarn jq moreutils removeReferencesTo python3 ];
+  vendorHash = "sha256-Pt87hb0+EuGd62ld65jTszeTy7GZZbviH8X9qCGOaJQ=";
 
-  postPatch = ''
-    ${patchAwayGrafanaE2E}
-  '';
+  proxyVendor = true;
+
+  nativeBuildInputs = [
+    wire
+    yarn
+    jq
+    moreutils
+    removeReferencesTo
+    # required to run old node-gyp
+    (python3.withPackages (ps: [ ps.distutils ]))
+    faketty
+  ] ++ lib.optionals stdenv.hostPlatform.isDarwin [ xcbuild.xcbuild ];
 
   postConfigure = ''
     # Generate DI code that's required to compile the package.
@@ -86,39 +114,8 @@ buildGoModule rec {
     wire gen -tags oss ./pkg/server
     wire gen -tags oss ./pkg/cmd/grafana-cli/runner
 
-    GOARCH= CGO_ENABLED=0 go generate ./pkg/plugins/plugindef
     GOARCH= CGO_ENABLED=0 go generate ./kinds/gen.go
     GOARCH= CGO_ENABLED=0 go generate ./public/app/plugins/gen.go
-    GOARCH= CGO_ENABLED=0 go generate ./pkg/kindsys/report.go
-
-    # Work around `main module (github.com/grafana/grafana) does not contain package github.com/grafana/grafana/pkg/util/xorm`.
-    # Apparently these files confuse the dependency resolution for the go builder implemented here.
-    rm pkg/util/xorm/go.{mod,sum}
-
-    # The testcase makes an API call against grafana.com:
-    #
-    # [...]
-    # grafana> t=2021-12-02T14:24:58+0000 lvl=dbug msg="Failed to get latest.json repo from github.com" logger=update.checker error="Get \"https://raw.githubusercontent.com/grafana/grafana/main/latest.json\": dial tcp: lookup raw.githubusercontent.com on [::1]:53: read udp [::1]:36391->[::1]:53: read: connection refused"
-    # grafana> t=2021-12-02T14:24:58+0000 lvl=dbug msg="Failed to get plugins repo from grafana.com" logger=plugin.manager error="Get \"https://grafana.com/api/plugins/versioncheck?slugIn=&grafanaVersion=\": dial tcp: lookup grafana.com on [::1]:53: read udp [::1]:41796->[::1]:53: read: connection refused"
-    ${skipTest 1 "Request is not forbidden if from an admin" "pkg/tests/api/plugins/api_plugins_test.go"}
-
-    # Skip a flaky test (https://github.com/NixOS/nixpkgs/pull/126928#issuecomment-861424128)
-    ${skipTest 2 "it should change folder successfully and return correct result" "pkg/services/libraryelements/libraryelements_patch_test.go"}
-
-    # Skip flaky tests (https://logs.ofborg.org/?key=nixos/nixpkgs.263185&attempt_id=5b056a17-67a7-4b74-9dc7-888eb1d6c2dd)
-    ${skipTest 1 "TestIntegrationRulerAccess" "pkg/tests/api/alerting/api_alertmanager_test.go"}
-    ${skipTest 1 "TestIntegrationRulePause" "pkg/tests/api/alerting/api_ruler_test.go"}
-
-    # main module (github.com/grafana/grafana) does not contain package github.com/grafana/grafana/scripts/go
-    rm -r scripts/go
-
-    # Requires making API calls against storage.googleapis.com:
-    #
-    # [...]
-    # grafana> 2023/08/24 08:30:23 failed to copy objects, err: Post "https://storage.googleapis.com/upload/storage/v1/b/grafana-testing-repo/o?alt=json&name=test-path%2Fbuild%2FTestCopyLocalDir2194093976%2F001%2Ffile2.txt&prettyPrint=false&projection=full&uploadType=multipart": dial tcp: lookup storage.googleapis.com on [::1]:53: read udp [::1]:36436->[::1]:53: read: connection refused
-    # grafana> panic: test timed out after 10m0s
-    rm pkg/build/gcloud/storage/gsutil_test.go
-
     # Setup node_modules
     export HOME="$(mktemp -d)"
 
@@ -131,7 +128,7 @@ buildGoModule rec {
 
     yarn config set enableTelemetry 0
     yarn config set cacheFolder $offlineCache
-    yarn --immutable-cache
+    yarn install --immutable-cache
 
     # The build OOMs on memory constrained aarch64 without this
     export NODE_OPTIONS=--max_old_space_size=4096
@@ -139,12 +136,16 @@ buildGoModule rec {
 
   postBuild = ''
     # After having built all the Go code, run the JS builders now.
-    yarn run build
+
+    # Workaround for https://github.com/nrwl/nx/issues/22445
+    faketty yarn run build
     yarn run plugins:build-bundled
   '';
 
   ldflags = [
-    "-s" "-w" "-X main.version=${version}"
+    "-s"
+    "-w"
+    "-X main.version=${version}"
   ];
 
   # Tests start http servers which need to bind to local addresses:
@@ -175,10 +176,22 @@ buildGoModule rec {
 
   meta = with lib; {
     description = "Gorgeous metric viz, dashboards & editors for Graphite, InfluxDB & OpenTSDB";
-    license = licenses.agpl3;
+    license = licenses.agpl3Only;
     homepage = "https://grafana.com";
-    maintainers = with maintainers; [ offline fpletz willibutz globin ma27 Frostman ];
-    platforms = platforms.linux ++ platforms.darwin;
+    maintainers = with maintainers; [
+      offline
+      fpletz
+      willibutz
+      globin
+      ma27
+      Frostman
+    ];
+    platforms = [
+      "x86_64-linux"
+      "x86_64-darwin"
+      "aarch64-linux"
+      "aarch64-darwin"
+    ];
     mainProgram = "grafana-server";
   };
 }

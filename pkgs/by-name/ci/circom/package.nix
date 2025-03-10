@@ -1,24 +1,27 @@
-{ lib
-, rustPlatform
-, fetchFromGitHub
+{
+  lib,
+  rustPlatform,
+  fetchFromGitHub,
 }:
 
 rustPlatform.buildRustPackage rec {
   pname = "circom";
-  version = "2.1.8";
+  version = "2.2.1";
 
   src = fetchFromGitHub {
     owner = "iden3";
     repo = "circom";
     rev = "v${version}";
-    hash = "sha256-S+POXACM2XswpIaUze/wfVj2QYjRKJ2JGP1L88dfHA8=";
+    hash = "sha256-Vwu2DAWIqzqgo6oXcQxvhn7ssGojQkRRw9sKk7qjREk=";
   };
 
-  cargoHash = "sha256-gf9wWkeibj61Fh9Q+JqKVUVh2WpVBdM1Ei/Dg1/c+5E=";
+  useFetchCargoVendor = true;
+  cargoHash = "sha256-64mKd3M5EpqWASTPz7cqNbDyh4be7xR4fudjcx029u8=";
   doCheck = false;
 
   meta = with lib; {
     description = "zkSnark circuit compiler";
+    mainProgram = "circom";
     homepage = "https://github.com/iden3/circom";
     changelog = "https://github.com/iden3/circom/blob/${src.rev}/RELEASES.md";
     license = licenses.gpl3Only;

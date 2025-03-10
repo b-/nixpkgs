@@ -11,14 +11,14 @@ let
   swanctlParams = import ./swanctl-params.nix lib;
 in  {
   options.services.strongswan-swanctl = {
-    enable = mkEnableOption (lib.mdDoc "strongswan-swanctl service");
+    enable = mkEnableOption "strongswan-swanctl service";
 
     package = mkPackageOption pkgs "strongswan" { };
 
     strongswan.extraConfig = mkOption {
       type = types.str;
       default = "";
-      description = lib.mdDoc ''
+      description = ''
         Contents of the `strongswan.conf` file.
       '';
     };
@@ -42,6 +42,7 @@ in  {
     ];
 
     environment.etc."swanctl/swanctl.conf".source = configFile;
+    environment.etc."strongswan.conf".text = cfg.strongswan.extraConfig;
 
     # The swanctl command complains when the following directories don't exist:
     # See: https://wiki.strongswan.org/projects/strongswan/wiki/Swanctldirectory
@@ -67,14 +68,10 @@ in  {
       wants    = [ "network-online.target" ];
       after    = [ "network-online.target" ];
       path     = with pkgs; [ kmod iproute2 iptables util-linux ];
-      environment = {
-        STRONGSWAN_CONF = pkgs.writeTextFile {
-          name = "strongswan.conf";
-          text = cfg.strongswan.extraConfig;
-        };
-        SWANCTL_DIR = "/etc/swanctl";
-      };
-      restartTriggers = [ config.environment.etc."swanctl/swanctl.conf".source ];
+      restartTriggers = [
+        config.environment.etc."swanctl/swanctl.conf".source
+        config.environment.etc."strongswan.conf".source
+      ];
       serviceConfig = {
         ExecStart     = "${cfg.package}/sbin/charon-systemd";
         Type          = "notify";

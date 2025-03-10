@@ -1,80 +1,77 @@
-{ lib
-, agate
-, buildPythonPackage
-, cffi
-, click
-, colorama
-, dbt-extractor
-, dbt-semantic-interfaces
-, fetchFromGitHub
-, hologram
-, idna
-, isodate
-, jinja2
-, logbook
-, mashumaro
-, minimal-snowplow-tracker
-, networkx
-, packaging
-, pathspec
-, protobuf
-, python3
-, pythonOlder
-, pythonRelaxDepsHook
-, pytz
-, pyyaml
-, requests
-, setuptools
-, sqlparse
-, typing-extensions
-, urllib3
-, werkzeug
+{
+  lib,
+  agate,
+  buildPythonPackage,
+  click,
+  daff,
+  dbt-adapters,
+  dbt-common,
+  dbt-extractor,
+  dbt-semantic-interfaces,
+  fetchFromGitHub,
+  jinja2,
+  logbook,
+  mashumaro,
+  networkx,
+  packaging,
+  pathspec,
+  protobuf,
+  callPackage,
+  pythonOlder,
+  pytz,
+  pyyaml,
+  requests,
+  setuptools,
+  snowplow-tracker,
+  sqlparse,
+  typing-extensions,
 }:
 
 buildPythonPackage rec {
   pname = "dbt-core";
-  version = "1.7.8";
+  version = "1.9.2";
   pyproject = true;
 
-  disabled = pythonOlder "3.8";
+  disabled = pythonOlder "3.9";
 
   src = fetchFromGitHub {
     owner = "dbt-labs";
     repo = "dbt-core";
-    rev = "refs/tags/v${version}";
-    hash = "sha256-EpKZiSDU5fivG3TIarirPgxRGQ3Sf1hwNvCKdQx25c0=";
+    tag = "v${version}";
+    hash = "sha256-kCYQgWR9eMI7d7tM6c73dTFOyvcdmjHflTA1JdRJvvM=";
   };
 
   sourceRoot = "${src.name}/core";
 
-  nativeBuildInputs = [
-    pythonRelaxDepsHook
-    setuptools
-  ];
-
   pythonRelaxDeps = [
+    "protobuf"
     "agate"
     "click"
+    "dbt-common"
+    "dbt-semantic-interfaces"
+    "logbook"
     "mashumaro"
     "networkx"
-    "logbook"
+    "pathspec"
+    "protobuf"
     "urllib3"
   ];
 
-  propagatedBuildInputs = [
+  build-system = [
+    setuptools
+  ];
+
+  dependencies = [
     agate
-    cffi
     click
-    colorama
+    daff
+    dbt-adapters
+    dbt-common
     dbt-extractor
     dbt-semantic-interfaces
-    hologram
-    idna
-    isodate
     jinja2
     logbook
     mashumaro
-    minimal-snowplow-tracker
     networkx
     packaging
     pathspec
@@ -82,17 +79,16 @@ buildPythonPackage rec {
     pytz
     pyyaml
     requests
+    snowplow-tracker
     sqlparse
     typing-extensions
-    urllib3
-    werkzeug
   ] ++ mashumaro.optional-dependencies.msgpack;
 
   # tests exist for the dbt tool but not for this package specifically
   doCheck = false;
 
   passthru = {
-    withAdapters = python3.pkgs.callPackage ./with-adapters.nix { };
+    withAdapters = callPackage ./with-adapters.nix { };
   };
 
   meta = with lib; {
@@ -114,9 +110,12 @@ buildPythonPackage rec {
         ])
     '';
     homepage = "https://github.com/dbt-labs/dbt-core";
-    changelog = "https://github.com/dbt-labs/dbt-core/blob/v${version}/CHANGELOG.md";
+    changelog = "https://github.com/dbt-labs/dbt-core/blob/${src.tag}/CHANGELOG.md";
     license = licenses.asl20;
-    maintainers = with maintainers; [ mausch tjni ];
+    maintainers = with maintainers; [
+      mausch
+      tjni
+    ];
     mainProgram = "dbt";
   };
 }

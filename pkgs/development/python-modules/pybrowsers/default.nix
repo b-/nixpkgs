@@ -1,43 +1,38 @@
-{ lib
-, buildPythonPackage
-, fetchFromGitHub
-, poetry-core
-, pythonOlder
-, pyxdg
+{
+  lib,
+  buildPythonPackage,
+  fetchFromGitHub,
+  poetry-core,
+  pythonOlder,
+  pyxdg,
 }:
 
 buildPythonPackage rec {
   pname = "pybrowsers";
-  version = "0.5.2";
+  version = "0.7.0";
   pyproject = true;
 
-  disabled = pythonOlder "3.7";
+  disabled = pythonOlder "3.8";
 
   src = fetchFromGitHub {
     owner = "roniemartinez";
     repo = "browsers";
-    rev = version;
-    hash = "sha256-bsmOUa33VzqWCv2jhu6oukdRhWfpkeAM3FBjiBBwjSQ=";
+    tag = version;
+    hash = "sha256-x8sVWRT9KaKQ6obf7aFcnQFiG8FJAzu93yCzX3hnhFo=";
   };
 
   postPatch = ''
     sed -i "/--cov/d" pyproject.toml
   '';
 
-  nativeBuildInputs = [
-    poetry-core
-  ];
+  nativeBuildInputs = [ poetry-core ];
 
-  propagatedBuildInputs = [
-    pyxdg
-  ];
+  propagatedBuildInputs = [ pyxdg ];
 
   # Tests want to interact with actual browsers
   doCheck = false;
 
-  pythonImportsCheck = [
-    "browsers"
-  ];
+  pythonImportsCheck = [ "browsers" ];
 
   meta = with lib; {
     description = "Python library for detecting and launching browsers";

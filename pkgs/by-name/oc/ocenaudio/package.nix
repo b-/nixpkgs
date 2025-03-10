@@ -1,23 +1,24 @@
-{ stdenv
-, lib
-, fetchurl
-, autoPatchelfHook
-, dpkg
-, qt5
-, libjack2
-, alsa-lib
-, bzip2
-, libpulseaudio
-, xz
+{
+  stdenv,
+  lib,
+  fetchurl,
+  autoPatchelfHook,
+  dpkg,
+  qt5,
+  libjack2,
+  alsa-lib,
+  bzip2,
+  libpulseaudio,
+  xz,
 }:
 
 stdenv.mkDerivation rec {
   pname = "ocenaudio";
-  version = "3.13.4";
+  version = "3.13.8";
 
   src = fetchurl {
     url = "https://www.ocenaudio.com/downloads/index.php/ocenaudio_debian9_64.deb?version=v${version}";
-    hash = "sha256-vE+xwwkBXIksy+6oygLDsrT8mFfHYIGcb6+8KMZe0no=";
+    hash = "sha256-GKNho2xV6Lc4U5Ys4j+ZiGxE8irolcrTttN3PG1S2Ug=";
   };
 
   nativeBuildInputs = [

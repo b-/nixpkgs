@@ -1,44 +1,47 @@
-{ lib
-, buildPythonPackage
-, fetchPypi
-, jsonschema
-, mwcli
-, mwtypes
-, nose
-, pytestCheckHook
+{
+  lib,
+  stdenv,
+  buildPythonPackage,
+  fetchPypi,
+  jsonschema,
+  mwcli,
+  mwtypes,
+  pytestCheckHook,
+  setuptools,
 }:
 
 buildPythonPackage rec {
   pname = "mwxml";
-  version = "0.3.3";
-  format = "setuptools";
+  version = "0.3.5";
+  pyproject = true;
 
   src = fetchPypi {
     inherit pname version;
-    hash = "sha256-CEjfDPLik3GPVUMRrPRxW9Z59jn05Sy+R9ggZYnbHTE=";
+    hash = "sha256-K/5c6BfX2Jo/jcKhCa3hCQ8PtWzqSFZ8xFqe1R/CSEs=";
   };
 
-  propagatedBuildInputs = [
+  build-system = [ setuptools ];
+
+  dependencies = [
     jsonschema
     mwcli
     mwtypes
   ];
 
-  nativeCheckInputs = [
-    nose
-    pytestCheckHook
-  ];
-
-  disabledTests = [
-    "test_page_with_discussion"
-  ];
+  nativeCheckInputs = [ pytestCheckHook ];
 
   pythonImportsCheck = [ "mwxml" ];
 
-  meta = with lib; {
-    description = "A set of utilities for processing MediaWiki XML dump data";
+  disabledTests = lib.optionals stdenv.hostPlatform.isDarwin [
+    # AttributeError: Can't get local object 'map.<locals>.process_path'
+    "test_complex_error_handler"
+  ];
+
+  meta = {
+    description = "Set of utilities for processing MediaWiki XML dump data";
+    mainProgram = "mwxml";
     homepage = "https://github.com/mediawiki-utilities/python-mwxml";
-    license = licenses.mit;
-    maintainers = with maintainers; [ GaetanLepage ];
+    license = lib.licenses.mit;
+    maintainers = with lib.maintainers; [ GaetanLepage ];
   };
 }

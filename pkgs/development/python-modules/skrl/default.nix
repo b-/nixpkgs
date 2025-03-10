@@ -1,29 +1,30 @@
-{ lib
-, buildPythonPackage
-, fetchFromGitHub
-, pythonOlder
-, setuptools
-, gym
-, gymnasium
-, torch
-, tensorboard
-, tqdm
-, wandb
-, packaging
-, pytestCheckHook
+{
+  lib,
+  buildPythonPackage,
+  fetchFromGitHub,
+  pythonOlder,
+  setuptools,
+  gym,
+  gymnasium,
+  torch,
+  tensorboard,
+  tqdm,
+  wandb,
+  packaging,
+  pytestCheckHook,
 }:
 
 buildPythonPackage rec {
   pname = "skrl";
-  version = "1.1.0";
+  version = "1.4.1";
   pyproject = true;
   disabled = pythonOlder "3.6";
 
   src = fetchFromGitHub {
     owner = "Toni-SM";
     repo = pname;
-    rev = "refs/tags/${version}";
-    hash = "sha256-JsE8QQNOqvFQylrPuHEjejOTeQL652rM0EteAfLyeVI=";
+    tag = version;
+    hash = "sha256-5Poc079E+6jpNsm/WUFBXqsIKWZpIIAW0fmoWLVEZDg=";
   };
 
   nativeBuildInputs = [ setuptools ];

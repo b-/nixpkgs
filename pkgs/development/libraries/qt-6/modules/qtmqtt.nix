@@ -1,17 +1,18 @@
-{ qtModule
-, fetchFromGitHub
-, qtbase
+{
+  qtModule,
+  fetchFromGitHub,
+  qtbase,
 }:
 
 qtModule rec {
   pname = "qtmqtt";
-  version = "6.6.2";
+  version = "6.8.2";
 
   src = fetchFromGitHub {
     owner = "qt";
     repo = "qtmqtt";
-    rev = "v${version}";
-    hash = "sha256-R8B7Vt/XzI7+17DDZ+TVbqfGKdEfUMiLa1BqzIbo4OM=";
+    tag = "v${version}";
+    hash = "sha256-SIvowzbDmoT06g6pcEbcRy7dXXx6N9jKhkuSr3Ej5P0=";
   };
 
   propagatedBuildInputs = [ qtbase ];

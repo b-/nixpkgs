@@ -1,38 +1,57 @@
-{ lib
-, stdenv
-, fetchFromGitHub
-, rustPlatform
-, Security
-, installShellFiles
+{
+  lib,
+  stdenv,
+  fetchFromGitHub,
+  rustPlatform,
+  Security,
+  installShellFiles,
+  asciidoctor,
 }:
 
 rustPlatform.buildRustPackage rec {
   pname = "git-gone";
-  version = "1.0.0";
+  version = "1.2.5";
 
   src = fetchFromGitHub {
     owner = "swsnr";
     repo = "git-gone";
-    rev = "v${version}";
-    hash = "sha256-cEMFbG7L48s1SigLD/HfQ2NplGZPpO+KIgs3oV3rgQQ=";
+    tag = "v${version}";
+    hash = "sha256-4BhFombZCmv/GNG2OcNlWNKTk2h65yKn1ku734gCBCQ=";
   };
 
-  cargoHash = "sha256-CCPVjOWM59ELd4AyT968v6kvGdVwkMxxLZGDiJlLkzA=";
+  # remove if updating to rust 1.85
+  postPatch = ''
+    substituteInPlace Cargo.toml \
+      --replace-fail "[package]" ''$'cargo-features = ["edition2024"]\n[package]'
+  '';
 
-  nativeBuildInputs = [ installShellFiles ];
+  useFetchCargoVendor = true;
+  cargoHash = "sha256-VjnnrVN+uST99paImI1uNj34CNozid7ZiPslJqvmKCs=";
 
-  buildInputs = lib.optionals stdenv.isDarwin [ Security ];
+  # remove if updating to rust 1.85
+  env.RUSTC_BOOTSTRAP = 1;
+
+  nativeBuildInputs = [
+    installShellFiles
+    asciidoctor
+  ];
+
+  buildInputs = lib.optionals stdenv.hostPlatform.isDarwin [ Security ];
 
   postInstall = ''
+    asciidoctor --backend=manpage git-gone.1.adoc -o git-gone.1
     installManPage git-gone.1
   '';
 
-  meta = with lib; {
+  meta = {
     description = "Cleanup stale Git branches of merge requests";
     homepage = "https://github.com/swsnr/git-gone";
     changelog = "https://github.com/swsnr/git-gone/raw/v${version}/CHANGELOG.md";
-    license = licenses.asl20;
-    maintainers = [ maintainers.marsam ];
+    license = lib.licenses.asl20;
+    maintainers = with lib.maintainers; [
+      cafkafk
+      matthiasbeyer
+    ];
     mainProgram = "git-gone";
   };
 }
